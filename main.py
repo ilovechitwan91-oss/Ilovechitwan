@@ -5,6 +5,7 @@ import time
 import urllib.request
 import urllib.parse
 import xml.etree.ElementTree as ET
+
 from html import unescape
 from html.parser import HTMLParser
 from datetime import datetime, timezone
@@ -19,6 +20,10 @@ MAX_NEWS = 40
 MAX_DESCRIPTION_CHARS = 3000
 REQUEST_TIMEOUT = 25
 
+# प्रत्येक लाइनमा लगभग यति अक्षर राख्ने
+LINE_LENGTH = 125
+TOTAL_LINES = 4
+
 
 def clean_text(value):
     if not value:
@@ -32,26 +37,31 @@ def clean_text(value):
 
 
 class ArticleParser(HTMLParser):
+
     def __init__(self):
         super().__init__()
+
         self.paragraphs = []
+        self.content_paragraphs = []
         self.current = ""
         self.in_paragraph = False
         self.skip = 0
         self.content_depth = 0
-        self.content_paragraphs = []
         self.script_text = []
         self.in_script = False
 
     def handle_starttag(self, tag, attrs):
+
         tag = tag.lower()
         data = dict(attrs)
 
         classes = data.get("class", "").lower()
         element_id = data.get("id", "").lower()
 
-        if tag in ("script", "style", "nav", "footer",
-                   "header", "aside", "noscript"):
+        if tag in (
+            "script", "style", "nav", "footer",
+            "header", "aside", "noscript"
+        ):
             self.skip += 1
 
             if tag == "script":
@@ -64,16 +74,18 @@ class ArticleParser(HTMLParser):
 
         if (
             tag in ("article", "main")
-            or any(word in classes + " " + element_id
-                   for word in (
-                       "article-content",
-                       "entry-content",
-                       "post-content",
-                       "story-content",
-                       "news-content",
-                       "article-body",
-                       "detail-content"
-                   ))
+            or any(
+                word in classes + " " + element_id
+                for word in (
+                    "article-content",
+                    "entry-content",
+                    "post-content",
+                    "story-content",
+                    "news-content",
+                    "article-body",
+                    "detail-content"
+                )
+            )
         ):
             self.content_depth += 1
 
@@ -82,6 +94,7 @@ class ArticleParser(HTMLParser):
             self.current = ""
 
     def handle_data(self, data):
+
         if self.in_script:
             self.script_text.append(data)
             return
@@ -93,6 +106,7 @@ class ArticleParser(HTMLParser):
             self.current += data
 
     def handle_endtag(self, tag):
+
         tag = tag.lower()
 
         if tag == "script" and self.in_script:
@@ -100,20 +114,22 @@ class ArticleParser(HTMLParser):
             self.skip = max(0, self.skip - 1)
             return
 
-        if tag in ("style", "nav", "footer", "header",
-                   "aside", "noscript"):
+        if tag in (
+            "style", "nav", "footer",
+            "header", "aside", "noscript"
+        ):
             self.skip = max(0, self.skip - 1)
             return
 
         if self.skip:
-            if tag == "script":
-                self.skip = max(0, self.skip - 1)
             return
 
         if tag == "p" and self.in_paragraph:
+
             paragraph = clean_text(self.current)
 
             if len(paragraph) > 30:
+
                 self.paragraphs.append(paragraph)
 
                 if self.content_depth:
@@ -129,9 +145,11 @@ class ArticleParser(HTMLParser):
 
 
 def get_page_description(url):
+
     print("Reading full article:", url)
 
     try:
+
         request = urllib.request.Request(
             url,
             headers={
@@ -147,6 +165,7 @@ def get_page_description(url):
             request,
             timeout=REQUEST_TIMEOUT
         ) as response:
+
             html = response.read().decode(
                 "utf-8", errors="replace"
             )
@@ -158,20 +177,27 @@ def get_page_description(url):
 
         # Structured article data
         for script in parser.script_text:
+
             try:
+
                 data = json.loads(script)
 
                 def find_article_body(obj):
+
                     if isinstance(obj, dict):
+
                         body = obj.get("articleBody")
 
                         if isinstance(body, str):
-                            candidates.append(clean_text(body))
+                            candidates.append(
+                                clean_text(body)
+                            )
 
                         for value in obj.values():
                             find_article_body(value)
 
                     elif isinstance(obj, list):
+
                         for value in obj:
                             find_article_body(value)
 
@@ -180,7 +206,7 @@ def get_page_description(url):
             except Exception:
                 pass
 
-        # Main article paragraphs
+        # Full article paragraphs
         paragraphs = (
             parser.content_paragraphs
             if parser.content_paragraphs
@@ -190,7 +216,7 @@ def get_page_description(url):
         if paragraphs:
             candidates.append(" ".join(paragraphs))
 
-        # Meta descriptions
+        # Meta description
         for match in re.findall(
             r'<meta[^>]+(?:name|property)=["\']'
             r'(?:description|og:description)["\'][^>]+'
@@ -209,16 +235,20 @@ def get_page_description(url):
             return max(candidates, key=len)
 
     except Exception as error:
+
         print("Article reading error:", str(error))
 
     return ""
 
 
 def get_text(element, names):
+
     for child in element.iter():
+
         tag = child.tag.split("}")[-1].lower()
 
         if tag in names and child.text:
+
             value = child.text.strip()
 
             if value:
@@ -228,9 +258,11 @@ def get_text(element, names):
 
 
 def get_full_description(item):
+
     candidates = []
 
     for child in item.iter():
+
         tag = child.tag.split("}")[-1].lower()
 
         if tag in (
@@ -239,7 +271,9 @@ def get_full_description(item):
             "summary",
             "content"
         ):
+
             if child.text:
+
                 text = clean_text(child.text)
 
                 if text and text not in candidates:
@@ -249,16 +283,20 @@ def get_full_description(item):
 
 
 def get_image(element, description):
+
     for child in element.iter():
+
         tag = child.tag.split("}")[-1].lower()
 
         if tag in ("content", "thumbnail"):
+
             url = child.attrib.get("url")
 
             if url and url.startswith("http"):
                 return url
 
         if tag == "enclosure":
+
             url = child.attrib.get("url")
             media_type = child.attrib.get("type", "")
 
@@ -278,6 +316,7 @@ def get_image(element, description):
 
 
 def limit_description(text):
+
     text = re.sub(r"\s+", " ", str(text or "")).strip()
 
     if len(text) <= MAX_DESCRIPTION_CHARS:
@@ -285,13 +324,78 @@ def limit_description(text):
 
     shortened = text[:MAX_DESCRIPTION_CHARS]
 
-    # Avoid cutting in the middle of a word.
-    shortened = shortened.rsplit(" ", 1)[0]
+    return shortened.rsplit(" ", 1)[0].strip()
 
-    return shortened.strip()
+
+def make_four_lines(text):
+
+    """
+    समाचारलाई चारवटा लामो लाइनमा विभाजन गर्छ।
+    कुनै नयाँ वा काल्पनिक समाचार थप्दैन।
+    """
+
+    text = clean_text(text)
+
+    if not text:
+        return ""
+
+    # अनावश्यक दोहोरिएका खाली ठाउँ हटाउने
+    text = re.sub(r"\s+", " ", text).strip()
+
+    # धेरै लामो विवरण भए उपयोगी भाग मात्र लिने
+    text = limit_description(text)
+
+    words = text.split()
+
+    if not words:
+        return ""
+
+    lines = []
+    current = ""
+
+    for word in words:
+
+        if not current:
+            current = word
+            continue
+
+        # प्रत्येक लाइनलाई सन्तुलित राख्ने
+        if len(current) + len(word) + 1 <= LINE_LENGTH:
+
+            current += " " + word
+
+        else:
+
+            lines.append(current)
+            current = word
+
+            if len(lines) == TOTAL_LINES - 1:
+                break
+
+    if current and len(lines) < TOTAL_LINES:
+        lines.append(current)
+
+    # बाँकी शब्दलाई चौथो लाइनमा थप्ने
+    used_words = sum(
+        len(line.split()) for line in lines
+    )
+
+    remaining = words[used_words:]
+
+    if remaining and lines:
+
+        lines[-1] += " " + " ".join(remaining)
+
+    # चार लाइन नपुगेमा उपलब्ध वाक्यलाई
+    # खाली लाइन नराखी सन्तुलित गर्ने
+    if len(lines) > TOTAL_LINES:
+        lines = lines[:TOTAL_LINES]
+
+    return "\n".join(lines)
 
 
 def fetch_feed(source, feed_url):
+
     print("Fetching:", source)
 
     request = urllib.request.Request(
@@ -305,12 +409,15 @@ def fetch_feed(source, feed_url):
         request,
         timeout=30
     ) as response:
+
         xml_data = response.read()
 
     root = ET.fromstring(xml_data)
+
     articles = []
 
     for item in root.iter():
+
         tag = item.tag.split("}")[-1].lower()
 
         if tag not in ("item", "entry"):
@@ -325,9 +432,11 @@ def fetch_feed(source, feed_url):
         link = ""
 
         for child in item.iter():
+
             child_tag = child.tag.split("}")[-1].lower()
 
             if child_tag == "link":
+
                 link = (
                     child.attrib.get("href")
                     or child.text
@@ -342,27 +451,33 @@ def fetch_feed(source, feed_url):
 
         link = urllib.parse.urljoin(feed_url, link)
 
-        # First get RSS description
+        # RSS विवरण
         rss_description = clean_text(raw_description)
 
-        # Then try to get full article from website
+        # वेबसाइटबाट पूरा समाचार
         website_description = get_page_description(link)
 
-        # Select the longest available description
         descriptions = [
             value for value in (
-                rss_description,
-                website_description
+                website_description,
+                rss_description
             )
             if value and len(value) > len(title) + 20
         ]
 
         if descriptions:
-            description = max(descriptions, key=len)
+
+            description = max(
+                descriptions,
+                key=len
+            )
+
         else:
+
             description = rss_description or title
 
-        description = limit_description(description)
+        # चारवटा लामो लाइन बनाउने
+        description = make_four_lines(description)
 
         image_url = get_image(
             item,
@@ -375,40 +490,68 @@ def fetch_feed(source, feed_url):
         )
 
         articles.append({
+
             "source": source,
+
             "title": title,
+
             "description": description,
+
             "link": link,
+
             "image_url": image_url,
+
             "published": published,
+
             "collected_at": datetime.now(
                 timezone.utc
             ).isoformat()
+
         })
+
+        print("News prepared:", title)
 
         time.sleep(0.5)
 
-    print(source, "articles found:", len(articles))
+    print(
+        source,
+        "articles found:",
+        len(articles)
+    )
 
     return articles
 
 
 def main():
+
     all_articles = []
     failed_sources = []
 
     for source, feed_url in FEEDS.items():
+
         try:
-            articles = fetch_feed(source, feed_url)
+
+            articles = fetch_feed(
+                source,
+                feed_url
+            )
+
             all_articles.extend(articles)
 
         except Exception as error:
-            print("Feed error:", source, str(error))
+
+            print(
+                "Feed error:",
+                source,
+                str(error)
+            )
+
             failed_sources.append(source)
 
         time.sleep(2)
 
     if not all_articles:
+
         raise RuntimeError(
             "No news received. Existing news.json was not changed."
         )
@@ -416,6 +559,7 @@ def main():
     unique = {}
 
     for article in all_articles:
+
         link = (
             article["link"]
             .split("#")[0]
@@ -428,6 +572,7 @@ def main():
     news = list(unique.values())[:MAX_NEWS]
 
     output = {
+
         "updated_at": datetime.now(
             timezone.utc
         ).isoformat(),
@@ -437,6 +582,7 @@ def main():
         "failed_sources": failed_sources,
 
         "articles": news
+
     }
 
     with open(
@@ -444,6 +590,7 @@ def main():
         "w",
         encoding="utf-8"
     ) as file:
+
         json.dump(
             output,
             file,
