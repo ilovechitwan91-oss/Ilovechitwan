@@ -3,7 +3,6 @@ import json
 import re
 import time
 import urllib.request
-import urllib.error
 import xml.etree.ElementTree as ET
 from html import unescape
 from html.parser import HTMLParser
@@ -36,10 +35,14 @@ def clean_html(value):
         return ""
 
     value = unescape(str(value))
-    value = re.sub(r"<script.*?</script>", " ", value,
-                   flags=re.I | re.S)
-    value = re.sub(r"<style.*?</style>", " ", value,
-                   flags=re.I | re.S)
+    value = re.sub(
+        r"<script.*?</script>", " ",
+        value, flags=re.I | re.S
+    )
+    value = re.sub(
+        r"<style.*?</style>", " ",
+        value, flags=re.I | re.S
+    )
     value = re.sub(r"<[^>]+>", " ", value)
     value = re.sub(r"\s+", " ", value)
 
@@ -57,7 +60,6 @@ def get_text(element, names):
 
 
 def get_image(element, description):
-    # First check RSS image attachments
     for child in element.iter():
         tag = child.tag.split("}")[-1].lower()
 
@@ -69,11 +71,13 @@ def get_image(element, description):
         if tag == "enclosure":
             url = child.attrib.get("url")
             media_type = child.attrib.get("type", "")
-            if url and (media_type.startswith("image")
-                        or not media_type):
+
+            if url and (
+                media_type.startswith("image")
+                or not media_type
+            ):
                 return url
 
-    # Then check images inside the article summary
     parser = ImageParser()
 
     try:
@@ -87,13 +91,53 @@ def get_image(element, description):
     return ""
 
 
+def limit_complete_sentences(text, max_chars=1800):
+    """
+    नेपाली पूर्णविराम, अंग्रेजी full stop र प्रश्नचिह्नमा
+    पूरा वाक्य छुट्याएर मात्र विवरण छोट्याउने।
+    """
+    text = str(text or "").strip()
+
+    if len(text) <= max_chars:
+        return text
+
+    sentences = re.split(
+        r"(?<=[।.!?])\s+",
+        text
+    )
+
+    result = []
+    total = 0
+
+    for sentence in sentences:
+        sentence = sentence.strip()
+
+        if not sentence:
+            continue
+
+        extra = len(sentence) + (1 if result else 0)
+
+        if result and total + extra > max_chars:
+            break
+
+        result.append(sentence)
+        total += extra
+
+        if total >= max_chars:
+            break
+
+    # वाक्य छुट्याउन नसकिएमा बीचमै काट्नुको सट्टा
+    # मूल विवरण सुरक्षित राख्ने।
+    return " ".join(result) if result else text
+
+
 def fetch_feed(source, feed_url):
     print("Fetching:", source)
 
     request = urllib.request.Request(
         feed_url,
         headers={
-            "User-Agent": "WorldNewsAutomation/1.0"
+            "User-Agent": "Mozilla/5.0 NewsAutomation/1.0"
         }
     )
 
@@ -101,7 +145,6 @@ def fetch_feed(source, feed_url):
         xml_data = response.read()
 
     root = ET.fromstring(xml_data)
-
     articles = []
 
     for item in root.iter():
@@ -111,8 +154,10 @@ def fetch_feed(source, feed_url):
             continue
 
         title = get_text(item, ["title"])
+
         description = get_text(
-            item, ["encoded", "description", "summary"]
+            item,
+            ["encoded", "description", "summary", "content"]
         )
 
         link = ""
@@ -122,6 +167,7 @@ def fetch_feed(source, feed_url):
 
             if child_tag == "link":
                 link = child.attrib.get("href") or child.text or ""
+
                 if link:
                     break
 
@@ -134,16 +180,19 @@ def fetch_feed(source, feed_url):
         if not summary:
             summary = title
 
+        summary = limit_complete_sentences(summary)
+
         image_url = get_image(item, description)
 
         published = get_text(
-            item, ["pubdate", "published", "updated"]
+            item,
+            ["pubdate", "published", "updated"]
         )
 
         articles.append({
             "source": source,
             "title": title,
-            "description": summary[:1500],
+            "description": summary,
             "link": link.strip(),
             "image_url": image_url,
             "published": published,
@@ -153,6 +202,7 @@ def fetch_feed(source, feed_url):
         })
 
     print(source, "articles found:", len(articles))
+
     return articles
 
 
@@ -176,11 +226,11 @@ def main():
             "No news received. Existing news.json was not changed."
         )
 
-    # Remove duplicate article links
     unique = {}
 
     for article in all_articles:
         link = article["link"].split("#")[0].rstrip("/")
+
         if link and link not in unique:
             unique[link] = article
 
