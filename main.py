@@ -3,6 +3,7 @@ import json
 import re
 import time
 import urllib.request
+import urllib.parse
 import xml.etree.ElementTree as ET
 from html import unescape
 from html.parser import HTMLParser
@@ -16,58 +17,201 @@ FEEDS = {
 OUTPUT_FILE = "news.json"
 MAX_NEWS = 40
 MAX_DESCRIPTION_CHARS = 3000
+REQUEST_TIMEOUT = 25
 
 
-class ImageParser(HTMLParser):
-    def __init__(self):
-        super().__init__()
-        self.images = []
-
-    def handle_starttag(self, tag, attrs):
-        if tag.lower() == "img":
-            data = dict(attrs)
-            url = (
-                data.get("src")
-                or data.get("data-src")
-                or data.get("data-lazy-src")
-            )
-            if url and url.startswith("http"):
-                self.images.append(url)
-
-
-def clean_html(value):
+def clean_text(value):
     if not value:
         return ""
 
     value = unescape(str(value))
-
-    value = re.sub(
-        r"<script.*?</script>",
-        " ",
-        value,
-        flags=re.I | re.S
-    )
-
-    value = re.sub(
-        r"<style.*?</style>",
-        " ",
-        value,
-        flags=re.I | re.S
-    )
-
-    value = re.sub(
-        r"<[^>]+>",
-        " ",
-        value
-    )
-
-    value = re.sub(
-        r"\s+",
-        " ",
-        value
-    )
+    value = re.sub(r"<[^>]+>", " ", value)
+    value = re.sub(r"\s+", " ", value)
 
     return value.strip()
+
+
+class ArticleParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.paragraphs = []
+        self.current = ""
+        self.in_paragraph = False
+        self.skip = 0
+        self.content_depth = 0
+        self.content_paragraphs = []
+        self.script_text = []
+        self.in_script = False
+
+    def handle_starttag(self, tag, attrs):
+        tag = tag.lower()
+        data = dict(attrs)
+
+        classes = data.get("class", "").lower()
+        element_id = data.get("id", "").lower()
+
+        if tag in ("script", "style", "nav", "footer",
+                   "header", "aside", "noscript"):
+            self.skip += 1
+
+            if tag == "script":
+                self.in_script = True
+
+            return
+
+        if self.skip:
+            return
+
+        if (
+            tag in ("article", "main")
+            or any(word in classes + " " + element_id
+                   for word in (
+                       "article-content",
+                       "entry-content",
+                       "post-content",
+                       "story-content",
+                       "news-content",
+                       "article-body",
+                       "detail-content"
+                   ))
+        ):
+            self.content_depth += 1
+
+        if tag == "p":
+            self.in_paragraph = True
+            self.current = ""
+
+    def handle_data(self, data):
+        if self.in_script:
+            self.script_text.append(data)
+            return
+
+        if self.skip:
+            return
+
+        if self.in_paragraph:
+            self.current += data
+
+    def handle_endtag(self, tag):
+        tag = tag.lower()
+
+        if tag == "script" and self.in_script:
+            self.in_script = False
+            self.skip = max(0, self.skip - 1)
+            return
+
+        if tag in ("style", "nav", "footer", "header",
+                   "aside", "noscript"):
+            self.skip = max(0, self.skip - 1)
+            return
+
+        if self.skip:
+            if tag == "script":
+                self.skip = max(0, self.skip - 1)
+            return
+
+        if tag == "p" and self.in_paragraph:
+            paragraph = clean_text(self.current)
+
+            if len(paragraph) > 30:
+                self.paragraphs.append(paragraph)
+
+                if self.content_depth:
+                    self.content_paragraphs.append(paragraph)
+
+            self.current = ""
+            self.in_paragraph = False
+
+        if tag in ("article", "main"):
+            self.content_depth = max(
+                0, self.content_depth - 1
+            )
+
+
+def get_page_description(url):
+    print("Reading full article:", url)
+
+    try:
+        request = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 Chrome/120 Safari/537.36"
+                ),
+                "Accept-Language": "ne-NP,ne;q=0.9,en;q=0.8"
+            }
+        )
+
+        with urllib.request.urlopen(
+            request,
+            timeout=REQUEST_TIMEOUT
+        ) as response:
+            html = response.read().decode(
+                "utf-8", errors="replace"
+            )
+
+        parser = ArticleParser()
+        parser.feed(html)
+
+        candidates = []
+
+        # Structured article data
+        for script in parser.script_text:
+            try:
+                data = json.loads(script)
+
+                def find_article_body(obj):
+                    if isinstance(obj, dict):
+                        body = obj.get("articleBody")
+
+                        if isinstance(body, str):
+                            candidates.append(clean_text(body))
+
+                        for value in obj.values():
+                            find_article_body(value)
+
+                    elif isinstance(obj, list):
+                        for value in obj:
+                            find_article_body(value)
+
+                find_article_body(data)
+
+            except Exception:
+                pass
+
+        # Main article paragraphs
+        paragraphs = (
+            parser.content_paragraphs
+            if parser.content_paragraphs
+            else parser.paragraphs
+        )
+
+        if paragraphs:
+            candidates.append(" ".join(paragraphs))
+
+        # Meta descriptions
+        for match in re.findall(
+            r'<meta[^>]+(?:name|property)=["\']'
+            r'(?:description|og:description)["\'][^>]+'
+            r'content=["\'](.*?)["\']',
+            html,
+            flags=re.I | re.S
+        ):
+            candidates.append(clean_text(match))
+
+        candidates = [
+            text for text in candidates
+            if len(text) > 80
+        ]
+
+        if candidates:
+            return max(candidates, key=len)
+
+    except Exception as error:
+        print("Article reading error:", str(error))
+
+    return ""
 
 
 def get_text(element, names):
@@ -84,10 +228,6 @@ def get_text(element, names):
 
 
 def get_full_description(item):
-    """
-    RSS मा उपलब्ध सबैभन्दा लामो description/content लिने।
-    """
-
     candidates = []
 
     for child in item.iter():
@@ -100,16 +240,12 @@ def get_full_description(item):
             "content"
         ):
             if child.text:
-                text = clean_html(child.text)
+                text = clean_text(child.text)
 
                 if text and text not in candidates:
                     candidates.append(text)
 
-    if not candidates:
-        return ""
-
-    # उपलब्ध विवरणमध्ये सबैभन्दा लामो विवरण प्रयोग गर्ने।
-    return max(candidates, key=len)
+    return max(candidates, key=len) if candidates else ""
 
 
 def get_image(element, description):
@@ -132,55 +268,27 @@ def get_image(element, description):
             ):
                 return url
 
-    parser = ImageParser()
-
-    try:
-        parser.feed(description)
-    except Exception:
-        pass
-
-    if parser.images:
-        return parser.images[0]
-
-    return ""
-
-
-def limit_complete_sentences(text, max_chars=3000):
-    """
-    विवरण लामो राख्ने र सम्भव भएसम्म पूरा वाक्य मात्र राख्ने।
-    """
-
-    text = re.sub(r"\s+", " ", str(text or "")).strip()
-
-    if len(text) <= max_chars:
-        return text
-
-    sentences = re.split(
-        r"(?<=[।.!?])\s+",
-        text
+    match = re.search(
+        r'<img[^>]+src=["\'](https?://[^"\']+)',
+        description or "",
+        flags=re.I
     )
 
-    result = []
-    total = 0
+    return match.group(1) if match else ""
 
-    for sentence in sentences:
-        sentence = sentence.strip()
 
-        if not sentence:
-            continue
+def limit_description(text):
+    text = re.sub(r"\s+", " ", str(text or "")).strip()
 
-        extra = len(sentence) + (1 if result else 0)
+    if len(text) <= MAX_DESCRIPTION_CHARS:
+        return text
 
-        if result and total + extra > max_chars:
-            break
+    shortened = text[:MAX_DESCRIPTION_CHARS]
 
-        result.append(sentence)
-        total += extra
+    # Avoid cutting in the middle of a word.
+    shortened = shortened.rsplit(" ", 1)[0]
 
-    if result:
-        return " ".join(result)
-
-    return text[:max_chars].rsplit(" ", 1)[0]
+    return shortened.strip()
 
 
 def fetch_feed(source, feed_url):
@@ -189,7 +297,7 @@ def fetch_feed(source, feed_url):
     request = urllib.request.Request(
         feed_url,
         headers={
-            "User-Agent": "Mozilla/5.0 NewsAutomation/1.0"
+            "User-Agent": "Mozilla/5.0 NewsAutomation/2.0"
         }
     )
 
@@ -208,7 +316,9 @@ def fetch_feed(source, feed_url):
         if tag not in ("item", "entry"):
             continue
 
-        title = get_text(item, ["title"])
+        title = clean_text(
+            get_text(item, ["title"])
+        )
 
         raw_description = get_full_description(item)
 
@@ -222,7 +332,7 @@ def fetch_feed(source, feed_url):
                     child.attrib.get("href")
                     or child.text
                     or ""
-                )
+                ).strip()
 
                 if link:
                     break
@@ -230,17 +340,29 @@ def fetch_feed(source, feed_url):
         if not title or not link:
             continue
 
-        title = clean_html(title)
+        link = urllib.parse.urljoin(feed_url, link)
 
-        summary = clean_html(raw_description)
+        # First get RSS description
+        rss_description = clean_text(raw_description)
 
-        if not summary:
-            summary = title
+        # Then try to get full article from website
+        website_description = get_page_description(link)
 
-        summary = limit_complete_sentences(
-            summary,
-            MAX_DESCRIPTION_CHARS
-        )
+        # Select the longest available description
+        descriptions = [
+            value for value in (
+                rss_description,
+                website_description
+            )
+            if value and len(value) > len(title) + 20
+        ]
+
+        if descriptions:
+            description = max(descriptions, key=len)
+        else:
+            description = rss_description or title
+
+        description = limit_description(description)
 
         image_url = get_image(
             item,
@@ -255,8 +377,8 @@ def fetch_feed(source, feed_url):
         articles.append({
             "source": source,
             "title": title,
-            "description": summary,
-            "link": link.strip(),
+            "description": description,
+            "link": link,
             "image_url": image_url,
             "published": published,
             "collected_at": datetime.now(
@@ -264,11 +386,9 @@ def fetch_feed(source, feed_url):
             ).isoformat()
         })
 
-    print(
-        source,
-        "articles found:",
-        len(articles)
-    )
+        time.sleep(0.5)
+
+    print(source, "articles found:", len(articles))
 
     return articles
 
@@ -279,20 +399,11 @@ def main():
 
     for source, feed_url in FEEDS.items():
         try:
-            articles = fetch_feed(
-                source,
-                feed_url
-            )
-
+            articles = fetch_feed(source, feed_url)
             all_articles.extend(articles)
 
         except Exception as error:
-            print(
-                "Feed error:",
-                source,
-                str(error)
-            )
-
+            print("Feed error:", source, str(error))
             failed_sources.append(source)
 
         time.sleep(2)
@@ -333,7 +444,6 @@ def main():
         "w",
         encoding="utf-8"
     ) as file:
-
         json.dump(
             output,
             file,
