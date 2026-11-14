@@ -3,9 +3,7 @@ name: I Love Chitwan News Automation
 
 on:
   workflow_dispatch:
-
   schedule:
-    # Nepal time: 6 AM to 8 PM
     - cron: '15,35,55 0-13 * * *'
     - cron: '15 14 * * *'
 
@@ -26,10 +24,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Sync Repository
-        run: |
-          git pull --rebase origin main
-
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -46,12 +40,18 @@ jobs:
           pip install -r requirements.txt
 
       - name: Collect News
-        run: |
-          python main.py
+        run: python main.py
 
       - name: Generate News Photos
-        run: |
-          python make_image.py
+        run: python make_image.py
+
+      - name: Upload News Photos
+        uses: actions/upload-artifact@v4
+        with:
+          name: ilovechitwan-news-photos
+          path: news_images/
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Save News and Photos
         run: |
@@ -62,6 +62,7 @@ jobs:
 
           if ! git diff --cached --quiet; then
             git commit -m "Update latest news and photos"
+            git pull --rebase origin main
             git push origin main
           else
             echo "No new changes to save"
