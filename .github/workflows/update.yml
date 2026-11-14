@@ -54,16 +54,29 @@ jobs:
           retention-days: 7
 
       - name: Save News and Photos
+        shell: bash
         run: |
+          set -euo pipefail
+
           git config user.name "I Love Chitwan News Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          mkdir -p /tmp/generated-news
+          cp news.json /tmp/generated-news/news.json
+          cp -a news_images /tmp/generated-news/news_images
+
+          git fetch origin main
+          git reset --hard origin/main
+
+          cp /tmp/generated-news/news.json news.json
+          rm -rf news_images
+          cp -a /tmp/generated-news/news_images news_images
+
           git add news.json news_images/
 
-          if ! git diff --cached --quiet; then
-            git commit -m "Update latest news and photos"
-            git pull --rebase origin main
-            git push origin main
-          else
+          if git diff --cached --quiet; then
             echo "No new changes to save"
+          else
+            git commit -m "Update latest news and photos"
+            git push origin HEAD:main
           fi
