@@ -17,12 +17,13 @@ FEEDS = {
 
 OUTPUT_FILE = "news.json"
 MAX_NEWS = 40
-MAX_DESCRIPTION_CHARS = 3000
+MAX_DESCRIPTION_CHARS = 5000
 REQUEST_TIMEOUT = 25
 
-# प्रत्येक लाइनमा लगभग यति अक्षर राख्ने
-LINE_LENGTH = 125
+# समाचार विवरणको सेटिङ
+LINE_LENGTH = 180
 TOTAL_LINES = 4
+MIN_DESCRIPTION_LENGTH = 450
 
 
 def clean_text(value):
@@ -175,7 +176,6 @@ def get_page_description(url):
 
         candidates = []
 
-        # Structured article data
         for script in parser.script_text:
 
             try:
@@ -206,7 +206,6 @@ def get_page_description(url):
             except Exception:
                 pass
 
-        # Full article paragraphs
         paragraphs = (
             parser.content_paragraphs
             if parser.content_paragraphs
@@ -216,7 +215,6 @@ def get_page_description(url):
         if paragraphs:
             candidates.append(" ".join(paragraphs))
 
-        # Meta description
         for match in re.findall(
             r'<meta[^>]+(?:name|property)=["\']'
             r'(?:description|og:description)["\'][^>]+'
@@ -327,11 +325,41 @@ def limit_description(text):
     return shortened.rsplit(" ", 1)[0].strip()
 
 
+def remove_duplicate_sentences(text):
+
+    sentences = re.split(
+        r'(?<=[।!?])\s+',
+        text
+    )
+
+    result = []
+    seen = set()
+
+    for sentence in sentences:
+
+        sentence = sentence.strip()
+
+        if len(sentence) < 15:
+            continue
+
+        key = re.sub(
+            r'\s+',
+            ' ',
+            sentence
+        ).lower()
+
+        if key not in seen:
+            seen.add(key)
+            result.append(sentence)
+
+    return " ".join(result)
+
+
 def make_four_lines(text):
 
     """
-    समाचारलाई चारवटा लामो लाइनमा विभाजन गर्छ।
-    कुनै नयाँ वा काल्पनिक समाचार थप्दैन।
+    उपलब्ध वास्तविक समाचारलाई चार सन्तुलित
+    लाइनमा विभाजन गर्छ। काल्पनिक तथ्य थप्दैन।
     """
 
     text = clean_text(text)
@@ -339,10 +367,8 @@ def make_four_lines(text):
     if not text:
         return ""
 
-    # अनावश्यक दोहोरिएका खाली ठाउँ हटाउने
-    text = re.sub(r"\s+", " ", text).strip()
+    text = remove_duplicate_sentences(text)
 
-    # धेरै लामो विवरण भए उपयोगी भाग मात्र लिने
     text = limit_description(text)
 
     words = text.split()
@@ -359,7 +385,6 @@ def make_four_lines(text):
             current = word
             continue
 
-        # प्रत्येक लाइनलाई सन्तुलित राख्ने
         if len(current) + len(word) + 1 <= LINE_LENGTH:
 
             current += " " + word
@@ -372,10 +397,9 @@ def make_four_lines(text):
             if len(lines) == TOTAL_LINES - 1:
                 break
 
-    if current and len(lines) < TOTAL_LINES:
+    if current:
         lines.append(current)
 
-    # बाँकी शब्दलाई चौथो लाइनमा थप्ने
     used_words = sum(
         len(line.split()) for line in lines
     )
@@ -386,12 +410,32 @@ def make_four_lines(text):
 
         lines[-1] += " " + " ".join(remaining)
 
-    # चार लाइन नपुगेमा उपलब्ध वाक्यलाई
-    # खाली लाइन नराखी सन्तुलित गर्ने
-    if len(lines) > TOTAL_LINES:
-        lines = lines[:TOTAL_LINES]
+    # उपलब्ध सामग्री छोटो भए पनि खाली लाइन नराख्ने
+    # लाइनहरूलाई बराबर लम्बाइको बनाउने
+    if len(lines) < TOTAL_LINES:
 
-    return "\n".join(lines)
+        all_words = " ".join(lines).split()
+
+        lines = []
+        current = ""
+
+        target = max(
+            1,
+            len(all_words) // TOTAL_LINES
+        )
+
+        for word in all_words:
+
+            if len(current.split()) >= target and len(lines) < TOTAL_LINES - 1:
+                lines.append(current.strip())
+                current = ""
+
+            current += word + " "
+
+        if current.strip():
+            lines.append(current.strip())
+
+    return "\n".join(lines[:TOTAL_LINES])
 
 
 def fetch_feed(source, feed_url):
@@ -451,10 +495,8 @@ def fetch_feed(source, feed_url):
 
         link = urllib.parse.urljoin(feed_url, link)
 
-        # RSS विवरण
         rss_description = clean_text(raw_description)
 
-        # वेबसाइटबाट पूरा समाचार
         website_description = get_page_description(link)
 
         descriptions = [
@@ -476,7 +518,6 @@ def fetch_feed(source, feed_url):
 
             description = rss_description or title
 
-        # चारवटा लामो लाइन बनाउने
         description = make_four_lines(description)
 
         image_url = get_image(
