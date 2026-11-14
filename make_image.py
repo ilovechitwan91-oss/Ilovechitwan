@@ -7,7 +7,6 @@ import urllib.request
 from io import BytesIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
-
 from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 
 WIDTH, HEIGHT = 1080, 1350
@@ -21,54 +20,12 @@ MUTED = (190, 210, 225)
 
 os.makedirs("news_images", exist_ok=True)
 
+# SAME PHOTO FOR LOGO AND DEFAULT NEWS PHOTO
+ASSET = "FB_IMG_1794663825968.jpg"
 
-# =====================================
-# FIND UPLOADED LOGO AND DEFAULT PHOTO
-# =====================================
+PAGE_NAME = "HAMRO CHITWAN RAMRO CHITWAN"
+FACEBOOK = "www.fb.com/ilovechitwan"
 
-def find_asset(names):
-    for name in names:
-        if os.path.isfile(name):
-            return name
-
-    for name in names:
-        matches = glob.glob(
-            "**/" + name,
-            recursive=True
-        )
-        matches = [
-            p for p in matches
-            if "news_images" not in p.replace("\\", "/")
-        ]
-        if matches:
-            return matches[0]
-
-    return None
-
-
-LOGO_PATH = find_asset([
-    "logo.jpg",
-    "logo.jpeg",
-    "logo.png",
-    "Logo.jpg",
-    "Logo.png",
-    "rhino_logo.png",
-    "rhino_logo.jpg"
-])
-
-DEFAULT_PHOTO_PATH = find_asset([
-    "FB_IMG_1794663825968.jpg",
-    "FB_IMG_1794663825968.jpeg",
-    "default_photo.jpg",
-    "default_photo.png",
-    "fallback.jpg",
-    "fallback.png"
-])
-
-
-# =====================================
-# FONTS
-# =====================================
 
 def find_font(patterns):
     for pattern in patterns:
@@ -94,15 +51,8 @@ ENGLISH_BOLD = find_font([
 ])
 
 
-def has_nepali(text):
-    return any(
-        "\u0900" <= c <= "\u097F"
-        for c in str(text)
-    )
-
-
 def get_font(text, size, bold=False):
-    if has_nepali(text):
+    if any("\u0900" <= c <= "\u097F" for c in str(text)):
         path = NEPALI_FONT
     else:
         path = ENGLISH_BOLD if bold else ENGLISH_FONT
@@ -111,15 +61,10 @@ def get_font(text, size, bold=False):
         return ImageFont.load_default()
 
     return ImageFont.truetype(
-        path,
-        size,
+        path, size,
         layout_engine=ImageFont.Layout.RAQM
     )
 
-
-# =====================================
-# DATE
-# =====================================
 
 def nepali_date():
     try:
@@ -139,17 +84,11 @@ def nepali_date():
 
         return f"{nd.year} {months[nd.month - 1]} {nd.day}"
 
-    except Exception as error:
-        print("Date error:", error)
-
+    except Exception:
         return datetime.now(
             ZoneInfo("Asia/Kathmandu")
         ).strftime("%Y-%m-%d")
 
-
-# =====================================
-# TEXT WRAPPING
-# =====================================
 
 def wrap_text(draw, text, font, max_width):
     words = str(text).split()
@@ -158,12 +97,7 @@ def wrap_text(draw, text, font, max_width):
 
     for word in words:
         test = (current + " " + word).strip()
-
-        box = draw.textbbox(
-            (0, 0),
-            test,
-            font=font
-        )
+        box = draw.textbbox((0, 0), test, font=font)
 
         if box[2] - box[0] <= max_width:
             current = test
@@ -181,94 +115,90 @@ def wrap_text(draw, text, font, max_width):
     return lines
 
 
-def fit_text(
-    draw, text, x, y, width, height,
-    start_size, min_size, max_lines,
-    color, bold=False
-):
-    text = str(text or "").strip()
+def fit_text(draw, text, x, y, width, height,
+             start_size, min_size, max_lines, color, bold=False):
 
+    text = str(text or "").strip()
     if not text:
         return y
 
     for size in range(start_size, min_size - 1, -1):
-
         font = get_font(text, size, bold)
+        lines = wrap_text(draw, text, font, width)
+        line_height = int(size * 1.38)
 
-        lines = wrap_text(
-            draw, text, font, width
-        )
-
-        line_height = int(size * 1.40)
-
-        if (
-            len(lines) <= max_lines
-            and len(lines) * line_height <= height
-        ):
+        if len(lines) <= max_lines and len(lines) * line_height <= height:
             for line in lines:
-                draw.text(
-                    (x, y),
-                    line,
-                    font=font,
-                    fill=color
-                )
+                draw.text((x, y), line, font=font, fill=color)
                 y += line_height
-
             return y
 
-    # If text is too long, fit as many lines as possible
+    # Fit as much as possible without overflowing
     size = min_size
     font = get_font(text, size, bold)
-
-    lines = wrap_text(
-        draw, text, font, width
-    )
-
-    line_height = int(size * 1.35)
-
-    allowed = min(
-        max_lines,
-        max(1, height // line_height)
-    )
-
+    lines = wrap_text(draw, text, font, width)
+    line_height = int(size * 1.30)
+    allowed = max(1, min(max_lines, height // line_height))
     lines = lines[:allowed]
 
     if lines:
         last = lines[-1]
-
         while last and draw.textbbox(
-            (0, 0),
-            last + "...",
-            font=font
+            (0, 0), last + "...", font=font
         )[2] > width:
             last = last[:-1]
-
         lines[-1] = last.rstrip() + "..."
 
     for line in lines:
-        draw.text(
-            (x, y),
-            line,
-            font=font,
-            fill=color
-        )
+        draw.text((x, y), line, font=font, fill=color)
         y += line_height
 
     return y
 
 
-# =====================================
-# IMAGE LOADING
-# =====================================
+def get_news_description(article):
+    # Collect available news details without repeating identical text
+    fields = [
+        "english_description",
+        "description",
+        "summary",
+        "content",
+        "full_text",
+        "news_content"
+    ]
 
-def load_local_image(path):
-    if not path or not os.path.isfile(path):
+    parts = []
+    seen = set()
+
+    for field in fields:
+        value = str(article.get(field) or "").strip()
+
+        if not value:
+            continue
+
+        value = re.sub(r"\s+", " ", value)
+
+        key = value.lower()
+
+        if key not in seen:
+            parts.append(value)
+            seen.add(key)
+
+    if not parts:
+        return "More details about this news will be updated soon."
+
+    return "\n\n".join(parts)
+
+
+def load_local_photo():
+    if not os.path.isfile(ASSET):
+        print("ERROR: Default photo missing:", ASSET)
         return None
 
     try:
-        return Image.open(path).convert("RGB")
+        return Image.open(ASSET).convert("RGB")
     except Exception as error:
-        print("Local image error:", error)
+        print("Asset error:", error)
         return None
 
 
@@ -282,18 +212,13 @@ def download_image(url):
             headers={"User-Agent": "Mozilla/5.0"}
         )
 
-        with urllib.request.urlopen(
-            request,
-            timeout=25
-        ) as response:
+        with urllib.request.urlopen(request, timeout=25) as response:
             data = response.read(12 * 1024 * 1024 + 1)
 
         if len(data) > 12 * 1024 * 1024:
             return None
 
-        return Image.open(
-            BytesIO(data)
-        ).convert("RGB")
+        return Image.open(BytesIO(data)).convert("RGB")
 
     except Exception as error:
         print("News photo error:", error)
@@ -301,234 +226,140 @@ def download_image(url):
 
 
 def add_logo(image, position, size):
-    if not LOGO_PATH:
-        print("WARNING: Logo file not found")
+    logo = load_local_photo()
+
+    if logo is None:
+        print("Logo could not be loaded")
         return
 
-    try:
-        logo = Image.open(LOGO_PATH).convert("RGBA")
-
-        logo.thumbnail(
-            size,
-            Image.Resampling.LANCZOS
-        )
-
-        x, y = position
-
-        # Transparent background support
-        image.paste(
-            logo,
-            (
-                x + (size[0] - logo.width) // 2,
-                y + (size[1] - logo.height) // 2
-            ),
-            logo
-        )
-
-    except Exception as error:
-        print("Logo error:", error)
-
-
-def prepare_photo(photo, size):
-    photo = ImageOps.fit(
-        photo,
+    # Crop to fill logo frame
+    logo = ImageOps.fit(
+        logo,
         size,
         method=Image.Resampling.LANCZOS
     )
 
-    return photo
-
-
-# =====================================
-# SUMMARY
-# =====================================
-
-def complete_summary(text, max_chars=1200):
-    text = str(text or "").strip()
-
-    if len(text) <= max_chars:
-        return text
-
-    sentences = re.split(
-        r"(?<=[।.!?])\s+",
-        text
+    # Rounded logo mask
+    mask = Image.new("L", size, 0)
+    mask_draw = ImageDraw.Draw(mask)
+    mask_draw.rounded_rectangle(
+        (0, 0, size[0] - 1, size[1] - 1),
+        radius=15,
+        fill=255
     )
 
-    result = []
-    total = 0
+    image.paste(logo, position, mask)
 
-    for sentence in sentences:
-        sentence = sentence.strip()
-
-        if not sentence:
-            continue
-
-        extra = len(sentence) + (1 if result else 0)
-
-        if result and total + extra > max_chars:
-            break
-
-        result.append(sentence)
-        total += extra
-
-    if result:
-        return " ".join(result)
-
-    return text[:max_chars]
-
-
-# =====================================
-# CREATE NEWS CARD
-# =====================================
 
 def create_card(article, number):
 
-    image = Image.new(
-        "RGB",
-        (WIDTH, HEIGHT),
-        BG
+    image = Image.new("RGB", (WIDTH, HEIGHT), BG)
+    draw = ImageDraw.Draw(image)
+
+    # =================================
+    # HEADER
+    # =================================
+
+    draw.rectangle((0, 0, WIDTH, 145), fill=(2, 25, 56))
+
+    draw.rounded_rectangle(
+        (22, 17, 135, 128),
+        radius=16,
+        fill=WHITE
     )
+
+    add_logo(image, (27, 22), (103, 101))
 
     draw = ImageDraw.Draw(image)
 
-    # ---------------------------------
-    # HEADER
-    # ---------------------------------
-
-    draw.rectangle(
-        (0, 0, WIDTH, 140),
-        fill=(2, 25, 56)
+    draw.text(
+        (153, 20),
+        "HAMRO CHITWAN",
+        font=get_font("HAMRO CHITWAN", 38, True),
+        fill=WHITE
     )
 
-    # Logo in header
+    draw.text(
+        (155, 70),
+        "RAMRO CHITWAN",
+        font=get_font("RAMRO CHITWAN", 32, True),
+        fill=CYAN
+    )
+
+    date_text = nepali_date()
+
     draw.rounded_rectangle(
-        (25, 18, 132, 122),
+        (755, 43, 1050, 105),
         radius=15,
         fill=WHITE
     )
 
-    add_logo(
-        image,
-        (29, 22),
-        (99, 96)
-    )
-
-    draw = ImageDraw.Draw(image)
-
     draw.text(
-        (155, 25),
-        "ILOVECHITWAN",
-        font=get_font("ILOVECHITWAN", 39, True),
-        fill=WHITE
-    )
-
-    draw.text(
-        (158, 79),
-        "NEWS AND UPDATES",
-        font=get_font("NEWS AND UPDATES", 22, True),
-        fill=CYAN
-    )
-
-    # Date
-    date_text = nepali_date()
-
-    draw.rounded_rectangle(
-        (745, 35, 1050, 105),
-        radius=17,
-        fill=WHITE
-    )
-
-    date_font = get_font(date_text, 25, True)
-
-    draw.text(
-        (770, 55),
+        (770, 59),
         date_text,
-        font=date_font,
+        font=get_font(date_text, 24, True),
         fill=BG
     )
 
-    # ---------------------------------
+    # =================================
     # NEWS PHOTO
-    # ---------------------------------
+    # =================================
 
-    photo = download_image(
-        article.get("image_url", "")
-    )
+    photo = download_image(article.get("image_url", ""))
 
     if photo is None:
-        print("Using uploaded default photo")
-
-        photo = load_local_image(
-            DEFAULT_PHOTO_PATH
-        )
+        print("Using uploaded FB_IMG photo as default")
+        photo = load_local_photo()
 
     if photo is not None:
-
-        photo = prepare_photo(
+        photo = ImageOps.fit(
             photo,
-            (1000, 410)
+            (1000, 405),
+            method=Image.Resampling.LANCZOS
         )
-
-        image.paste(
-            photo,
-            (40, 155)
-        )
-
+        image.paste(photo, (40, 155))
     else:
-        print(
-            "ERROR: Both news photo and default photo missing"
-        )
-
         draw.rectangle(
-            (40, 155, 1040, 565),
+            (40, 155, 1040, 560),
             fill=PANEL
-        )
-
-        message = "ILOVECHITWAN NEWS"
-
-        draw.text(
-            (280, 330),
-            message,
-            font=get_font(message, 43, True),
-            fill=CYAN
         )
 
     draw = ImageDraw.Draw(image)
 
     draw.rounded_rectangle(
-        (38, 153, 1042, 567),
+        (38, 153, 1042, 562),
         radius=12,
         outline=CYAN,
         width=3
     )
 
-    # ---------------------------------
-    # NEWS INFORMATION PANEL
-    # ---------------------------------
+    # =================================
+    # NEWS PANEL
+    # =================================
 
     draw.rounded_rectangle(
-        (30, 585, 1050, 1185),
+        (28, 580, 1052, 1185),
         radius=20,
         fill=PANEL
     )
 
-    # Breaking/news label
+    # News label
     draw.rounded_rectangle(
-        (55, 605, 285, 650),
+        (52, 597, 280, 643),
         radius=10,
         fill=RED
     )
 
     draw.text(
-        (75, 612),
+        (72, 607),
         "LATEST NEWS",
         font=get_font("LATEST NEWS", 22, True),
         fill=WHITE
     )
 
-    # ---------------------------------
+    # =================================
     # HEADLINE
-    # ---------------------------------
+    # =================================
 
     headline = (
         article.get("english_title")
@@ -536,14 +367,12 @@ def create_card(article, number):
         or "LATEST NEWS UPDATE"
     )
 
-    headline = str(headline).strip()
-
     y = fit_text(
         draw,
         headline,
-        60, 675,
-        950, 145,
-        42, 29, 3,
+        58, 665,
+        960, 140,
+        42, 27, 3,
         CYAN,
         True
     )
@@ -552,105 +381,77 @@ def create_card(article, number):
     separator_y = y + 8
 
     draw.line(
-        (60, separator_y, 1020, separator_y),
-        fill=(65, 100, 135),
+        (58, separator_y, 1020, separator_y),
+        fill=(75, 115, 155),
         width=2
     )
 
-    # ---------------------------------
-    # DESCRIPTION
-    # ---------------------------------
+    # =================================
+    # FULL NEWS DESCRIPTION
+    # =================================
 
-    description = (
-        article.get("english_description")
-        or article.get("description")
-        or article.get("summary")
-        or article.get("content")
-        or "More details about this news will be updated soon."
-    )
+    description = get_news_description(article)
 
-    description = complete_summary(
-        description,
-        1200
-    )
+    description_y = separator_y + 17
 
-    description_y = separator_y + 20
-
-    available_height = max(
-        50,
-        1160 - description_y
-    )
+    available_height = 1160 - description_y
 
     fit_text(
         draw,
         description,
-        60,
+        58,
         description_y,
-        950,
+        960,
         available_height,
         27,
-        18,
         17,
+        25,
         WHITE,
         False
     )
 
-    # ---------------------------------
+    # =================================
     # FOOTER
-    # ---------------------------------
+    # =================================
 
-    draw.rectangle(
-        (0, 1200, WIDTH, HEIGHT),
-        fill=RED
-    )
+    draw.rectangle((0, 1200, WIDTH, HEIGHT), fill=RED)
 
-    # Footer logo
     draw.rounded_rectangle(
-        (28, 1215, 140, 1335),
-        radius=12,
+        (25, 1213, 145, 1338),
+        radius=15,
         fill=WHITE
     )
 
-    add_logo(
-        image,
-        (32, 1219),
-        (104, 112)
-    )
+    add_logo(image, (30, 1218), (110, 115))
 
     draw = ImageDraw.Draw(image)
 
     draw.text(
-        (165, 1218),
-        "ILOVECHITWAN",
-        font=get_font("ILOVECHITWAN", 36, True),
+        (165, 1215),
+        "HAMRO CHITWAN RAMRO CHITWAN",
+        font=get_font(PAGE_NAME, 27, True),
         fill=WHITE
     )
 
     draw.text(
-        (165, 1265),
-        "NEWS AND UPDATES",
-        font=get_font("NEWS AND UPDATES", 23, True),
+        (165, 1260),
+        FACEBOOK,
+        font=get_font(FACEBOOK, 25, True),
         fill=WHITE
-    )
-
-    source = str(
-        article.get("source") or "News"
     )
 
     draw.text(
         (165, 1305),
-        "Source: " + source[:55],
-        font=get_font(source, 19),
+        "FOLLOW FOR LATEST NEWS & UPDATES",
+        font=get_font("FOLLOW FOR LATEST NEWS & UPDATES", 19, True),
         fill=WHITE
     )
 
-    # ---------------------------------
+    # =================================
     # SAVE
-    # ---------------------------------
+    # =================================
 
-    output = (
-        f"news_images/news_{number:02d}.jpg"
-    )
+    output = f"news_images/news_{number:02d}.jpg"
 
     image.save(
         output,
@@ -662,63 +463,36 @@ def create_card(article, number):
     print("Created:", output)
 
 
-# =====================================
-# MAIN
-# =====================================
-
 def main():
 
     if not NEPALI_FONT:
-        raise RuntimeError(
-            "Noto Sans Devanagari font not found"
-        )
+        raise RuntimeError("Noto Sans Devanagari font not found")
 
     if not features.check_feature("raqm"):
-        raise RuntimeError(
-            "Pillow RAQM support missing"
-        )
+        raise RuntimeError("Pillow RAQM support missing")
 
     if not os.path.exists("news.json"):
+        raise FileNotFoundError("news.json missing")
+
+    if not os.path.exists(ASSET):
         raise FileNotFoundError(
-            "news.json missing"
+            "Upload FB_IMG_1794663825968.jpg to repository root"
         )
 
-    print("Logo:", LOGO_PATH)
-    print("Default photo:", DEFAULT_PHOTO_PATH)
-
-    if not LOGO_PATH:
-        print("WARNING: Upload logo.jpg to repository root")
-
-    if not DEFAULT_PHOTO_PATH:
-        print(
-            "WARNING: Default photo not found. "
-            "Upload FB_IMG_1794663825968.jpg"
-        )
-
-    with open(
-        "news.json",
-        "r",
-        encoding="utf-8"
-    ) as file:
+    with open("news.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
     articles = data.get("articles", [])
 
     if not articles:
-        raise ValueError(
-            "No news articles found"
-        )
+        raise ValueError("No news articles found")
 
-    for number, article in enumerate(
-        articles[:10],
-        1
-    ):
-        create_card(
-            article,
-            number
-        )
+    print("Using Logo and Default Photo:", ASSET)
 
-    print("ALL NEWS CARDS COMPLETED")
+    for number, article in enumerate(articles[:10], 1):
+        create_card(article, number)
+
+    print("ALL 10 NEWS CARDS COMPLETED")
 
 
 if __name__ == "__main__":
