@@ -2,15 +2,15 @@
 import os
 import json
 import glob
+import re
+import urllib.request
 from io import BytesIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-import urllib.request
 from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 
-WIDTH = 1080
-HEIGHT = 1350
+WIDTH, HEIGHT = 1080, 1350
 
 BG = (3, 18, 43)
 CYAN = (75, 220, 235)
@@ -29,53 +29,37 @@ def find_font(patterns):
 
 
 NEPALI_FONT = find_font([
+    "/usr/share/fonts/**/*NotoSansDevanagari-Bold.ttf",
+    "/usr/share/fonts/**/*NotoSansDevanagari-Regular.ttf",
     "/usr/share/fonts/**/*Devanagari*Bold*.ttf",
     "/usr/share/fonts/**/*Devanagari*Regular*.ttf"
 ])
 
 ENGLISH_FONT = find_font([
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+    "/usr/share/fonts/**/*DejaVuSans.ttf"
 ])
 
 ENGLISH_BOLD = find_font([
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    "/usr/share/fonts/**/*DejaVuSans-Bold.ttf"
 ])
 
 
-def font(size, bold=False, nepali=False):
-    path = None
+def has_nepali(text):
+    return any("\u0900" <= c <= "\u097F" for c in str(text))
 
-    if nepali and NEPALI_FONT:
-        path = NEPALI_FONT
-    elif bold:
-        path = ENGLISH_BOLD
-    else:
-        path = ENGLISH_FONT
+
+def get_font(text, size, bold=False):
+    path = NEPALI_FONT if has_nepali(text) else (
+        ENGLISH_BOLD if bold else ENGLISH_FONT
+    )
 
     if not path:
         return ImageFont.load_default()
 
-    if features.check_feature("raqm"):
-        return ImageFont.truetype(
-            path, size,
-            layout_engine=ImageFont.Layout.RAQM
-        )
-
-    return ImageFont.truetype(path, size)
-
-
-def has_nepali(text):
-    return any(
-        "\u0900" <= char <= "\u097F"
-        for char in str(text)
-    )
-
-
-def get_font(text, size, bold=False):
-    return font(
+    return ImageFont.truetype(
+        path,
         size,
-        bold=bold,
-        nepali=has_nepali(text)
+        layout_engine=ImageFont.Layout.RAQM
     )
 
 
@@ -98,7 +82,7 @@ def nepali_date():
         return f"{nd.year} {months[nd.month - 1]} {nd.day}"
 
     except Exception as error:
-        print("Nepali date error:", error)
+        print("Date error:", error)
         return datetime.now(
             ZoneInfo("Asia/Kathmandu")
         ).strftime("%Y-%m-%d")
@@ -112,9 +96,11 @@ def wrap_text(draw, text, selected_font, max_width):
     for word in words:
         test = (current + " " + word).strip()
 
-        if draw.textbbox(
+        width = draw.textbbox(
             (0, 0), test, font=selected_font
-        )[2] <= max_width:
+        )[2]
+
+        if width <= max_width:
             current = test
         else:
             if current:
@@ -125,6 +111,77 @@ def wrap_text(draw, text, selected_font, max_width):
         lines.append(current)
 
     return lines
+
+
+def fit_text(
+    draw, text, x, y, width, height,
+    start_size, min_size, max_lines,
+    color, bold=False
+):
+    text = str(text or "").strip()
+
+    if not text:
+        return y
+
+    for size in range(start_size, min_size - 1, -1):
+        selected_font = get_font(text, size, bold)
+
+        lines = wrap_text(
+            draw, text, selected_font, width
+        )
+
+        line_height = int(size * 1.42)
+
+        if (
+            len(lines) <= max_lines
+            and len(lines) * line_height <= height
+        ):
+            for line in lines:
+                draw.text(
+                    (x, y),
+                    line,
+                    font=selected_font,
+                    fill=color
+                )
+                y += line_height
+
+            return y
+
+    raise ValueError(
+        "News text is too long for the card. "
+        "Please shorten the summary at a complete sentence."
+    )
+
+
+def complete_summary(text, max_chars=950):
+    text = str(text or "").strip()
+
+    if len(text) <= max_chars:
+        return text
+
+    sentences = re.split(
+        r"(?<=[।.!?])\s+",
+        text
+    )
+
+    result = []
+    total = 0
+
+    for sentence in sentences:
+        sentence = sentence.strip()
+
+        if not sentence:
+            continue
+
+        extra = len(sentence) + (1 if result else 0)
+
+        if result and total + extra > max_chars:
+            break
+
+        result.append(sentence)
+        total += extra
+
+    return " ".join(result) if result else text
 
 
 def download_image(url):
@@ -158,8 +215,12 @@ def create_card(article, number):
     image = Image.new("RGB", (WIDTH, HEIGHT), BG)
     draw = ImageDraw.Draw(image)
 
-    # Header
-    draw.rectangle((0, 0, WIDTH, 145), fill=(2, 24, 55))
+    # HEADER
+    draw.rectangle(
+        (0, 0, WIDTH, 145),
+        fill=(2, 24, 55)
+    )
+
     draw.polygon(
         [(35, 40), (105, 40), (90, 120), (35, 120)],
         fill=RED
@@ -168,15 +229,19 @@ def create_card(article, number):
     draw.line((112, 43, 92, 118), fill=RED, width=9)
     draw.line((132, 43, 112, 118), fill=RED, width=9)
 
-    draw.rectangle((145, 48, 470, 112), fill=(245, 242, 225))
+    draw.rectangle(
+        (145, 45, 555, 115),
+        fill=(245, 242, 225)
+    )
+
     draw.text(
-        (158, 53),
+        (160, 53),
         "NEWS UPDATE",
-        font=font(42, True),
+        font=get_font("NEWS UPDATE", 40, True),
         fill=(15, 25, 50)
     )
 
-    # Nepali date
+    # NEPALI DATE
     date_text = nepali_date()
 
     draw.rounded_rectangle(
@@ -192,116 +257,124 @@ def create_card(article, number):
         fill=(0, 0, 0)
     )
 
-    # Main photo
+    # NEWS PHOTO
     draw.rectangle(
-        (30, 160, 1050, 715),
+        (30, 160, 1050, 620),
         fill=(15, 55, 85)
     )
 
-    photo = download_image(article.get("image_url", ""))
+    photo = download_image(
+        article.get("image_url", "")
+    )
 
     if photo:
-        photo = ImageOps.contain(
+        photo = ImageOps.fit(
             photo,
-            (1000, 545),
+            (1000, 450),
             method=Image.Resampling.LANCZOS
         )
 
-        px = (WIDTH - photo.width) // 2
-        py = 165 + (540 - photo.height) // 2
-        image.paste(photo, (px, py))
+        image.paste(photo, (40, 165))
 
     else:
+        message = "NEWS PHOTO UNAVAILABLE"
+
         draw.text(
-            (320, 400),
-            "NEWS PHOTO UNAVAILABLE",
-            font=font(35, True),
+            (320, 365),
+            message,
+            font=get_font(message, 35, True),
             fill=WHITE
         )
 
     draw.rectangle(
-        (30, 160, 1050, 715),
+        (30, 160, 1050, 620),
         outline=(90, 170, 205),
         width=3
     )
 
-    # Red side line
-    draw.ellipse((50, 755, 94, 799), fill=RED)
-    draw.rectangle((63, 785, 81, 1165), fill=RED)
+    # RED SIDE LINE
+    draw.ellipse(
+        (50, 655, 94, 699),
+        fill=RED
+    )
 
-    # Headline
+    draw.rectangle(
+        (63, 685, 81, 1155),
+        fill=RED
+    )
+
+    # HEADLINE
     headline = (
         article.get("english_title")
         or article.get("title")
         or "LATEST NEWS UPDATE"
     )
 
-    headline_font = get_font(headline, 43, True)
+    y = fit_text(
+        draw,
+        headline,
+        108, 650,
+        900, 145,
+        43, 27, 3,
+        CYAN,
+        True
+    )
 
-    headline_lines = wrap_text(
-        draw, headline, headline_font, 920
-    )[:3]
-
-    y = 760
-
-    for line in headline_lines:
-        draw.text(
-            (108, y),
-            line,
-            font=headline_font,
-            fill=CYAN
-        )
-        y += 58
-
-    # Description
+    # DESCRIPTION
     description = (
         article.get("english_description")
         or article.get("description")
         or ""
     )
 
-    description_font = get_font(description, 27)
+    description = complete_summary(description, 950)
 
-    description_lines = wrap_text(
-        draw, description, description_font, 900
-    )[:5]
+    y += 12
 
-    y += 20
+    available_height = 1160 - y
 
-    for line in description_lines:
-        if y > 1145:
-            break
+    fit_text(
+        draw,
+        description,
+        108, y,
+        900, available_height,
+        27, 16, 22,
+        WHITE,
+        False
+    )
 
-        draw.text(
-            (108, y),
-            line,
-            font=description_font,
-            fill=WHITE
-        )
-        y += 40
-
-    # Footer
-    draw.rectangle((0, 1180, WIDTH, HEIGHT), fill=RED)
+    # FOOTER
+    draw.rectangle(
+        (0, 1180, WIDTH, HEIGHT),
+        fill=RED
+    )
 
     if os.path.exists("logo.jpg"):
         try:
-            logo = Image.open("logo.jpg").convert("RGB")
-            logo = ImageOps.fit(logo, (120, 120))
+            logo = Image.open(
+                "logo.jpg"
+            ).convert("RGB")
+
+            logo = ImageOps.fit(
+                logo, (120, 120)
+            )
+
             image.paste(logo, (35, 1200))
+
         except Exception as error:
             print("Logo error:", error)
 
     draw.text(
         (185, 1205),
         "ILOVECHITWAN",
-        font=font(37, True),
+        font=get_font("ILOVECHITWAN", 37, True),
         fill=WHITE
     )
 
     draw.text(
         (185, 1255),
         "NEWS AND UPDATES",
-        font=font(23, True),
+        font=get_font("NEWS AND UPDATES", 23, True),
         fill=WHITE
     )
 
@@ -310,13 +383,17 @@ def create_card(article, number):
     draw.text(
         (185, 1293),
         "Source: " + source,
-        font=font(21),
+        font=get_font(source, 21),
         fill=WHITE
     )
 
     output = f"news_images/news_{number:02d}.jpg"
 
-    image.save(output, "JPEG", quality=95)
+    image.save(
+        output,
+        "JPEG",
+        quality=95
+    )
 
     print("Created:", output)
 
@@ -329,13 +406,17 @@ def main():
 
     if not features.check_feature("raqm"):
         raise RuntimeError(
-            "Pillow RAQM support missing. Nepali shaping unavailable."
+            "Pillow RAQM support missing"
         )
 
     if not os.path.exists("news.json"):
         raise FileNotFoundError("news.json missing")
 
-    with open("news.json", "r", encoding="utf-8") as file:
+    with open(
+        "news.json",
+        "r",
+        encoding="utf-8"
+    ) as file:
         data = json.load(file)
 
     articles = data.get("articles", [])
