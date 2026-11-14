@@ -20,7 +20,6 @@ MUTED = (190, 210, 225)
 
 os.makedirs("news_images", exist_ok=True)
 
-# SAME PHOTO FOR LOGO AND DEFAULT NEWS PHOTO
 ASSET = "FB_IMG_1794663825968.jpg"
 
 PAGE_NAME = "HAMRO CHITWAN RAMRO CHITWAN"
@@ -61,7 +60,8 @@ def get_font(text, size, bold=False):
         return ImageFont.load_default()
 
     return ImageFont.truetype(
-        path, size,
+        path,
+        size,
         layout_engine=ImageFont.Layout.RAQM
     )
 
@@ -115,49 +115,75 @@ def wrap_text(draw, text, font, max_width):
     return lines
 
 
-def fit_text(draw, text, x, y, width, height,
-             start_size, min_size, max_lines, color, bold=False):
-
+def fit_text(
+    draw, text, x, y, width, height,
+    start_size, min_size, max_lines, color, bold=False
+):
     text = str(text or "").strip()
+
     if not text:
         return y
 
+    # Try largest possible font first
     for size in range(start_size, min_size - 1, -1):
+
         font = get_font(text, size, bold)
         lines = wrap_text(draw, text, font, width)
-        line_height = int(size * 1.38)
 
-        if len(lines) <= max_lines and len(lines) * line_height <= height:
+        line_height = int(size * 1.45)
+
+        if (
+            len(lines) <= max_lines
+            and len(lines) * line_height <= height
+        ):
             for line in lines:
-                draw.text((x, y), line, font=font, fill=color)
+                draw.text(
+                    (x, y),
+                    line,
+                    font=font,
+                    fill=color
+                )
                 y += line_height
+
             return y
 
-    # Fit as much as possible without overflowing
+    # Minimum font size fallback
     size = min_size
     font = get_font(text, size, bold)
+
     lines = wrap_text(draw, text, font, width)
-    line_height = int(size * 1.30)
-    allowed = max(1, min(max_lines, height // line_height))
+    line_height = int(size * 1.35)
+
+    allowed = max(
+        1,
+        min(max_lines, height // line_height)
+    )
+
     lines = lines[:allowed]
 
     if lines:
         last = lines[-1]
+
         while last and draw.textbbox(
             (0, 0), last + "...", font=font
         )[2] > width:
             last = last[:-1]
+
         lines[-1] = last.rstrip() + "..."
 
     for line in lines:
-        draw.text((x, y), line, font=font, fill=color)
+        draw.text(
+            (x, y),
+            line,
+            font=font,
+            fill=color
+        )
         y += line_height
 
     return y
 
 
 def get_news_description(article):
-    # Collect available news details without repeating identical text
     fields = [
         "english_description",
         "description",
@@ -197,6 +223,7 @@ def load_local_photo():
 
     try:
         return Image.open(ASSET).convert("RGB")
+
     except Exception as error:
         print("Asset error:", error)
         return None
@@ -212,13 +239,18 @@ def download_image(url):
             headers={"User-Agent": "Mozilla/5.0"}
         )
 
-        with urllib.request.urlopen(request, timeout=25) as response:
+        with urllib.request.urlopen(
+            request, timeout=25
+        ) as response:
+
             data = response.read(12 * 1024 * 1024 + 1)
 
         if len(data) > 12 * 1024 * 1024:
             return None
 
-        return Image.open(BytesIO(data)).convert("RGB")
+        return Image.open(
+            BytesIO(data)
+        ).convert("RGB")
 
     except Exception as error:
         print("News photo error:", error)
@@ -232,16 +264,15 @@ def add_logo(image, position, size):
         print("Logo could not be loaded")
         return
 
-    # Crop to fill logo frame
     logo = ImageOps.fit(
         logo,
         size,
         method=Image.Resampling.LANCZOS
     )
 
-    # Rounded logo mask
     mask = Image.new("L", size, 0)
     mask_draw = ImageDraw.Draw(mask)
+
     mask_draw.rounded_rectangle(
         (0, 0, size[0] - 1, size[1] - 1),
         radius=15,
@@ -253,14 +284,22 @@ def add_logo(image, position, size):
 
 def create_card(article, number):
 
-    image = Image.new("RGB", (WIDTH, HEIGHT), BG)
+    image = Image.new(
+        "RGB",
+        (WIDTH, HEIGHT),
+        BG
+    )
+
     draw = ImageDraw.Draw(image)
 
     # =================================
     # HEADER
     # =================================
 
-    draw.rectangle((0, 0, WIDTH, 145), fill=(2, 25, 56))
+    draw.rectangle(
+        (0, 0, WIDTH, 145),
+        fill=(2, 25, 56)
+    )
 
     draw.rounded_rectangle(
         (22, 17, 135, 128),
@@ -268,7 +307,11 @@ def create_card(article, number):
         fill=WHITE
     )
 
-    add_logo(image, (27, 22), (103, 101))
+    add_logo(
+        image,
+        (27, 22),
+        (103, 101)
+    )
 
     draw = ImageDraw.Draw(image)
 
@@ -305,19 +348,24 @@ def create_card(article, number):
     # NEWS PHOTO
     # =================================
 
-    photo = download_image(article.get("image_url", ""))
+    photo = download_image(
+        article.get("image_url", "")
+    )
 
     if photo is None:
         print("Using uploaded FB_IMG photo as default")
         photo = load_local_photo()
 
     if photo is not None:
+
         photo = ImageOps.fit(
             photo,
             (1000, 405),
             method=Image.Resampling.LANCZOS
         )
+
         image.paste(photo, (40, 155))
+
     else:
         draw.rectangle(
             (40, 155, 1040, 560),
@@ -344,6 +392,7 @@ def create_card(article, number):
     )
 
     # News label
+
     draw.rounded_rectangle(
         (52, 597, 280, 643),
         radius=10,
@@ -372,12 +421,13 @@ def create_card(article, number):
         headline,
         58, 665,
         960, 140,
-        42, 27, 3,
+        50, 32, 3,
         CYAN,
         True
     )
 
     # Separator
+
     separator_y = y + 8
 
     draw.line(
@@ -387,7 +437,7 @@ def create_card(article, number):
     )
 
     # =================================
-    # FULL NEWS DESCRIPTION
+    # NEWS DESCRIPTION
     # =================================
 
     description = get_news_description(article)
@@ -403,8 +453,8 @@ def create_card(article, number):
         description_y,
         960,
         available_height,
-        27,
-        17,
+        34,
+        24,
         25,
         WHITE,
         False
@@ -414,7 +464,10 @@ def create_card(article, number):
     # FOOTER
     # =================================
 
-    draw.rectangle((0, 1200, WIDTH, HEIGHT), fill=RED)
+    draw.rectangle(
+        (0, 1200, WIDTH, HEIGHT),
+        fill=RED
+    )
 
     draw.rounded_rectangle(
         (25, 1213, 145, 1338),
@@ -422,7 +475,11 @@ def create_card(article, number):
         fill=WHITE
     )
 
-    add_logo(image, (30, 1218), (110, 115))
+    add_logo(
+        image,
+        (30, 1218),
+        (110, 115)
+    )
 
     draw = ImageDraw.Draw(image)
 
@@ -443,7 +500,11 @@ def create_card(article, number):
     draw.text(
         (165, 1305),
         "FOLLOW FOR LATEST NEWS & UPDATES",
-        font=get_font("FOLLOW FOR LATEST NEWS & UPDATES", 19, True),
+        font=get_font(
+            "FOLLOW FOR LATEST NEWS & UPDATES",
+            19,
+            True
+        ),
         fill=WHITE
     )
 
@@ -466,10 +527,14 @@ def create_card(article, number):
 def main():
 
     if not NEPALI_FONT:
-        raise RuntimeError("Noto Sans Devanagari font not found")
+        raise RuntimeError(
+            "Noto Sans Devanagari font not found"
+        )
 
     if not features.check_feature("raqm"):
-        raise RuntimeError("Pillow RAQM support missing")
+        raise RuntimeError(
+            "Pillow RAQM support missing"
+        )
 
     if not os.path.exists("news.json"):
         raise FileNotFoundError("news.json missing")
@@ -479,7 +544,11 @@ def main():
             "Upload FB_IMG_1794663825968.jpg to repository root"
         )
 
-    with open("news.json", "r", encoding="utf-8") as file:
+    with open(
+        "news.json",
+        "r",
+        encoding="utf-8"
+    ) as file:
         data = json.load(file)
 
     articles = data.get("articles", [])
@@ -489,7 +558,9 @@ def main():
 
     print("Using Logo and Default Photo:", ASSET)
 
-    for number, article in enumerate(articles[:10], 1):
+    for number, article in enumerate(
+        articles[:10], 1
+    ):
         create_card(article, number)
 
     print("ALL 10 NEWS CARDS COMPLETED")
