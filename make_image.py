@@ -1,11 +1,13 @@
 
 import os
 import json
-import urllib.request
+import glob
 from io import BytesIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+
+import urllib.request
+from PIL import Image, ImageDraw, ImageFont, ImageOps, features
 
 WIDTH = 1080
 HEIGHT = 1350
@@ -14,26 +16,67 @@ BG = (3, 18, 43)
 CYAN = (75, 220, 235)
 WHITE = (255, 255, 255)
 RED = (225, 12, 38)
-DARK = (0, 10, 25)
 
 os.makedirs("news_images", exist_ok=True)
 
 
-def font(size, bold=False):
-    paths = [
-        "/usr/share/fonts/truetype/noto/NotoSans-Bold.ttf"
-        if bold else
-        "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-        if bold else
-        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
-    ]
+def find_font(patterns):
+    for pattern in patterns:
+        matches = glob.glob(pattern, recursive=True)
+        if matches:
+            return matches[0]
+    return None
 
-    for path in paths:
-        if os.path.exists(path):
-            return ImageFont.truetype(path, size)
 
-    return ImageFont.load_default()
+NEPALI_FONT = find_font([
+    "/usr/share/fonts/**/*Devanagari*Bold*.ttf",
+    "/usr/share/fonts/**/*Devanagari*Regular*.ttf"
+])
+
+ENGLISH_FONT = find_font([
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+])
+
+ENGLISH_BOLD = find_font([
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+])
+
+
+def font(size, bold=False, nepali=False):
+    path = None
+
+    if nepali and NEPALI_FONT:
+        path = NEPALI_FONT
+    elif bold:
+        path = ENGLISH_BOLD
+    else:
+        path = ENGLISH_FONT
+
+    if not path:
+        return ImageFont.load_default()
+
+    if features.check_feature("raqm"):
+        return ImageFont.truetype(
+            path, size,
+            layout_engine=ImageFont.Layout.RAQM
+        )
+
+    return ImageFont.truetype(path, size)
+
+
+def has_nepali(text):
+    return any(
+        "\u0900" <= char <= "\u097F"
+        for char in str(text)
+    )
+
+
+def get_font(text, size, bold=False):
+    return font(
+        size,
+        bold=bold,
+        nepali=has_nepali(text)
+    )
 
 
 def nepali_date():
@@ -54,7 +97,8 @@ def nepali_date():
 
         return f"{nd.year} {months[nd.month - 1]} {nd.day}"
 
-    except Exception:
+    except Exception as error:
+        print("Nepali date error:", error)
         return datetime.now(
             ZoneInfo("Asia/Kathmandu")
         ).strftime("%Y-%m-%d")
@@ -106,63 +150,25 @@ def download_image(url):
         ).convert("RGB")
 
     except Exception as error:
-        print("Image download failed:", error)
+        print("Photo error:", error)
         return None
 
 
-def add_logo(image, draw):
-    if not os.path.exists("logo.jpg"):
-        print("logo.jpg not found")
-        return
-
-    try:
-        logo = Image.open("logo.jpg").convert("RGB")
-        logo.thumbnail((135, 135), Image.Resampling.LANCZOS)
-
-        x = 35
-        y = 1198
-
-        image.paste(logo, (x, y))
-
-    except Exception as error:
-        print("Logo error:", error)
-
-
 def create_card(article, number):
-    image = Image.new(
-        "RGB", (WIDTH, HEIGHT), BG
-    )
-
+    image = Image.new("RGB", (WIDTH, HEIGHT), BG)
     draw = ImageDraw.Draw(image)
 
-    # TOP HEADER
-    draw.rectangle(
-        (0, 0, WIDTH, 145),
-        fill=(2, 24, 55)
-    )
-
+    # Header
+    draw.rectangle((0, 0, WIDTH, 145), fill=(2, 24, 55))
     draw.polygon(
         [(35, 40), (105, 40), (90, 120), (35, 120)],
         fill=RED
     )
 
-    draw.line(
-        (112, 43, 92, 118),
-        fill=RED,
-        width=9
-    )
+    draw.line((112, 43, 92, 118), fill=RED, width=9)
+    draw.line((132, 43, 112, 118), fill=RED, width=9)
 
-    draw.line(
-        (132, 43, 112, 118),
-        fill=RED,
-        width=9
-    )
-
-    draw.rectangle(
-        (145, 48, 470, 112),
-        fill=(245, 242, 225)
-    )
-
+    draw.rectangle((145, 48, 470, 112), fill=(245, 242, 225))
     draw.text(
         (158, 53),
         "NEWS UPDATE",
@@ -170,7 +176,7 @@ def create_card(article, number):
         fill=(15, 25, 50)
     )
 
-    # NEPALI DATE
+    # Nepali date
     date_text = nepali_date()
 
     draw.rounded_rectangle(
@@ -179,42 +185,37 @@ def create_card(article, number):
         fill=WHITE
     )
 
-    date_font = font(29, True)
-
     draw.text(
         (750, 62),
         date_text,
-        font=date_font,
+        font=get_font(date_text, 27, True),
         fill=(0, 0, 0)
     )
 
-    # MAIN NEWS PHOTO
+    # Main photo
     draw.rectangle(
         (30, 160, 1050, 715),
         fill=(15, 55, 85)
     )
 
-    photo = download_image(
-        article.get("image_url", "")
-    )
+    photo = download_image(article.get("image_url", ""))
 
     if photo:
-        # Preserve the complete original photo.
-        photo.thumbnail(
+        photo = ImageOps.contain(
+            photo,
             (1000, 545),
-            Image.Resampling.LANCZOS
+            method=Image.Resampling.LANCZOS
         )
 
         px = (WIDTH - photo.width) // 2
         py = 165 + (540 - photo.height) // 2
-
         image.paste(photo, (px, py))
 
     else:
         draw.text(
             (320, 400),
-            "NEWS UPDATE",
-            font=font(55, True),
+            "NEWS PHOTO UNAVAILABLE",
+            font=font(35, True),
             fill=WHITE
         )
 
@@ -224,25 +225,18 @@ def create_card(article, number):
         width=3
     )
 
-    # RED SIDE LINE
-    draw.ellipse(
-        (50, 755, 94, 799),
-        fill=RED
-    )
+    # Red side line
+    draw.ellipse((50, 755, 94, 799), fill=RED)
+    draw.rectangle((63, 785, 81, 1165), fill=RED)
 
-    draw.rectangle(
-        (63, 785, 81, 1165),
-        fill=RED
-    )
-
-    # ENGLISH HEADLINE
+    # Headline
     headline = (
         article.get("english_title")
         or article.get("title")
         or "LATEST NEWS UPDATE"
     )
 
-    headline_font = font(43, True)
+    headline_font = get_font(headline, 43, True)
 
     headline_lines = wrap_text(
         draw, headline, headline_font, 920
@@ -255,19 +249,18 @@ def create_card(article, number):
             (108, y),
             line,
             font=headline_font,
-            fill=CYAN,
-            stroke_width=1
+            fill=CYAN
         )
         y += 58
 
-    # ENGLISH DESCRIPTION
+    # Description
     description = (
         article.get("english_description")
         or article.get("description")
         or ""
     )
 
-    description_font = font(27)
+    description_font = get_font(description, 27)
 
     description_lines = wrap_text(
         draw, description, description_font, 900
@@ -285,59 +278,64 @@ def create_card(article, number):
             font=description_font,
             fill=WHITE
         )
-
         y += 40
 
-    # FOOTER
-    draw.rectangle(
-        (0, 1180, WIDTH, HEIGHT),
-        fill=RED
-    )
+    # Footer
+    draw.rectangle((0, 1180, WIDTH, HEIGHT), fill=RED)
 
-    add_logo(image, draw)
+    if os.path.exists("logo.jpg"):
+        try:
+            logo = Image.open("logo.jpg").convert("RGB")
+            logo = ImageOps.fit(logo, (120, 120))
+            image.paste(logo, (35, 1200))
+        except Exception as error:
+            print("Logo error:", error)
 
     draw.text(
-        (195, 1205),
+        (185, 1205),
         "ILOVECHITWAN",
         font=font(37, True),
         fill=WHITE
     )
 
     draw.text(
-        (195, 1255),
+        (185, 1255),
         "NEWS AND UPDATES",
         font=font(23, True),
         fill=WHITE
     )
 
-    source = article.get("source", "News")
+    source = str(article.get("source", "News"))
 
     draw.text(
-        (195, 1293),
-        "Source: " + str(source),
+        (185, 1293),
+        "Source: " + source,
         font=font(21),
         fill=WHITE
     )
 
     output = f"news_images/news_{number:02d}.jpg"
 
-    image.save(
-        output,
-        "JPEG",
-        quality=95,
-        optimize=True
-    )
+    image.save(output, "JPEG", quality=95)
 
     print("Created:", output)
 
 
 def main():
+    if not NEPALI_FONT:
+        raise RuntimeError(
+            "Noto Sans Devanagari font not found"
+        )
+
+    if not features.check_feature("raqm"):
+        raise RuntimeError(
+            "Pillow RAQM support missing. Nepali shaping unavailable."
+        )
+
     if not os.path.exists("news.json"):
         raise FileNotFoundError("news.json missing")
 
-    with open(
-        "news.json", "r", encoding="utf-8"
-    ) as file:
+    with open("news.json", "r", encoding="utf-8") as file:
         data = json.load(file)
 
     articles = data.get("articles", [])
@@ -345,13 +343,8 @@ def main():
     if not articles:
         raise ValueError("No news articles found")
 
-    for number, article in enumerate(
-        articles[:10], 1
-    ):
-        try:
-            create_card(article, number)
-        except Exception as error:
-            print("Card error:", error)
+    for number, article in enumerate(articles[:10], 1):
+        create_card(article, number)
 
     print("ALL NEWS CARDS COMPLETED")
 
