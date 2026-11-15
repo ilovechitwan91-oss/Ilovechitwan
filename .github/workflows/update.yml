@@ -57,7 +57,6 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           git config user.name "I Love Chitwan News Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -78,5 +77,34 @@ jobs:
             echo "No new changes to save"
           else
             git commit -m "Update latest news and photos"
+            git push origin HEAD:main
+          fi
+
+      - name: Publish One New Article to Facebook
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: python publish_facebook.py
+
+      - name: Save Facebook Publishing History
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "I Love Chitwan News Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if [ ! -f published_news.json ]; then
+            echo "No publishing history file was created."
+            exit 0
+          fi
+
+          git fetch origin main
+          git rebase origin/main
+          git add published_news.json
+
+          if git diff --cached --quiet; then
+            echo "No publishing history changes to save"
+          else
+            git commit -m "Save Facebook publishing history"
             git push origin HEAD:main
           fi
