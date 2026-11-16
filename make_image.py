@@ -8,23 +8,17 @@ from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 WIDTH, HEIGHT = 1080, 1350
+PHOTO_HEIGHT = 760
 
-BG = (8, 19, 45)
-RED = (222, 15, 55)
+BG = (8, 19, 43)
+RED = (224, 15, 55)
 YELLOW = (255, 211, 0)
 WHITE = (255, 255, 255)
-
-PHOTO_HEIGHT = 760
 
 NEWS_FILE = Path("news.json")
 STATE_FILE = Path("published_news.json")
 IMAGE_DIR = Path("news_images")
 IMAGE_DIR.mkdir(exist_ok=True)
-
-NEPALI_REGULAR = [
-    "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-]
 
 NEPALI_BOLD = [
     "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf",
@@ -74,7 +68,7 @@ def nepali_date():
         )
 
     except Exception as exc:
-        print("NEPALI DATE ERROR:", exc)
+        print("DATE ERROR:", exc)
         return ""
 
 
@@ -97,7 +91,7 @@ def download_photo(url):
         return ImageOps.exif_transpose(image).convert("RGB")
 
     except Exception as exc:
-        print("PHOTO DOWNLOAD ERROR:", exc)
+        print("PHOTO ERROR:", exc)
         return None
 
 
@@ -106,7 +100,7 @@ def fit_photo(image):
         image = Image.new(
             "RGB",
             (WIDTH, PHOTO_HEIGHT),
-            (25, 38, 65)
+            (50, 50, 50)
         )
 
     return ImageOps.fit(
@@ -117,39 +111,123 @@ def fit_photo(image):
     )
 
 
-def wrap(draw, text, fnt, max_width):
-    lines = []
-    current = ""
-
-    for word in str(text).split():
-        test = (current + " " + word).strip()
-
-        bbox = draw.textbbox(
-            (0, 0),
-            test,
-            font=fnt
-        )
-
-        if bbox[2] - bbox[0] <= max_width:
-            current = test
-        else:
-            if current:
-                lines.append(current)
-            current = word
-
-    if current:
-        lines.append(current)
-
-    return lines
+def text_width(draw, text, fnt):
+    box = draw.textbbox((0, 0), text, font=fnt)
+    return box[2] - box[0]
 
 
-def draw_center_text(draw, text, y, fnt, fill):
+def split_headline(draw, title):
+    words = title.split()
+
+    if len(words) < 2:
+        return title, ""
+
+    for size in range(70, 35, -2):
+        fnt = font(NEPALI_BOLD, size)
+
+        best = None
+        best_difference = float("inf")
+
+        for i in range(1, len(words)):
+            first = " ".join(words[:i])
+            second = " ".join(words[i:])
+
+            w1 = text_width(draw, first, fnt)
+            w2 = text_width(draw, second, fnt)
+
+            if w1 <= 970 and w2 <= 970:
+                difference = abs(w1 - w2)
+
+                if difference < best_difference:
+                    best_difference = difference
+                    best = (first, second, size)
+
+        if best:
+            return best
+
+    return " ".join(words[:-1]), words[-1], 36
+
+
+def draw_social_icons(draw):
+    y = 1280
+
+    # FACEBOOK ICON
+    fx = 95
+    draw.ellipse(
+        (fx, y, fx + 42, y + 42),
+        fill=(24, 119, 242)
+    )
     draw.text(
-        (WIDTH // 2, y),
-        text,
-        font=fnt,
-        fill=fill,
-        anchor="mt"
+        (fx + 21, y + 21),
+        "f",
+        font=font(ENGLISH_BOLD, 32),
+        fill=WHITE,
+        anchor="mm"
+    )
+
+    draw.text(
+        (145, y + 8),
+        "ilovechitwan",
+        font=font(ENGLISH_BOLD, 22),
+        fill=WHITE
+    )
+
+    # YOUTUBE ICON
+    yx = 435
+    draw.rounded_rectangle(
+        (yx, y + 5, yx + 49, y + 37),
+        radius=9,
+        fill=(255, 0, 0)
+    )
+
+    draw.polygon(
+        [
+            (yx + 20, y + 12),
+            (yx + 20, y + 30),
+            (yx + 34, y + 21)
+        ],
+        fill=WHITE
+    )
+
+    draw.text(
+        (yx + 58, y + 8),
+        "hamraikhabar",
+        font=font(ENGLISH_BOLD, 21),
+        fill=WHITE
+    )
+
+    # INSTAGRAM ICON
+    ix = 790
+
+    draw.rounded_rectangle(
+        (ix, y + 2, ix + 42, y + 42),
+        radius=11,
+        fill=(210, 55, 130)
+    )
+
+    draw.rounded_rectangle(
+        (ix + 8, y + 10, ix + 34, y + 34),
+        radius=7,
+        outline=WHITE,
+        width=3
+    )
+
+    draw.ellipse(
+        (ix + 15, y + 17, ix + 27, y + 29),
+        outline=WHITE,
+        width=3
+    )
+
+    draw.ellipse(
+        (ix + 27, y + 12, ix + 31, y + 16),
+        fill=WHITE
+    )
+
+    draw.text(
+        (ix + 49, y + 8),
+        "khabar.short",
+        font=font(ENGLISH_BOLD, 21),
+        fill=WHITE
     )
 
 
@@ -166,10 +244,8 @@ def create_card(article, index):
         BG
     )
 
-    draw = ImageDraw.Draw(canvas)
-
     # --------------------------------
-    # 1. HD NEWS PHOTO
+    # NEWS PHOTO - NATURAL COLORS
     # --------------------------------
 
     photo = download_photo(
@@ -178,41 +254,19 @@ def create_card(article, index):
 
     photo = fit_photo(photo)
 
+    # No blue overlay, no gradient, no logo
     canvas.paste(photo, (0, 0))
-
-    # Subtle dark fade at bottom of photo
-    fade = Image.new(
-        "RGBA",
-        (WIDTH, 180),
-        (0, 0, 0, 0)
-    )
-
-    pixels = fade.load()
-
-    for y in range(180):
-        alpha = int(150 * y / 179)
-
-        for x in range(WIDTH):
-            pixels[x, y] = (
-                0, 0, 0, alpha
-            )
-
-    canvas.paste(
-        fade,
-        (0, PHOTO_HEIGHT - 180),
-        fade
-    )
 
     draw = ImageDraw.Draw(canvas)
 
     # --------------------------------
-    # 2. DATE BADGE
+    # NEPALI DATE
     # --------------------------------
 
     date = nepali_date()
 
     if date:
-        date_font = font(NEPALI_BOLD, 31)
+        date_font = font(NEPALI_BOLD, 29)
 
         bbox = draw.textbbox(
             (0, 0),
@@ -220,163 +274,116 @@ def create_card(article, index):
             font=date_font
         )
 
-        date_width = bbox[2] - bbox[0]
+        dw = bbox[2] - bbox[0]
 
-        badge_width = date_width + 48
-
-        x = WIDTH - badge_width - 35
+        x = WIDTH - dw - 85
 
         draw.rounded_rectangle(
-            (x, 40, WIDTH - 35, 105),
+            (x - 20, 40, WIDTH - 35, 105),
             radius=14,
             fill=RED
         )
 
         draw.text(
-            (x + 24, 55 - bbox[1]),
+            (x, 55 - bbox[1]),
             date,
             font=date_font,
             fill=WHITE
         )
 
     # --------------------------------
-    # 3. NAVY BLUE NEWS PANEL
+    # NEWS TEXT BACKGROUND
     # --------------------------------
 
+    # Direct transition: photo ends, navy panel begins
     draw.rectangle(
         (0, PHOTO_HEIGHT, WIDTH, HEIGHT),
         fill=BG
     )
 
-    # Small branding heading
-    draw_center_text(
+    # --------------------------------
+    # HEADLINE: TWO DIFFERENT COLORS
+    # --------------------------------
+
+    first, second, size = split_headline(
         draw,
-        "I LOVE CHITWAN",
-        785,
-        font(ENGLISH_BOLD, 28),
-        WHITE
+        title
     )
 
-    # --------------------------------
-    # 4. MAIN NEWS HEADLINE
-    # --------------------------------
+    headline_font = font(
+        NEPALI_BOLD,
+        size
+    )
 
-    selected_font = font(NEPALI_BOLD, 64)
+    line_height = int(size * 1.45)
 
-    lines = []
+    # First line - WHITE
+    bbox1 = draw.textbbox(
+        (0, 0),
+        first,
+        font=headline_font
+    )
 
-    for size in range(76, 43, -2):
+    w1 = bbox1[2] - bbox1[0]
 
-        selected_font = font(
-            NEPALI_BOLD,
-            size
-        )
+    draw.text(
+        (
+            (WIDTH - w1) // 2,
+            805 - bbox1[1]
+        ),
+        first,
+        font=headline_font,
+        fill=WHITE
+    )
 
-        lines = wrap(
-            draw,
-            title,
-            selected_font,
-            960
-        )
-
-        line_height = int(size * 1.25)
-
-        if (
-            len(lines) <= 4
-            and 845 + len(lines) * line_height <= 1100
-        ):
-            break
-
-    # Keep long headlines within four lines
-    if len(lines) > 4:
-        lines = lines[:4]
-
-        last = lines[-1]
-
-        while last:
-            test = last + "..."
-
-            bbox = draw.textbbox(
-                (0, 0),
-                test,
-                font=selected_font
-            )
-
-            if bbox[2] - bbox[0] <= 960:
-                break
-
-            last = last[:-1]
-
-        lines[-1] = last.rstrip() + "..."
-
-    line_height = int(selected_font.size * 1.25)
-
-    y = 845
-
-    for line in lines:
-
-        bbox = draw.textbbox(
+    # Second line - YELLOW
+    if second:
+        bbox2 = draw.textbbox(
             (0, 0),
-            line,
-            font=selected_font
+            second,
+            font=headline_font
         )
 
-        text_width = bbox[2] - bbox[0]
-
-        x = (WIDTH - text_width) // 2
+        w2 = bbox2[2] - bbox2[0]
 
         draw.text(
-            (x, y - bbox[1]),
-            line,
-            font=selected_font,
-            fill=YELLOW,
-            stroke_width=1,
-            stroke_fill=YELLOW
+            (
+                (WIDTH - w2) // 2,
+                805 + line_height - bbox2[1]
+            ),
+            second,
+            font=headline_font,
+            fill=YELLOW
         )
 
-        y += line_height
-
     # --------------------------------
-    # 5. RED UNDERLINE
+    # RED UNDERLINE
     # --------------------------------
-
-    underline_y = min(y + 5, 1110)
 
     draw.rounded_rectangle(
-        (
-            WIDTH // 2 - 62,
-            underline_y,
-            WIDTH // 2 + 62,
-            underline_y + 9
-        ),
+        (480, 1050, 600, 1060),
         radius=5,
         fill=RED
     )
 
     # --------------------------------
-    # 6. READ FULL NEWS BUTTON
+    # FULL NEWS BUTTON
     # --------------------------------
 
     label = "पूरा समाचार कमेन्टमा"
 
     label_font = font(
         NEPALI_BOLD,
-        35
+        34
     )
 
-    button_width = 700
-    button_height = 76
-
-    button_x = (WIDTH - button_width) // 2
-    button_y = 1150
+    bx = 190
+    by = 1090
+    bw = 700
+    bh = 76
 
     draw.rounded_rectangle(
-        (
-            button_x,
-            button_y,
-            button_x + button_width,
-            button_y + button_height
-        ),
+        (bx, by, bx + bw, by + bh),
         radius=40,
         fill=RED
     )
@@ -387,13 +394,13 @@ def create_card(article, index):
         font=label_font
     )
 
-    label_width = bbox[2] - bbox[0]
-    label_height = bbox[3] - bbox[1]
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
 
     draw.text(
         (
-            (WIDTH - label_width) // 2,
-            button_y + (button_height - label_height) // 2 - bbox[1]
+            (WIDTH - tw) // 2,
+            by + (bh - th) // 2 - bbox[1]
         ),
         label,
         font=label_font,
@@ -401,34 +408,13 @@ def create_card(article, index):
     )
 
     # --------------------------------
-    # 7. TEXT-ONLY FACEBOOK BRANDING
+    # SOCIAL MEDIA - ONE HORIZONTAL ROW
     # --------------------------------
 
-    footer_y = 1280
-
-    # Facebook blue circle with text f
-    draw.ellipse(
-        (170, footer_y, 215, footer_y + 45),
-        fill=(24, 119, 242)
-    )
-
-    draw.text(
-        (192, footer_y + 21),
-        "f",
-        font=font(ENGLISH_BOLD, 34),
-        fill=WHITE,
-        anchor="mm"
-    )
-
-    draw.text(
-        (230, footer_y + 7),
-        "ilovechitwan",
-        font=font(ENGLISH_BOLD, 31),
-        fill=WHITE
-    )
+    draw_social_icons(draw)
 
     # --------------------------------
-    # 8. SAVE HD IMAGE
+    # SAVE HD CARD
     # --------------------------------
 
     output = IMAGE_DIR / f"news_{index:02d}.jpg"
@@ -450,9 +436,7 @@ def create_card(article, index):
 def main():
 
     if not NEWS_FILE.exists():
-        raise FileNotFoundError(
-            "news.json not found"
-        )
+        raise FileNotFoundError("news.json not found")
 
     data = json.loads(
         NEWS_FILE.read_text(encoding="utf-8")
@@ -480,7 +464,6 @@ def main():
         if isinstance(x, dict)
     }
 
-    # Remove old generated images
     for old in IMAGE_DIR.glob("news_*.jpg"):
         old.unlink()
 
@@ -500,11 +483,7 @@ def main():
                 made += 1
 
         except Exception as exc:
-            print(
-                "CARD ERROR:",
-                index,
-                exc
-            )
+            print("CARD ERROR:", index, exc)
 
     print("NEW HD CARDS CREATED:", made)
 
