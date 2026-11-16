@@ -24,7 +24,6 @@ def load_published():
             STATE_FILE.read_text(encoding="utf-8")
         )
         return data if isinstance(data, list) else []
-
     except Exception:
         return []
 
@@ -70,23 +69,85 @@ def publish_photo(page_id, token, image_path, caption):
             timeout=90
         )
 
-    try:
-        result = response.json()
-    except ValueError:
-        raise RuntimeError(
-            "Facebook API returned an invalid response."
-        )
+    result = response.json()
 
     if not response.ok or "error" in result:
-
         error = result.get("error", {})
-
         raise RuntimeError(
-            "Facebook Error: "
+            "Photo Publish Error: "
             + str(error.get("message", result))
         )
 
-    return result.get("post_id") or result.get("id")
+    post_id = result.get("post_id") or result.get("id")
+
+    if not post_id:
+        raise RuntimeError(
+            "Facebook did not return a post ID."
+        )
+
+    return post_id
+
+
+def publish_first_comment(page_id, token, post_id, message):
+
+    url = (
+        f"https://graph.facebook.com/"
+        f"{API_VERSION}/{post_id}/comments"
+    )
+
+    response = requests.post(
+        url,
+        data={
+            "message": message,
+            "access_token": token
+        },
+        timeout=60
+    )
+
+    result = response.json()
+
+    if not response.ok or "error" in result:
+        error = result.get("error", {})
+        raise RuntimeError(
+            "First Comment Error: "
+            + str(error.get("message", result))
+        )
+
+    return result.get("id")
+
+
+def retry_pending_comments(page_id, token, published):
+
+    for item in published:
+
+        if item.get("comment_posted") is False:
+
+            post_id = item.get("post_id")
+            comment_text = item.get("comment_text", "")
+
+            if not post_id or not comment_text:
+                raise RuntimeError(
+                    "Pending comment information missing."
+                )
+
+            print(
+                "Retrying first comment:",
+                item.get("title", "")
+            )
+
+            comment_id = publish_first_comment(
+                page_id,
+                token,
+                post_id,
+                comment_text
+            )
+
+            item["comment_posted"] = True
+            item["comment_id"] = comment_id
+
+            save_published(published)
+
+            print("FIRST COMMENT SUCCESS!")
 
 
 def main():
@@ -110,9 +171,7 @@ def main():
         )
 
     data = json.loads(
-        NEWS_FILE.read_text(
-            encoding="utf-8"
-        )
+        NEWS_FILE.read_text(encoding="utf-8")
     )
 
     articles = data.get("articles", [])
@@ -123,13 +182,20 @@ def main():
 
     published = load_published()
 
+    # पहिले बाँकी रहेका Comment पोस्ट गर्ने
+    retry_pending_comments(
+        page_id,
+        token,
+        published
+    )
+
     published_links = {
         item.get("link")
         for item in published
         if isinstance(item, dict)
     }
 
-    # एउटै Workflow मा एउटा मात्र नयाँ समाचार
+    # एउटा Workflow मा एउटा मात्र नयाँ समाचार
     for index, article in enumerate(
         articles[:10], start=1
     ):
@@ -162,22 +228,27 @@ def main():
         )
 
         if not image_path.exists():
-            print(
-                "Photo missing:",
-                image_path
-            )
+            print("Photo missing:", image_path)
             continue
 
+        # फोटो पोस्टमा छोटो शीर्षक मात्र
         caption = (
-            f"{title}\n\n"
-            f"{description}\n\n"
-            f"📰 स्रोत: {source}\n\n"
-            f"थप जानकारी: {link}\n\n"
+            f"📰 {title}\n\n"
             f"❤️ Hamro Chitwan Ramro Chitwan\n"
             f"Facebook: www.fb.com/ilovechitwan"
         )
 
-        print("Publishing:", title)
+        # पहिलो Comment मा पूरा समाचार
+        comment_text = (
+            f"📰 पूरा समाचार\n\n"
+            f"{title}\n\n"
+            f"{description}\n\n"
+            f"समाचार स्रोत: {source}\n\n"
+            f"थप जानकारी: {link}\n\n"
+            f"❤️ Hamro Chitwan Ramro Chitwan"
+        )
+
+        print("Publishing photo:", title)
 
         post_id = publish_photo(
             page_id,
@@ -186,16 +257,37 @@ def main():
             caption[:9500]
         )
 
-        published.append({
+        print("PHOTO SUCCESS!")
+        print("Facebook Post ID:", post_id)
+
+        # फोटो सफल भएपछि तुरुन्तै सुरक्षित गर्ने
+        record = {
             "link": link,
             "title": title,
-            "post_id": post_id
-        })
+            "post_id": post_id,
+            "comment_text": comment_text,
+            "comment_posted": False
+        }
+
+        published.append(record)
+        save_published(published)
+
+        # पहिलो Comment पोस्ट गर्ने
+        comment_id = publish_first_comment(
+            page_id,
+            token,
+            post_id,
+            comment_text
+        )
+
+        record["comment_posted"] = True
+        record["comment_id"] = comment_id
 
         save_published(published)
 
-        print("SUCCESS!")
-        print("Facebook Post ID:", post_id)
+        print("FIRST COMMENT SUCCESS!")
+        print("Comment ID:", comment_id)
+        print("ALL DONE!")
 
         return
 
@@ -210,5 +302,4 @@ if __name__ == "__main__":
     except Exception as error:
 
         print("PUBLISH ERROR:", error)
-
         sys.exit(1)
