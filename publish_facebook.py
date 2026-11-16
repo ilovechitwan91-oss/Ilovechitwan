@@ -126,28 +126,32 @@ def retry_pending_comments(page_id, token, published):
             comment_text = item.get("comment_text", "")
 
             if not post_id or not comment_text:
-                raise RuntimeError(
-                    "Pending comment information missing."
-                )
+                print("Pending comment information missing.")
+                continue
 
             print(
                 "Retrying first comment:",
                 item.get("title", "")
             )
 
-            comment_id = publish_first_comment(
-                page_id,
-                token,
-                post_id,
-                comment_text
-            )
+            try:
+                comment_id = publish_first_comment(
+                    page_id,
+                    token,
+                    post_id,
+                    comment_text
+                )
 
-            item["comment_posted"] = True
-            item["comment_id"] = comment_id
+                item["comment_posted"] = True
+                item["comment_id"] = comment_id
 
-            save_published(published)
+                save_published(published)
 
-            print("FIRST COMMENT SUCCESS!")
+                print("FIRST COMMENT SUCCESS!")
+
+            except Exception as error:
+                print("COMMENT RETRY FAILED:", error)
+                print("Continuing to next news...")
 
 
 def main():
@@ -182,7 +186,7 @@ def main():
 
     published = load_published()
 
-    # पहिले बाँकी रहेका Comment पोस्ट गर्ने
+    # पुराना बाँकी Comment प्रयास गर्ने
     retry_pending_comments(
         page_id,
         token,
@@ -231,14 +235,14 @@ def main():
             print("Photo missing:", image_path)
             continue
 
-        # फोटो पोस्टमा छोटो शीर्षक मात्र
+        # फोटो पोस्टको Caption
         caption = (
             f"📰 {title}\n\n"
             f"❤️ Hamro Chitwan Ramro Chitwan\n"
             f"Facebook: www.fb.com/ilovechitwan"
         )
 
-        # पहिलो Comment मा पूरा समाचार
+        # First Comment मा पूरा समाचार
         comment_text = (
             f"📰 पूरा समाचार\n\n"
             f"{title}\n\n"
@@ -260,7 +264,7 @@ def main():
         print("PHOTO SUCCESS!")
         print("Facebook Post ID:", post_id)
 
-        # फोटो सफल भएपछि तुरुन्तै सुरक्षित गर्ने
+        # फोटो पोस्ट भएपछि तुरुन्त सुरक्षित गर्ने
         record = {
             "link": link,
             "title": title,
@@ -272,23 +276,31 @@ def main():
         published.append(record)
         save_published(published)
 
-        # पहिलो Comment पोस्ट गर्ने
-        comment_id = publish_first_comment(
-            page_id,
-            token,
-            post_id,
-            comment_text
-        )
+        # First Comment पोस्ट गर्ने
+        try:
 
-        record["comment_posted"] = True
-        record["comment_id"] = comment_id
+            comment_id = publish_first_comment(
+                page_id,
+                token,
+                post_id,
+                comment_text
+            )
 
-        save_published(published)
+            record["comment_posted"] = True
+            record["comment_id"] = comment_id
 
-        print("FIRST COMMENT SUCCESS!")
-        print("Comment ID:", comment_id)
+            save_published(published)
+
+            print("FIRST COMMENT SUCCESS!")
+            print("Comment ID:", comment_id)
+
+        except Exception as error:
+
+            print("FIRST COMMENT FAILED:", error)
+            print("PHOTO IS ALREADY PUBLISHED!")
+            print("COMMENT WILL BE RETRIED LATER.")
+
         print("ALL DONE!")
-
         return
 
     print("No new unpublished news found.")
