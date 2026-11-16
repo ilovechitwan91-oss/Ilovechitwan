@@ -1,17 +1,13 @@
 
 import json
 import os
-import re
 import urllib.request
 from pathlib import Path
 from io import BytesIO
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from PIL import (
-    Image, ImageDraw, ImageFont,
-    ImageOps, ImageFilter
-)
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 WIDTH, HEIGHT = 1080, 1350
 
@@ -22,32 +18,53 @@ WHITE = (255, 255, 255)
 
 NEWS_FILE = Path("news.json")
 IMAGE_DIR = Path("news_images")
-
 IMAGE_DIR.mkdir(exist_ok=True)
 
-# Nepali fonts
-FONT_REGULAR = [
+# Nepali font
+NEPALI_REGULAR = [
     "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 ]
 
-FONT_BOLD = [
+NEPALI_BOLD = [
     "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 ]
 
+# English font
+ENGLISH_REGULAR = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+]
 
-def get_font(size, bold=False):
-    paths = FONT_BOLD if bold else FONT_REGULAR
+ENGLISH_BOLD = [
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+]
 
+
+def load_font(paths, size):
     for path in paths:
         if os.path.exists(path):
             return ImageFont.truetype(
-                path, size,
+                path,
+                size,
                 layout_engine=ImageFont.Layout.RAQM
             )
 
     return ImageFont.load_default()
+
+
+def get_nepali_font(size, bold=False):
+    return load_font(
+        NEPALI_BOLD if bold else NEPALI_REGULAR,
+        size
+    )
+
+
+def get_english_font(size, bold=False):
+    return load_font(
+        ENGLISH_BOLD if bold else ENGLISH_REGULAR,
+        size
+    )
 
 
 def nepali_number(number):
@@ -59,7 +76,6 @@ def nepali_number(number):
 
 
 def get_nepali_date():
-
     try:
         import nepali_datetime
 
@@ -71,54 +87,42 @@ def get_nepali_date():
             "पुष", "माघ", "फागुन", "चैत"
         ]
 
-        month = months[today.month - 1]
-
         return (
             f"{nepali_number(today.year)} "
-            f"{month} "
+            f"{months[today.month - 1]} "
             f"{nepali_number(today.day)} गते"
         )
 
-    except Exception:
-
-        return datetime.now(
-            ZoneInfo("Asia/Kathmandu")
-        ).strftime("%Y-%m-%d")
+    except Exception as error:
+        print("NEPALI DATE ERROR:", error)
+        return "मिति उपलब्ध छैन"
 
 
 def download_photo(url):
-
     if not url:
         return None
 
     try:
         request = urllib.request.Request(
             url,
-            headers={
-                "User-Agent": "Mozilla/5.0"
-            }
+            headers={"User-Agent": "Mozilla/5.0"}
         )
 
         with urllib.request.urlopen(
             request, timeout=25
         ) as response:
-
             data = response.read()
 
-        image = Image.open(
+        return Image.open(
             BytesIO(data)
         ).convert("RGB")
 
-        return image
-
     except Exception as error:
-
         print("PHOTO DOWNLOAD ERROR:", error)
         return None
 
 
 def fit_photo(image):
-
     if image is None:
         image = Image.new(
             "RGB",
@@ -126,27 +130,21 @@ def fit_photo(image):
             (20, 35, 65)
         )
 
-    image = ImageOps.fit(
+    return ImageOps.fit(
         image,
         (WIDTH, 700),
         method=Image.Resampling.LANCZOS,
         centering=(0.5, 0.35)
     )
 
-    return image
-
 
 def wrap_text(draw, text, font, max_width):
-
     words = str(text).split()
     lines = []
     current = ""
 
     for word in words:
-
-        test = (
-            current + " " + word
-        ).strip()
+        test = (current + " " + word).strip()
 
         box = draw.textbbox(
             (0, 0),
@@ -156,12 +154,9 @@ def wrap_text(draw, text, font, max_width):
 
         if box[2] - box[0] <= max_width:
             current = test
-
         else:
-
             if current:
                 lines.append(current)
-
             current = word
 
     if current:
@@ -170,16 +165,25 @@ def wrap_text(draw, text, font, max_width):
     return lines
 
 
-def draw_headline(draw, title):
+def draw_centered(draw, text, y, font, fill):
+    draw.text(
+        (WIDTH // 2, y),
+        text,
+        font=font,
+        fill=fill,
+        anchor="mt"
+    )
 
+
+def draw_headline(draw, title):
     x = 58
     y = 735
     max_width = 964
 
-    # Fit headline into available space
-    for size in range(82, 45, -2):
+    lines = []
 
-        font = get_font(size, True)
+    for size in range(82, 39, -2):
+        font = get_nepali_font(size, True)
 
         lines = wrap_text(
             draw,
@@ -188,17 +192,15 @@ def draw_headline(draw, title):
             max_width
         )
 
-        line_height = int(size * 1.38)
+        line_height = int(size * 1.30)
 
         if (
             len(lines) <= 4
-            and y + len(lines) * line_height <= 1085
+            and y + len(lines) * line_height <= 1080
         ):
             break
 
-    # First line yellow, remaining lines white
     for index, line in enumerate(lines):
-
         color = YELLOW if index == 0 else WHITE
 
         draw.text(
@@ -213,6 +215,53 @@ def draw_headline(draw, title):
         y += line_height
 
     return y
+
+
+def draw_comment_label(draw):
+    text = "पूरा समाचार कमेन्टमा"
+
+    # Text अनुसार Highlight को आकार
+    font_size = 30
+    font = get_nepali_font(font_size, True)
+
+    bbox = draw.textbbox(
+        (0, 0),
+        text,
+        font=font
+    )
+
+    text_width = bbox[2] - bbox[0]
+    text_height = bbox[3] - bbox[1]
+
+    padding_x = 18
+    padding_y = 13
+
+    box_width = text_width + padding_x * 2
+    box_height = text_height + padding_y * 2
+
+    x = 60
+    y = 1120
+
+    draw.rounded_rectangle(
+        (
+            x,
+            y,
+            x + box_width,
+            y + box_height
+        ),
+        radius=10,
+        fill=YELLOW
+    )
+
+    draw.text(
+        (
+            x + padding_x,
+            y + padding_y - bbox[1]
+        ),
+        text,
+        font=font,
+        fill=BG
+    )
 
 
 def create_card(article, index):
@@ -231,20 +280,20 @@ def create_card(article, index):
 
     print("Creating news card:", title)
 
-    # Create canvas
     canvas = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
         BG
     )
 
-    # Download and crop news photo
-    photo = download_photo(image_url)
-    photo = fit_photo(photo)
+    # News photo
+    photo = fit_photo(
+        download_photo(image_url)
+    )
 
     canvas.paste(photo, (0, 0))
 
-    # Dark gradient on lower part of photo
+    # Photo gradient
     gradient = Image.new(
         "RGBA",
         (WIDTH, 250),
@@ -254,10 +303,7 @@ def create_card(article, index):
     pixels = gradient.load()
 
     for y in range(250):
-
-        alpha = int(
-            210 * (y / 249)
-        )
+        alpha = int(210 * (y / 249))
 
         for x in range(WIDTH):
             pixels[x, y] = (
@@ -272,7 +318,7 @@ def create_card(article, index):
 
     draw = ImageDraw.Draw(canvas)
 
-    # Top red border
+    # Top border
     draw.rectangle(
         (0, 0, WIDTH, 15),
         fill=RED
@@ -288,23 +334,41 @@ def create_card(article, index):
     draw.text(
         (75, 48),
         "ताजा खबर",
-        font=get_font(36, True),
+        font=get_nepali_font(36, True),
         fill=WHITE
     )
 
     # Nepali date
     date_text = get_nepali_date()
+    date_font = get_nepali_font(27, True)
+
+    date_bbox = draw.textbbox(
+        (0, 0),
+        date_text,
+        font=date_font
+    )
+
+    date_width = date_bbox[2] - date_bbox[0]
+
+    date_box_width = date_width + 40
+    date_x = WIDTH - 40 - date_box_width
 
     draw.rounded_rectangle(
-        (695, 40, 1040, 102),
+        (
+            date_x,
+            40,
+            WIDTH - 40,
+            102
+        ),
         radius=14,
         fill=BG
     )
 
-    date_font = get_font(29, True)
-
     draw.text(
-        (720, 54),
+        (
+            date_x + 20,
+            54 - date_bbox[1]
+        ),
         date_text,
         font=date_font,
         fill=WHITE
@@ -322,57 +386,50 @@ def create_card(article, index):
         title
     )
 
-    # Red underline
+    # Underline
     underline_y = min(
         max(end_y + 8, 1085),
         1095
     )
 
     draw.rectangle(
-        (60, underline_y, 265, underline_y + 9),
+        (60, underline_y, 265, underline_y + 8),
         fill=RED
     )
 
-    # Yellow comment label
-    draw.rounded_rectangle(
-        (60, 1120, 445, 1195),
-        radius=9,
-        fill=YELLOW
-    )
+    # Automatically sized comment highlight
+    draw_comment_label(draw)
 
-    draw.text(
-        (78, 1133),
-        "पूरा समाचार कमेन्टमा",
-        font=get_font(34, True),
-        fill=BG
-    )
-
-    # Red footer
+    # Footer
     draw.rectangle(
         (0, 1210, WIDTH, HEIGHT),
         fill=RED
     )
 
-    footer1 = "Please like, share & follow us at"
+    footer1 = "PLEASE LIKE, SHARE & FOLLOW US AT"
     footer2 = "fb.com/ilovechitwan"
 
-    draw.text(
-        (WIDTH // 2, 1230),
+    # English fonts separately
+    footer_font1 = get_english_font(28, True)
+    footer_font2 = get_english_font(48, True)
+
+    draw_centered(
+        draw,
         footer1,
-        font=get_font(34, True),
-        fill=WHITE,
-        anchor="mt"
+        1230,
+        footer_font1,
+        WHITE
     )
 
-    draw.text(
-        (WIDTH // 2, 1290),
+    draw_centered(
+        draw,
         footer2,
-        font=get_font(52, True),
-        fill=WHITE,
-        anchor="mt"
+        1290,
+        footer_font2,
+        WHITE
     )
 
-    # Save image
+    # Save
     output = IMAGE_DIR / f"news_{index:02d}.jpg"
 
     canvas.save(
@@ -408,7 +465,6 @@ def main():
         articles[:10],
         start=1
     ):
-
         try:
             create_card(article, index)
 
