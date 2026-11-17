@@ -1,4 +1,3 @@
-
 import json
 import os
 import re
@@ -15,11 +14,13 @@ MAX_HISTORY = 500
 
 MAX_PHOTO_RETRIES = 3
 MAX_COMMENT_RETRIES = 3
+MAX_POSTS_PER_RUN = 5
 
 
 def load_published():
     if not STATE_FILE.exists():
         return []
+
     try:
         value = json.loads(
             STATE_FILE.read_text(encoding="utf-8")
@@ -107,9 +108,7 @@ def api_error(response):
         result = {"message": response.text[:1000]}
 
     error = result.get("error", {})
-    message = error.get("message") or str(result)
-
-    return message
+    return error.get("message") or str(result)
 
 
 def publish_photo(page_id, token, image_path, caption):
@@ -195,7 +194,6 @@ def publish_first_comment(post_id, token, link):
         f"{API_VERSION}/{post_id}/comments"
     )
 
-    # Comment section मा समाचारको लिंक मात्र।
     response = requests.post(
         url,
         data={
@@ -212,8 +210,7 @@ def publish_first_comment(post_id, token, link):
 
     if not response.ok or "error" in result:
         raise RuntimeError(
-            "First Comment Error: "
-            + api_error(response)
+            "First Comment Error: " + api_error(response)
         )
 
     return result.get("id")
@@ -230,9 +227,7 @@ def retry_pending_comments(token, published):
         if not post_id or not link:
             continue
 
-        for attempt in range(
-            1, MAX_COMMENT_RETRIES + 1
-        ):
+        for attempt in range(1, MAX_COMMENT_RETRIES + 1):
             try:
                 print(
                     f"COMMENT RETRY "
@@ -291,7 +286,7 @@ def main():
 
     published = load_published()
 
-    # पुराना Pending comment अब लिंक मात्र पोस्ट गर्नेछ।
+    # पहिले पोस्ट भएका समाचारका बाँकी कमेन्ट पूरा गर्ने।
     retry_pending_comments(token, published)
 
     published_links = {
@@ -300,9 +295,15 @@ def main():
         if isinstance(x, dict)
     }
 
-    for index, article in enumerate(
-        articles, start=1
-    ):
+    success_count = 0
+    failed_count = 0
+    skipped_count = 0
+
+    for index, article in enumerate(articles, start=1):
+
+        if success_count >= MAX_POSTS_PER_RUN:
+            break
+
         title = (
             article.get("title") or ""
         ).strip()
@@ -312,9 +313,13 @@ def main():
         )
 
         if not title or not link:
+            print("SKIP: Missing title or link")
+            skipped_count += 1
             continue
 
         if link in published_links:
+            print("ALREADY POSTED:", title)
+            skipped_count += 1
             continue
 
         image_path = (
@@ -326,13 +331,21 @@ def main():
                 "HD photo not available; skip:",
                 image_path
             )
+            skipped_count += 1
             continue
 
         caption = (
             f"{title}\n\n{hashtags_for(title)}"
         )
 
-        print("Publishing:", title)
+        print("\n================================")
+        print(
+            f"POSTING NEWS "
+            f"{success_count + 1}/{MAX_POSTS_PER_RUN}"
+        )
+        print("TITLE:", title)
+        print("IMAGE:", image_path)
+        print("================================")
 
         try:
             post_id = publish_photo(
@@ -341,13 +354,16 @@ def main():
                 image_path,
                 caption[:9500]
             )
+
         except Exception as exc:
             print(
-                "PHOTO FAILED; CONTINUING TO NEXT NEWS:",
+                "PHOTO FAILED; MOVING TO NEXT NEWS:",
                 exc
             )
+            failed_count += 1
             continue
 
+        # पोस्ट सफल भएपछि तुरुन्तै इतिहासमा सुरक्षित गर्ने।
         record = {
             "link": link,
             "title": title,
@@ -359,8 +375,11 @@ def main():
         published_links.add(link)
         save_published(published)
 
+        success_count += 1
+
         print("PHOTO SUCCESS:", post_id)
 
+        # प्रत्येक पोस्टमा समाचारको लिंक मात्र कमेन्ट गर्ने।
         try:
             comment_id = publish_first_comment(
                 post_id, token, link
@@ -379,13 +398,19 @@ def main():
                 exc
             )
 
-        print("ONE NEW NEWS POST COMPLETED")
-        return
+        print(
+            f"NEWS POST COMPLETED "
+            f"({success_count}/{MAX_POSTS_PER_RUN})"
+        )
 
-    print(
-        "No new unpublished news found "
-        "in current feed."
-    )
+        # Facebook मा धेरै छिटो अनुरोध नहोस्।
+        time.sleep(3)
+
+    print("\n========== FINAL REPORT ==========")
+    print("Successfully posted:", success_count)
+    print("Failed:", failed_count)
+    print("Skipped:", skipped_count)
+    print("==================================")
 
 
 if __name__ == "__main__":
