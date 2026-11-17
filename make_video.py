@@ -4,21 +4,21 @@ import json
 import re
 import base64
 import subprocess
+import wave
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from io import BytesIO
 
 import requests
-import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 import imageio_ffmpeg
 
 
 # ==========================================
 # I LOVE CHITWAN - NEWS VIDEO GENERATOR
-# Gemini TTS | Aoede Female Voice
-# Maximum 2 new videos per Nepal day
+# Gemini TTS | Aoede Voice
+# One video per run | Maximum 2 per Nepal day
 # ==========================================
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
@@ -152,7 +152,6 @@ def generate_voice(text, output_file):
     channels = 1
     bits = 16
 
-    import wave
     with wave.open(str(output_file), "wb") as wav:
         wav.setnchannels(channels)
         wav.setsampwidth(bits // 8)
@@ -195,7 +194,6 @@ def create_video_image(article, script, output_file):
     draw = ImageDraw.Draw(canvas)
 
     title_font = get_font(35)
-    body_font = get_font(27)
     small_font = get_font(23)
 
     # Header
@@ -298,6 +296,9 @@ def main():
     news_data = load_json(NEWS_FILE, {})
     articles = news_data.get("articles", [])
 
+    if not articles:
+        raise RuntimeError("news.json मा समाचार भेटिएन।")
+
     history = load_json(HISTORY_FILE, {})
     done = set(history.get("published_links", []))
 
@@ -316,19 +317,19 @@ def main():
         if not link or link in done:
             continue
 
-        if daily_count >= MAX_DAILY_VIDEOS:
-            break
-
         title = clean_text(article.get("title", ""))
+
         if not title:
             continue
 
         print("Creating video:", title)
 
+        video_number = len(history.get("videos", [])) + 1
+
         safe_name = re.sub(
             r"[^a-zA-Z0-9_-]",
             "_",
-            str(len(history.get("videos", [])) + 1)
+            str(video_number)
         )
 
         image_file = OUTPUT_DIR / f"news_{safe_name}.jpg"
@@ -337,7 +338,11 @@ def main():
 
         try:
             script = make_script(article)
-            generate_voice(script, audio_file)
+
+            generate_voice(
+                script,
+                audio_file
+            )
 
             create_video_image(
                 article,
@@ -366,6 +371,9 @@ def main():
             save_json(HISTORY_FILE, history)
 
             print("VIDEO CREATED:", video_file)
+
+            # प्रत्येक Workflow मा एउटा मात्र Reel
+            break
 
         except Exception as exc:
             print("VIDEO FAILED:", exc)
