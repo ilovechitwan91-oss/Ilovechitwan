@@ -1,5 +1,6 @@
-
 Pillow>=10.0.0
 requests>=2.31.0
 nepali-datetime>=1.0.8
 edge-tts
+numpy
+imageio-ffmpeg
