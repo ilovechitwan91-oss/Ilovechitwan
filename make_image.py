@@ -116,47 +116,74 @@ def text_width(draw, text, fnt):
     return box[2] - box[0]
 
 
-def split_headline(draw, title):
+# --------------------------------
+# AUTOMATIC HEADLINE WRAPPING
+# --------------------------------
+
+def wrap_headline(draw, title, max_width, fnt):
     words = title.split()
+    lines = []
+    current = ""
 
-    if len(words) < 2:
-        return title, ""
+    for word in words:
+        test = word if not current else current + " " + word
 
-    for size in range(70, 35, -2):
+        if text_width(draw, test, fnt) <= max_width:
+            current = test
+        else:
+            if current:
+                lines.append(current)
+            current = word
+
+    if current:
+        lines.append(current)
+
+    return lines
+
+
+def prepare_headline(draw, title):
+    for size in range(112, 53, -2):
+
         fnt = font(NEPALI_BOLD, size)
 
-        best = None
-        best_difference = float("inf")
+        lines = wrap_headline(
+            draw,
+            title,
+            990,
+            fnt
+        )
 
-        for i in range(1, len(words)):
-            first = " ".join(words[:i])
-            second = " ".join(words[i:])
+        if len(lines) <= 3 and all(
+            text_width(draw, line, fnt) <= 990
+            for line in lines
+        ):
+            return lines, fnt, size
 
-            w1 = text_width(draw, first, fnt)
-            w2 = text_width(draw, second, fnt)
+    fnt = font(NEPALI_BOLD, 54)
 
-            if w1 <= 970 and w2 <= 970:
-                difference = abs(w1 - w2)
+    return (
+        wrap_headline(draw, title, 990, fnt),
+        fnt,
+        54
+    )
 
-                if difference < best_difference:
-                    best_difference = difference
-                    best = (first, second, size)
 
-        if best:
-            return best
-
-    return " ".join(words[:-1]), words[-1], 36
-
+# --------------------------------
+# SOCIAL MEDIA FOOTER
+# --------------------------------
 
 def draw_social_icons(draw):
+
     y = 1280
 
-    # FACEBOOK ICON
+    # FACEBOOK
     fx = 95
+
     draw.ellipse(
         (fx, y, fx + 42, y + 42),
         fill=(24, 119, 242)
     )
+
     draw.text(
         (fx + 21, y + 21),
         "f",
@@ -172,8 +199,9 @@ def draw_social_icons(draw):
         fill=WHITE
     )
 
-    # YOUTUBE ICON
+    # YOUTUBE
     yx = 435
+
     draw.rounded_rectangle(
         (yx, y + 5, yx + 49, y + 37),
         radius=9,
@@ -196,7 +224,7 @@ def draw_social_icons(draw):
         fill=WHITE
     )
 
-    # INSTAGRAM ICON
+    # INSTAGRAM
     ix = 790
 
     draw.rounded_rectangle(
@@ -231,6 +259,10 @@ def draw_social_icons(draw):
     )
 
 
+# --------------------------------
+# CREATE NEWS CARD
+# --------------------------------
+
 def create_card(article, index):
 
     title = (article.get("title") or "").strip()
@@ -244,29 +276,26 @@ def create_card(article, index):
         BG
     )
 
-    # --------------------------------
-    # NEWS PHOTO - NATURAL COLORS
-    # --------------------------------
-
+    # NEWS PHOTO
     photo = download_photo(
         article.get("image_url", "")
     )
 
     photo = fit_photo(photo)
 
-    # No blue overlay, no gradient, no logo
     canvas.paste(photo, (0, 0))
 
     draw = ImageDraw.Draw(canvas)
 
     # --------------------------------
-    # NEPALI DATE
+    # NEPALI DATE - DOUBLE SIZE
     # --------------------------------
 
     date = nepali_date()
 
     if date:
-        date_font = font(NEPALI_BOLD, 29)
+
+        date_font = font(NEPALI_BOLD, 58)
 
         bbox = draw.textbbox(
             (0, 0),
@@ -275,17 +304,30 @@ def create_card(article, index):
         )
 
         dw = bbox[2] - bbox[0]
+        dh = bbox[3] - bbox[1]
 
-        x = WIDTH - dw - 85
+        padding_x = 25
+        padding_y = 17
+
+        x = WIDTH - dw - padding_x * 2 - 35
+        y = 30
 
         draw.rounded_rectangle(
-            (x - 20, 40, WIDTH - 35, 105),
-            radius=14,
+            (
+                x,
+                y,
+                x + dw + padding_x * 2,
+                y + dh + padding_y * 2
+            ),
+            radius=17,
             fill=RED
         )
 
         draw.text(
-            (x, 55 - bbox[1]),
+            (
+                x + padding_x,
+                y + padding_y - bbox[1]
+            ),
             date,
             font=date_font,
             fill=WHITE
@@ -295,65 +337,73 @@ def create_card(article, index):
     # NEWS TEXT BACKGROUND
     # --------------------------------
 
-    # Direct transition: photo ends, navy panel begins
     draw.rectangle(
         (0, PHOTO_HEIGHT, WIDTH, HEIGHT),
         fill=BG
     )
 
     # --------------------------------
-    # HEADLINE: TWO DIFFERENT COLORS
+    # HEADLINE - LARGE TEXT
+    # WITH AUTOMATIC HIGHLIGHTER
     # --------------------------------
 
-    first, second, size = split_headline(
+    lines, headline_font, size = prepare_headline(
         draw,
         title
     )
 
-    headline_font = font(
-        NEPALI_BOLD,
-        size
+    line_height = int(size * 1.28)
+
+    total_height = len(lines) * line_height
+
+    start_y = 785 + max(
+        0,
+        (265 - total_height) // 2
     )
 
-    line_height = int(size * 1.45)
+    for i, line in enumerate(lines):
 
-    # First line - WHITE
-    bbox1 = draw.textbbox(
-        (0, 0),
-        first,
-        font=headline_font
-    )
-
-    w1 = bbox1[2] - bbox1[0]
-
-    draw.text(
-        (
-            (WIDTH - w1) // 2,
-            805 - bbox1[1]
-        ),
-        first,
-        font=headline_font,
-        fill=WHITE
-    )
-
-    # Second line - YELLOW
-    if second:
-        bbox2 = draw.textbbox(
+        bbox = draw.textbbox(
             (0, 0),
-            second,
+            line,
             font=headline_font
         )
 
-        w2 = bbox2[2] - bbox2[0]
+        tw = bbox[2] - bbox[0]
+        th = bbox[3] - bbox[1]
+
+        # HIGHLIGHTER FITS TEXT SIZE
+        padding_x = 19
+        padding_y = 10
+
+        highlight_width = tw + padding_x * 2
+        highlight_height = th + padding_y * 2
+
+        hx = (WIDTH - highlight_width) // 2
+        hy = start_y + i * line_height
+
+        draw.rounded_rectangle(
+            (
+                hx,
+                hy,
+                hx + highlight_width,
+                hy + highlight_height
+            ),
+            radius=13,
+            fill=RED
+        )
+
+        # ALTERNATE WHITE AND YELLOW TEXT
+        text_color = WHITE if i % 2 == 0 else YELLOW
 
         draw.text(
             (
-                (WIDTH - w2) // 2,
-                805 + line_height - bbox2[1]
+                hx + padding_x - bbox[0],
+                hy + padding_y - bbox[1]
             ),
-            second,
+            line,
             font=headline_font,
-            fill=YELLOW
+            fill=text_color
         )
 
     # --------------------------------
@@ -361,30 +411,31 @@ def create_card(article, index):
     # --------------------------------
 
     draw.rounded_rectangle(
-        (480, 1050, 600, 1060),
-        radius=5,
+        (475, 1065, 605, 1077),
+        radius=6,
         fill=RED
     )
 
     # --------------------------------
-    # FULL NEWS BUTTON
+    # FULL NEWS COMMENT BUTTON
+    # DOUBLE SIZE
     # --------------------------------
 
     label = "पूरा समाचार कमेन्टमा"
 
     label_font = font(
         NEPALI_BOLD,
-        34
+        60
     )
 
-    bx = 190
-    by = 1090
-    bw = 700
-    bh = 76
+    bx = 85
+    by = 1100
+    bw = 910
+    bh = 105
 
     draw.rounded_rectangle(
         (bx, by, bx + bw, by + bh),
-        radius=40,
+        radius=48,
         fill=RED
     )
 
@@ -408,7 +459,7 @@ def create_card(article, index):
     )
 
     # --------------------------------
-    # SOCIAL MEDIA - ONE HORIZONTAL ROW
+    # SOCIAL MEDIA FOOTER
     # --------------------------------
 
     draw_social_icons(draw)
@@ -432,6 +483,10 @@ def create_card(article, index):
 
     return True
 
+
+# --------------------------------
+# MAIN
+# --------------------------------
 
 def main():
 
