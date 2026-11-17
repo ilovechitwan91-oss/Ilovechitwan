@@ -24,7 +24,7 @@ import imageio_ffmpeg
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-TEXT_MODEL = "gemini-2.5-flash"
+TEXT_MODEL = "gemini-3.8-flash"
 TTS_MODEL = "gemini-3.8-flash-lite-tts"
 VOICE_NAME = "Aoede"
 
