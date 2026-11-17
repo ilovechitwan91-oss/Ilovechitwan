@@ -1,16 +1,169 @@
 {
-  "updated_at": "2026-11-17T08:09:32.447607+00:00",
+  "updated_at": "2026-11-17T09:17:46.876220+00:00",
   "total_news": 40,
   "failed_sources": [],
   "articles": [
     {
       "source": "Ratopati",
-      "title": "पार्टीको बैठकमा सहभागी हुन च्यास पुगे ओली, १२ तस्बिरमा हेर्नुहोस्",
+      "title": "भारतबाट ३५० मेगावाट विद्युत् आयात र ५६ मेगावाट निर्यातको अनुमति",
+      "description": "काठमाडौँ। नेपाल विद्युत प्राधिकरणले यस वर्षको हिउँदयाममा भारतबाट ३५० मेगावाट विद्युत आयात गर्न अनुमति पाएको छ । भारतको विद्युत् मन्त्रालयअन्तर्गतको केन्द्रीय विद्युत प्राधिकरणले भारतीय ऊर्जा विनिमय बजारको डे–अहेड तथा रियल टाइम बजारबाट प्रतिस्पर्धी दरमा दैनिक १७",
+      "link": "https://www.ratopati.com/story/605788/permission-to-import-350-mw-of-electricity-from-india-and-export-56-mw",
+      "image_url": "https://npcdn.ratopati.com/media/news/cover-transmission_XHlrvL7db5.jpg",
+      "published": "Tue, 17 Nov 2026 09:09:50 +0000",
+      "collected_at": "2026-11-17T09:17:15.796340+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "अञ्जनको असन्तुष्टिमा अर्थमन्त्री वाग्लेको प्रतिवाद, निजी क्षेत्रको चरित्रमाथि नै उठाए प्रश्न",
+      "description": "काठमाडौँ। नेपाल उद्योग वाणिज्य महासङ्घ (एफएनसीसीआई)का अध्यक्ष अञ्जन श्रेष्ठको अभिव्यक्तिमा अर्थमन्त्री स्वर्णिम वाग्लेले प्रतिवाद गरेका छन् । राष्ट्रिय कर दिवस २०८३ को अवसरमा मंगलबार आन्तरिक राजस्व विभागमा आयोजित समारोहमा एफएनसीसीआई अध्यक्ष श्रेष्ठले सरकारको आलोचना गरेपछि अर्थमन्त्री",
+      "link": "https://www.ratopati.com/story/605787/finance-minister-wagle-responds-to-anjans-dissatisfaction-raises-questions-about-the-character-of-the-private-sector",
+      "image_url": "https://npcdn.ratopati.com/media/news/rastriya-kar-diwas--3702_MCd2S8QKDR.webp",
+      "published": "Tue, 17 Nov 2026 09:06:36 +0000",
+      "collected_at": "2026-11-17T09:17:16.133966+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "चर्को आवाज निकाल्ने र स्वरूप परिवर्तन गरिएका ४०५ मोटरसाइकल ट्राफिक प्रहरीको नियन्त्रणमा",
+      "description": "काठमाडौँ। चर्को आवाज निकाल्ने तथा स्वरूप परिवर्तन गरी सञ्चालन गरिएका मोटरसाइकलविरुद्ध काठमाडौं उपत्यका ट्राफिक प्रहरीले कारबाही अभियान तीव्र बनाएको छ। पछिल्लो एक सातामा मात्रै प्रहरीले ४०५ वटा मोटरसाइकल नियन्त्रणमा लिएर आवश्यक कारबाही प्रक्रिया अघि बढाएको",
+      "link": "https://www.ratopati.com/story/605786/405-loud-and-modified-motorcycles-taken-into-custody-by-traffic-police",
+      "image_url": "https://npcdn.ratopati.com/media/news/01-traffic-operation---3753_C0zKNXSuNx.webp",
+      "published": "Tue, 17 Nov 2026 09:01:17 +0000",
+      "collected_at": "2026-11-17T09:17:16.467749+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "बेलहियामा आईसीपीको उदघाटन तयारी, के भन्छन् उद्योगी व्यवसायी ?",
+      "description": "बुटवल। रुपन्देहीको बेलहियामा निर्माणाधीन एकीकृत भन्सार जाँच चौकी (आईसीपी) को भौतिक प्रगति ९५ प्रतिशतभन्दा बढी सम्पन्न भएको छ । प्रधानमन्त्री वालेन्द्र (बालेन) शाहको भारत भ्रमणका क्रममा उक्त आईसीपी उदघाटन गर्ने कार्यसूची छ । भारत सरकारको लगानीमा",
+      "link": "https://www.ratopati.com/story/605782/preparations-for-the-inauguration-of-icp-in-belahiya-what-do-industrialists-say",
+      "image_url": "https://npcdn.ratopati.com/media/news/udhgathan_wKnInHBvLs.webp",
+      "published": "Tue, 17 Nov 2026 08:56:52 +0000",
+      "collected_at": "2026-11-17T09:17:16.793726+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "ओखलढुङ्गाको टोक्सेलमा अस्पताल बनाउन प्रदेश सरकार सहमत, आन्दोलन स्थगित",
+      "description": "काठमाडौँ। ओखलढुङ्गाको मानेभञ्ज्याङ गाउँपालिका– ७ स्थित टोक्सेलमा बन्ने कोशी प्रदेशस्तरीय प्रादेशिक अस्पताल सङ्घर्ष समिति र प्रदेश स्वास्थ्य मन्त्रालय बिच सहमति भएको छ। मंगलबार समिति र मन्त्रालयबिच पाँच बुँदे सहमति भएको हो । सहमतिअनुसार स्थानीयहरू अनशन लगायतका",
+      "link": "https://www.ratopati.com/story/605785/provincial-government-agrees-to-build-hospital-in-toksel-okhaldhunga-agitation-postponed",
+      "image_url": "https://npcdn.ratopati.com/media/news/sahamat_UTihEZ3vB8.webp",
+      "published": "Tue, 17 Nov 2026 08:56:14 +0000",
+      "collected_at": "2026-11-17T09:17:17.126765+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "म्यानमारका विषाक्त पदार्थ बगेर थाइल्यान्डमा, नदी प्रणाली नै नष्ट हुन सक्ने चेतावनी",
+      "description": "म्यानमारमा अनियन्त्रित रूपमा भइरहेको सुन, दुर्लभ माटोका खनिज (रेयर अर्थ) तथा अन्य महत्त्वपूर्ण खनिजको उत्खननका कारण थाइल्यान्डका सीमावर्ती नदीहरू गम्भीर रूपमा प्रदूषित भएका छन् । खानीबाट निस्किएका आर्सेनिक, पारा, क्याडमियमलगायत विषाक्त रसायन नदीमा मिसिँदा खानेपानी, कृषि",
+      "link": "https://www.ratopati.com/story/605784/myanmars-toxic-waste-flows-into-thailand-warning-that-the-entire-river-system-could-be-destroyed",
+      "image_url": "https://npcdn.ratopati.com/media/news/myanmar-nadi_6BRIZvauVE.webp",
+      "published": "Tue, 17 Nov 2026 08:56:04 +0000",
+      "collected_at": "2026-11-17T09:17:17.445786+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "देउवा समूहका ७ वटै प्रदेशका अधिवेशनमा शेरबहादुर देउवा प्रमुख अतिथि, कहिले हुँदैछन् अधिवेशन ?",
+      "description": "काठमाडौँ। समानान्तर महाधिवेशन गर्न लागेको नेपाली कांग्रेसको पूर्वसभापति शेरबहादुर देउवा समूहले ७ वटै प्रदेशका अधिवेशनको मिति तय गरेको छ । समूहको चुनदेवीस्थित सम्पर्क कार्यालयले ७ वटै प्रदेका अधिवेशनको मिति तय भएको र सबै अधिवेशनको प्रमुख अतिथि",
+      "link": "https://www.ratopati.com/story/605783/sher-bahadur-deuba-will-be-the-chief-guest-at-the-conventions-of-all-7-provinces-of-the-deuba-group-when-will-the-conventions-be-held",
+      "image_url": "https://npcdn.ratopati.com/media/news/sher-bahadur-deuba_Mq4P6pHJgF.jpg",
+      "published": "Tue, 17 Nov 2026 08:50:30 +0000",
+      "collected_at": "2026-11-17T09:17:17.769404+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "गगन र रविको छठपर्व : आस्था कि राजनीतिक पाखण्ड ?",
+      "description": "कात्तिक शुक्ल षष्ठी र सप्तमीको पावन अवसरमा मधेसका जलाशयहरू सूर्य उपासनाको आलोकले धपक्कै बलेका बेला यस पटक मधेसका घाटहरूमा अनौठो राजनीतिक तमासा देखियो । काठमाडौँ खाल्डोमा वर्षौँदेखि सत्ता र शक्तिको अभ्यास गरिरहेका विभिन्न पार्टीका मुखियाहरू आफ्ना",
+      "link": "https://www.ratopati.com/story/605769/gagan-and-ravis-chhath-parva-faith-or-political-hypocrisy",
+      "image_url": "https://npcdn.ratopati.com/media/news/p_nmikWavtbI.webp",
+      "published": "Tue, 17 Nov 2026 08:45:00 +0000",
+      "collected_at": "2026-11-17T09:17:18.091295+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "दलका नेता कार्यकर्तामाथि एनआरएनएको अल्टिमेटम",
+      "description": "काठमाडौं । गैरआवासीय नेपाली संघ (एनआरएनए) ले राजनीतिक दलमा आबद्ध आफ्ना पदाधिकारी तथा सदस्यलाई सात दिनभित्र त्यस्तो आबद्धता त्याग्न अल्टिमेटम दिएको छ । एनआरएनएका महासचिव डा. चिरञ्जीवी खड्काले एक परिपत्र जारी गर्दै राजनीतिक उद्देश्य भएका संस्था",
+      "link": "https://www.ratopati.com/story/605781/nrnas-ultimatum-to-party-leaders-and-activists",
+      "image_url": "https://npcdn.ratopati.com/media/news/nrna_92FPoVq4wG.jpg",
+      "published": "Tue, 17 Nov 2026 08:39:42 +0000",
+      "collected_at": "2026-11-17T09:17:18.418257+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "क्यूजे मोटर नेपालको ब्रान्ड एम्बेसडरमा पारस खड्का",
+      "description": "काठमाडौँ। नेपाली राष्ट्रिय क्रिकेट टोलीका पूर्वकप्तान पारस खड्का अन्तर्राष्ट्रिय दुईपाङ्ग्रे सवारीसाधन ब्रान्ड ‘क्यूजे मोटर नेपाल’ को आधिकारिक ब्रान्ड एम्बेसडरका रूपमा अनुबन्धित भएका छन् । क्यूजे मोटरको नेपालका लागि आधिकारिक विक्रेता तथा ह्याम्स ग्रुपअन्तर्गतको कम्पनी हाइली एड्भान्स्ड",
+      "link": "https://www.ratopati.com/story/605780/paras-khadka-named-brand-ambassador-of-qj-motor-nepal",
+      "image_url": "https://npcdn.ratopati.com/media/news/parash_zZO1Gi0B0e.webp",
+      "published": "Tue, 17 Nov 2026 08:35:34 +0000",
+      "collected_at": "2026-11-17T09:17:18.748654+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "अन्तर्राष्ट्रिय शैक्षिक सहकार्य विस्तार गर्न त्रिविद्वारा ‘कन्ट्री फोकल पर्सन’ को आह्वान",
+      "description": "काठमाडौँ । त्रिभुवन विश्वविद्यालय (त्रिवि) ले विश्वका विभिन्न मुलुकका विश्वविद्यालय तथा अनुसन्धान संस्थाहरूसँग शैक्षिक सहकार्य विस्तार गर्न ‘कन्ट्री फोकल पर्सन’ नियुक्तिका लागि आवेदन माग गरेको छ । सो विश्वविद्यालयको उपकुलपतिबाट नियुक्त हुने प्रावधानसहित अन्तरराष्ट्रिय सम्बन्ध केन्द्रले",
+      "link": "https://www.ratopati.com/story/605779/tu-calls-for-country-focal-person-to-expand-international-academic-collaboration",
+      "image_url": "https://npcdn.ratopati.com/media/news/tribhuwan-university_wy1rk50crt_67nnt3rrft_xhrukeuukk_8vupetmw6k_2ISwH5xZcV.jpg",
+      "published": "Tue, 17 Nov 2026 08:30:15 +0000",
+      "collected_at": "2026-11-17T09:17:19.080609+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "मानव बेचबिखन विधेयक थप परिमार्जन गर्न सांसदहरूको माग, ‘वेश्यागमन’ शब्द हटाउन सुझाव",
+      "description": "काठमाडौँ । संसद्को महिला तथा सामाजिक मामिला समितिमा ‘मानव बेचबिखन तथा ओसारपसार (नियन्त्रण) (पहिलो संशोधन) विधेयक, २०८३’ माथि भएको सैद्धान्तिक छलफलमा सांसदहरूले यसलाई थप परिमार्जन गरी पीडितमैत्री बनाउनुपर्नेमा जोड दिएका छन्। वैदेशिक रोजगारीको आवरणमा हुने मानव",
+      "link": "https://www.ratopati.com/story/605778/mps-demand-further-amendments-to-the-human-trafficking-bill-suggest-removing-the-word-prostitution",
+      "image_url": "https://npcdn.ratopati.com/media/news/gd_ktm_dg_9841_gYxNDaOZ5p.webp",
+      "published": "Tue, 17 Nov 2026 08:29:08 +0000",
+      "collected_at": "2026-11-17T09:17:19.414220+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "एमाले स्थायी कमिटी बैठक सुरु, तस्बिरमा हेर्नुहोस्",
+      "description": "काठमाडौं । नेकपा एमालेको स्थायी कमिटीको दोस्रो बैठक सुरु भएको छ । पार्टी केन्द्रीय कार्यालय च्यासलमा मंगलबार दिउँसो २ बजेदेखि बैठक सुरु भएको हो । भोलिदेखि सुरु हुने राष्ट्रिय कार्यकर्ता भेलाको तयारीस्वरूप एमालेले स्थायी कमिटी बैठक",
+      "link": "https://www.ratopati.com/story/605777/uml-standing-committee-meeting-begins-see-photos",
+      "image_url": "https://npcdn.ratopati.com/media/news/oli-bidhya_53fpcidHps.webp",
+      "published": "Tue, 17 Nov 2026 08:26:36 +0000",
+      "collected_at": "2026-11-17T09:17:19.742596+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "जुनसुकै समयमा आन्दोलनमा उत्रिनुपर्ने अवस्था आउन सक्छ, तयार रहनुहोस् : अध्यक्ष ओली",
+      "description": "काठमाडौँ । नेकपा (एमाले) का अध्यक्ष केपी शर्मा ओलीले जुनसुकै समयमा सरकारविरुद्ध आन्दोलनमा उत्रिनुपर्ने अवस्था आउन सक्ने भन्दै मानसिक र साङ्गठनिक रूपमा तयार रहन पार्टीपङ्क्तिलाई निर्देशन दिएका छन् । आइतबार काठमाडौँमा अखिल नेपाल किसान महासङ्घको बैठकलाई सम्बोधन",
+      "link": "https://www.ratopati.com/story/605776/the-need-to-protest-may-arise-at-any-time-be-prepared-chairman-oli",
+      "image_url": "https://npcdn.ratopati.com/media/news/kp-oli_AAkOsy9ETp.webp",
+      "published": "Tue, 17 Nov 2026 08:25:47 +0000",
+      "collected_at": "2026-11-17T09:17:20.070118+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "नक्कली प्रमाणपत्र पेस गरी अधिकृत बनेका रोजगार संयोजकविरुद्ध भ्रष्टाचार मुद्दा",
+      "description": "काठमाडौँ । अख्तियार दुरुपयोग अनुसन्धान आयोगले नक्कली शैक्षिक प्रमाणपत्र पेस गरी सरकारी जागिर खाएको आरोपमा बाराको फेटा गाउँपालिकाका रोजगार संयोजक ओम प्रकाश गिरीविरुद्ध विशेष अदालतमा भ्रष्टाचार मुद्दा दायर गरेको छ। फेटा गाउँपालिकामा सञ्चालित ‘प्रधानमन्त्री रोजगार कार्यक्रम’",
+      "link": "https://www.ratopati.com/story/605775/corruption-case-against-employment-coordinator-who-became-official-by-submitting-fake-certificate",
+      "image_url": "https://npcdn.ratopati.com/media/news/bisesh-adalat-2-001_3G6oRmlZsl.jpg",
+      "published": "Tue, 17 Nov 2026 08:21:21 +0000",
+      "collected_at": "2026-11-17T09:17:20.400058+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "उपत्यकामा स्वस्थ मासुमा छाप लगाउन थालियो",
+      "description": "काठमाडौं । काठमाडौं उपत्यकामा स्वस्थ मासुमा छाप लगाउने कार्य सुरु गरिएको छ । उपभोक्ताले स्वच्छ, सुरक्षित र गुणस्तरीय मासु उपभोग गर्न पाउने व्यवस्था सुनिश्चित गर्ने उद्देश्यले कृषि, वन तथा पर्यावरण मन्त्रालयले पशु बधशाला तथा मासु जाँच",
+      "link": "https://www.ratopati.com/story/605774/healthy-meat-begins-to-be-stamped-in-the-valley",
+      "image_url": "https://npcdn.ratopati.com/media/news/masu-chhap_1ZVfakqlel.webp",
+      "published": "Tue, 17 Nov 2026 08:17:28 +0000",
+      "collected_at": "2026-11-17T09:17:20.726339+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "आधा विश्वले खेल्दैन क्रिकेट (भिडियो रिपोर्ट)",
+      "description": "काठमाडौँ । नेपालमा अहिले एनपीएल क्रिकेटको माहोल छ । खासगरी दक्षिण एसिया त क्रिकेटको हब नै बनिसकेको छ । धेरैलाई थाहा नहुन सक्छ, विश्वमा कैयौँ मुलुकहरू यस्ता छन्, जहाँ क्रिकेट खेलिँदैन । ती देशका नागरिकले",
+      "link": "https://www.ratopati.com/story/605587/half-the-world-doesnt-play-cricket-video-report",
+      "image_url": "https://npcdn.ratopati.com/media/news/cricket-world-banner_ShuQkQgEB0.webp",
+      "published": "Tue, 17 Nov 2026 08:15:00 +0000",
+      "collected_at": "2026-11-17T09:17:21.054673+00:00"
+    },
+    {
+      "source": "Ratopati",
+      "title": "पार्टीको बैठकमा सहभागी हुन च्यासल पुगे ओली, १२ तस्बिरमा हेर्नुहोस्",
       "description": "काठमाडौं । नेकपा एमालेका अध्यक्ष केपी शर्मा ओली पार्टीको स्थायी कमिटी बैठकमा सहभागी हुन केन्द्रीय कार्यालय च्यासल पुगेका छन् । एमालेको स्थायी कमिटीको दोस्रो बैठक आज दिउँसो केहीबेरमा पार्टी केन्द्रीय कार्यालय च्यासलमा बस्दैछ । बैठकमा वरिष्ठ",
       "link": "https://www.ratopati.com/story/605773/oli-arrives-in-chayas-to-attend-party-meeting-see-in-12-photos",
       "image_url": "https://npcdn.ratopati.com/media/news/kp-oli-7_JKuTAr7QhU.webp",
       "published": "Tue, 17 Nov 2026 08:06:45 +0000",
-      "collected_at": "2026-11-17T08:08:54.316906+00:00"
+      "collected_at": "2026-11-17T09:17:21.395009+00:00"
     },
     {
       "source": "Ratopati",
@@ -19,7 +172,7 @@
       "link": "https://www.ratopati.com/story/605771/travis-head-decides-not-to-play-in-upcoming-ipl",
       "image_url": "https://npcdn.ratopati.com/media/news/travis-head_ZemyQSVVVp.webp",
       "published": "Tue, 17 Nov 2026 08:02:21 +0000",
-      "collected_at": "2026-11-17T08:08:54.651837+00:00"
+      "collected_at": "2026-11-17T09:17:21.719117+00:00"
     },
     {
       "source": "Ratopati",
@@ -28,7 +181,7 @@
       "link": "https://www.ratopati.com/story/605770/what-is-home-minister-gurung-doing-in-dubai",
       "image_url": "https://npcdn.ratopati.com/media/news/collage-1_GdhsBcYomU.webp",
       "published": "Tue, 17 Nov 2026 07:57:39 +0000",
-      "collected_at": "2026-11-17T08:08:54.986281+00:00"
+      "collected_at": "2026-11-17T09:17:22.045516+00:00"
     },
     {
       "source": "Ratopati",
@@ -37,7 +190,7 @@
       "link": "https://www.ratopati.com/story/605768/only-41-million-in-revenue-in-the-first-three-months-of-the-current-fiscal-year",
       "image_url": "https://npcdn.ratopati.com/media/news/rajashwo_rTife1zc5B.jpg",
       "published": "Tue, 17 Nov 2026 07:52:38 +0000",
-      "collected_at": "2026-11-17T08:08:55.319337+00:00"
+      "collected_at": "2026-11-17T09:17:22.365391+00:00"
     },
     {
       "source": "Ratopati",
@@ -46,7 +199,7 @@
       "link": "https://www.ratopati.com/story/605767/strong-el-nino-raises-risk-of-drought-fires-and-food-shortages-worldwide",
       "image_url": "https://npcdn.ratopati.com/media/news/khaderi-(19)_fjmgjrlinx_3nsOLt5xpc.jpg",
       "published": "Tue, 17 Nov 2026 07:50:51 +0000",
-      "collected_at": "2026-11-17T08:08:55.664789+00:00"
+      "collected_at": "2026-11-17T09:17:22.694734+00:00"
     },
     {
       "source": "Ratopati",
@@ -55,7 +208,7 @@
       "link": "https://www.ratopati.com/story/605766/ai-startup-improving-indias-dilapidated-roads-and-unorganized-land-records",
       "image_url": "https://npcdn.ratopati.com/media/news/bbc_HEsCHnkw26.webp",
       "published": "Tue, 17 Nov 2026 07:47:12 +0000",
-      "collected_at": "2026-11-17T08:08:56.000445+00:00"
+      "collected_at": "2026-11-17T09:17:23.016494+00:00"
     },
     {
       "source": "Ratopati",
@@ -64,7 +217,7 @@
       "link": "https://www.ratopati.com/story/605747/let-the-government-last-for-five-years-we-are-ready-to-come-to-the-streets-if-democracy-and-the-constitution-are-violated",
       "image_url": "https://npcdn.ratopati.com/media/news/niraj-acharya-banner_6u72tODpGl.webp",
       "published": "Tue, 17 Nov 2026 07:45:00 +0000",
-      "collected_at": "2026-11-17T08:08:56.339698+00:00"
+      "collected_at": "2026-11-17T09:17:23.346476+00:00"
     },
     {
       "source": "Ratopati",
@@ -73,7 +226,7 @@
       "link": "https://www.ratopati.com/story/605765/five-arrested-for-playing-loud-dj-music-in-chhatghat",
       "image_url": "https://npcdn.ratopati.com/media/news/1713_Rp31kWMizi.webp",
       "published": "Tue, 17 Nov 2026 07:43:03 +0000",
-      "collected_at": "2026-11-17T08:08:56.669737+00:00"
+      "collected_at": "2026-11-17T09:17:23.681445+00:00"
     },
     {
       "source": "Ratopati",
@@ -82,7 +235,7 @@
       "link": "https://www.ratopati.com/story/605764/klopp-lashes-out-at-infantino-says-worse-than-sepp-blatter",
       "image_url": "https://npcdn.ratopati.com/media/news/jurgen-klopp_9FoZ18nv8Z.webp",
       "published": "Tue, 17 Nov 2026 07:42:05 +0000",
-      "collected_at": "2026-11-17T08:08:57.014484+00:00"
+      "collected_at": "2026-11-17T09:17:24.006962+00:00"
     },
     {
       "source": "Ratopati",
@@ -91,7 +244,7 @@
       "link": "https://www.ratopati.com/story/605763/prisoner-who-escaped-from-juvenile-correctional-home-during-genji-movement-arrested",
       "image_url": "https://npcdn.ratopati.com/media/news/1716_AZ5CPy9wC1.webp",
       "published": "Tue, 17 Nov 2026 07:40:43 +0000",
-      "collected_at": "2026-11-17T08:08:57.359903+00:00"
+      "collected_at": "2026-11-17T09:17:24.339401+00:00"
     },
     {
       "source": "Ratopati",
@@ -100,7 +253,7 @@
       "link": "https://www.ratopati.com/story/605762/leaders-in-chyasal-to-attend-standing-committee-meeting-photos",
       "image_url": "https://npcdn.ratopati.com/media/news/uml-lead_8ZJGxJLbZq.webp",
       "published": "Tue, 17 Nov 2026 07:37:23 +0000",
-      "collected_at": "2026-11-17T08:08:57.700140+00:00"
+      "collected_at": "2026-11-17T09:17:24.667417+00:00"
     },
     {
       "source": "Ratopati",
@@ -109,7 +262,7 @@
       "link": "https://www.ratopati.com/story/605761/vidya-bhandari-arrives-to-attend-uml-standing-committee-meeting",
       "image_url": "https://npcdn.ratopati.com/media/news/bidhya-bhandari_Ad3q7zBQJq.webp",
       "published": "Tue, 17 Nov 2026 07:36:31 +0000",
-      "collected_at": "2026-11-17T08:08:58.031868+00:00"
+      "collected_at": "2026-11-17T09:17:24.997118+00:00"
     },
     {
       "source": "Ratopati",
@@ -118,250 +271,97 @@
       "link": "https://www.ratopati.com/story/605760/dayaram-karki-leaves-nepali-communist-party",
       "image_url": "https://npcdn.ratopati.com/media/news/dayaram-karki_ZFQOaerD3N.webp",
       "published": "Tue, 17 Nov 2026 07:31:48 +0000",
-      "collected_at": "2026-11-17T08:08:58.372794+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "राजस्व बढाउन करको दरभन्दा दायरा विस्तार र प्रशासनमा सुधार गर्नुपर्छ : अध्यक्ष वीरेन्द्रराज पाण्डे",
-      "description": "काठमाडौँ । नेपाल उद्योग परिसंघका अध्यक्ष वीरेन्द्रराज पाण्डेले राजस्व वृद्धि गर्न करको दरमा निरन्तर वृद्धि गर्नुभन्दा करको दायरा विस्तार, आर्थिक गतिविधिको औपचारिकीकरण र कर प्रशासनमा सुधार गर्नुपर्ने बताएका छन् । करको भार पहिले नै बहन गरिरहेका करदातामाथि",
-      "link": "https://www.ratopati.com/story/605757/to-increase-revenue-we-need-to-expand-the-scope-and-improve-administration-rather-than-tax-rates-chairman-birendra-raj-pandey",
-      "image_url": "https://npcdn.ratopati.com/media/news/birendra-pandey_neUwOttzWp.webp",
-      "published": "Tue, 17 Nov 2026 07:28:55 +0000",
-      "collected_at": "2026-11-17T08:08:58.713991+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "आयकरको दर घटाएर दायरा फराकिलो बनाइएको छ : अर्थमन्त्री",
-      "description": "काठमाडौँ । अर्थमन्त्री डा. स्वर्णिम वाग्लेले मुलुकमा सुशासन कायम गरेरै सरकारले यस वर्ष लिएको १५ खर्ब ८० अर्ब रुपैयाँ राजस्व सङ्कलनको लक्ष्य पूरा गरिछाड्ने बताएका छन्। राष्ट्रिय कर दिवसका अवसरमा मंगलबार काठमाडौंमा आयोजित कार्यक्रमलाई सम्बोधन गर्दै",
-      "link": "https://www.ratopati.com/story/605759/income-tax-rate-has-been-reduced-and-the-scope-has-been-broadened-finance-minister",
-      "image_url": "https://npcdn.ratopati.com/media/news/swornim-wagle_6LY6Uo5sXe.webp",
-      "published": "Tue, 17 Nov 2026 07:28:24 +0000",
-      "collected_at": "2026-11-17T08:08:59.048436+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "लगातारको बिदापछि खुलेका सरकारी अस्पतालमा सेवा लिन घण्टौँ लाइन, तस्बिरहरु",
-      "description": "काठमाडौं । तिहार र छठ पर्वको लामो सार्वजनिक बिदापछि खुलेको काठमाडौंका प्रमुख सरकारी अस्पतालमा बिरामीको चाप देखिएको छ। मंगलबारदेखि सरकारी अस्पताल नियमित रूपमा सञ्चालनमा आएसँगै वीर अस्पताल, महाराजगञ्जस्थित त्रिभुवन विश्वविद्यालय शिक्षण अस्पताल र राष्ट्रिय ट्रमा सेन्टरमा",
-      "link": "https://www.ratopati.com/story/605758/hours-long-queues-for-services-at-government-hospitals-that-reopened-after-consecutive-holidays-photos",
-      "image_url": "https://npcdn.ratopati.com/media/news/government-hospital---3730_rc6qXCghFs.webp",
-      "published": "Tue, 17 Nov 2026 07:27:12 +0000",
-      "collected_at": "2026-11-17T08:08:59.396553+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "निजी क्षेत्रलाई राजस्वको स्रोत मात्र नभई आर्थिक विकासको सहयात्री बनाउनुपर्छ : अध्यक्ष अग्रवाल",
-      "description": "काठमाडौँ । नेपाल चेम्बर अफ कमर्सका अध्यक्ष कमलेश अग्रवालले निजी क्षेत्रलाई सरकारको राजस्व सङ्कलनको स्रोतका रूपमा मात्र नभई आर्थिक विकासको सहयात्रीका रूपमा हेर्नुपर्ने बताएका छन् । कर दिवसका अवसरमा राजधानीमा आयोजित कार्यक्रममा उनले निजी क्षेत्रलाई सहभागी नगराई",
-      "link": "https://www.ratopati.com/story/605756/the-private-sector-should-be-made-not-only-a-source-of-revenue-but-also-a-companion-in-economic-development-chairman-agrawal",
-      "image_url": "https://npcdn.ratopati.com/media/news/kamalesh-agrawal_hKm5MCfVJl.webp",
-      "published": "Tue, 17 Nov 2026 07:21:05 +0000",
-      "collected_at": "2026-11-17T08:08:59.739998+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "साफ च्याम्पियनसिपको उपाधिका लागि आज भारत र पाकिस्तान खेल्दै, यस्तो छ दुई टोलीको इतिहास",
-      "description": "काठमाडौँ । दक्षिण एसियाली फुटबलको सबैभन्दा ठूलो प्रतियोगिता साफ च्याम्पियनसिपको उपाधिका लागि मंगलबार चिरप्रतिद्वन्द्वी भारत र पाकिस्तान आमनेसामने हुँदैछन् । बंगलादेशको ढाकास्थित राष्ट्रिय रंगशालामा नेपाली समयअनुसार बेलुका पौने ८ बजे हुने फाइनल खेलमा दुवै टोलीको",
-      "link": "https://www.ratopati.com/story/605755/india-and-pakistan-are-playing-for-the-saff-championship-title-today-this-is-the-history-of-the-two-teams",
-      "image_url": "https://npcdn.ratopati.com/media/news/saff_OGrCgAkxXl.webp",
-      "published": "Tue, 17 Nov 2026 07:20:52 +0000",
-      "collected_at": "2026-11-17T08:09:00.073352+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "स्थानीय तह चुनावको मिति घोषणा नहुँदै मैदानमा प्रमुख दल",
-      "description": "काठमाडौँ । निर्वाचन आयोगले आगामी चैतभित्रै ७५३ स्थानीय तहको निर्वाचन गर्ने गरी आन्तरिक तयारी अघि बढाएको छ । त्यसका लागि आयोगले मंसिर ४ गते राष्ट्रिय मान्यता प्राप्त दलहरूसँग छलफल गरेर सरकारलाई निर्वाचनको मिति घोषणा गर्न",
-      "link": "https://www.ratopati.com/story/605754/major-parties-in-the-fray-even-though-the-date-for-local-elections-has-not-been-announced",
-      "image_url": "https://npcdn.ratopati.com/media/news/5-party_k1HQfzdYIw.webp",
-      "published": "Tue, 17 Nov 2026 07:18:21 +0000",
-      "collected_at": "2026-11-17T08:09:00.428833+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "‘मोडस अपरेन्डी अफ बालेनिजम’",
-      "description": "सरकार परिवर्तन हुनु र शासनको चरित्र परिवर्तन हुनु एउटै कुरा होइन । निर्वाचनले नयाँ नेतृत्वलाई सत्ता सुम्पन सक्छ, पुरानो राजनीतिक अभ्यासप्रति असन्तुष्टि व्यक्त गर्न सक्छ र राज्य सञ्चालनमा नयाँ गति खोज्न सक्छ । तर, नयाँ",
-      "link": "https://www.ratopati.com/story/605749/modus-operandi-of-balineseism",
-      "image_url": "https://npcdn.ratopati.com/media/news/balnism_m4AepAN61m.webp",
-      "published": "Tue, 17 Nov 2026 07:15:00 +0000",
-      "collected_at": "2026-11-17T08:09:00.766322+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "मुक्तिनाथ विकास बैंकको डिजिटल नवप्रवर्तनमा अर्को पहल : घरमै बसी कर्जा आवेदनको अवस्था हेर्न सकिने",
-      "description": "काठमाडौँ । मुक्तिनाथ विकास बैंक लिमिटेडले आफ्ना ग्राहकलाई छिटो, सहज, पारदर्शी तथा प्रविधिमैत्री बैंकिङ सेवा उपलब्ध गराउने उद्देश्यले “Loan Application Tracking” सेवा सञ्चालनमा ल्याएको छ । यस सेवामार्फत ग्राहकले बैंकमा पेश गरेको कर्जा आवेदनहरूको अवस्था",
-      "link": "https://www.ratopati.com/story/605753/muktinath-bikas-banks-next-initiative-in-digital-innovation-you-can-check-the-status-of-your-loan-application-from-home",
-      "image_url": "https://rpcdn.ratopati.com/media/albums/muktinath-bikas-bank_WPEyt1mHtQ.jpg",
-      "published": "Tue, 17 Nov 2026 07:13:22 +0000",
-      "collected_at": "2026-11-17T08:09:01.096472+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "पोखराको लेकसाइडमा देउसीभैलो हेर्दा झैझगडा गर्ने ९ जना पक्राउ",
-      "description": "कास्की । पोखराको लेकसाइडमा देउसीभैलो हेर्ने क्रममा एकआपसमा झैझगडा तथा कुटपिटमा संलग्न ९ जनालाई प्रहरीले नियन्त्रणमा लिएको छ। जिल्ला प्रहरी कार्यालय कास्की तथा मातहतको वडा प्रहरी कार्यालय बैदामबाट खटिएको टोलीले उनीहरूलाई पक्राउ गरी अनुसन्धान अघि बढाएको",
-      "link": "https://www.ratopati.com/story/605752/nine-people-arrested-for-fighting-while-watching-deusi-bhailo-at-lakeside-in-pokhara",
-      "image_url": "https://npcdn.ratopati.com/media/news/912545314_969557032580374_6961900102197494432_n_mHUAEWiZrR.webp",
-      "published": "Tue, 17 Nov 2026 07:09:00 +0000",
-      "collected_at": "2026-11-17T08:09:01.438567+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "दण्ड सजायको दायरा फराकिलो बनाउन विधेयक ल्याइँदै",
-      "description": "काठमाडौँ । महिला, बालबालिका, लैङ्गिक तथा यौनिक अल्पसङ्ख्यक र सामाजिक सुरक्षा मन्त्रालयले दण्ड सजायको दायरालाई फराकिलो बनाउने उद्देश्यका साथ मानव बेचबिखन तथा ओसारपसार (नियन्त्रण) (पहिलो संशोधन) विधेयक, २०८३ ल्याएको जनाएको छ । सिंहदरबारमा मंगलबार बसेको प्रतिनिधिसभा",
-      "link": "https://www.ratopati.com/story/605751/bill-being-introduced-to-broaden-the-scope-of-punishment",
-      "image_url": "https://npcdn.ratopati.com/media/news/maila-sameeti_124g9RiFzw.webp",
-      "published": "Tue, 17 Nov 2026 07:06:03 +0000",
-      "collected_at": "2026-11-17T08:09:01.778502+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "नवौँ पटक सर्वाधिक आयकर तिर्ने बैंकका रूपमा सम्मानित भयो नबिल",
-      "description": "काठमाडौं । नबिल बैंक लिमिटेड बैंकिङ क्षेत्रबाट सबैभन्दा बढी आयकर तिर्ने बैंकका रूपमा नवौँ पटक सम्मानित भएको छ । आर्थिक वर्ष २०८१/८२ मा बैंकिङ क्षेत्रबाट सर्वाधिक आयकर बुझाएको भन्दै नेपाल सरकारले नबिल बैंकलाई सम्मान गरेको हो",
-      "link": "https://www.ratopati.com/story/605748/nabil-honored-as-the-bank-with-the-highest-income-tax-payment-for-the-ninth-time",
-      "image_url": "https://npcdn.ratopati.com/media/news/fullscreen-capture-11172026-124438-pm_LsA693ZLFp.webp",
-      "published": "Tue, 17 Nov 2026 07:00:26 +0000",
-      "collected_at": "2026-11-17T08:09:02.111133+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "बागमती सिँचाइ आयोजनाको कार्यालयमा तालाबन्दी",
-      "description": "सर्लाही । बागमती सिँचाइ आयोजनाको कार्यालयमा तालाबन्दी गरिएको छ । मंगलबार ज्यालादारी कर्मचारीहरूको संघर्ष समिति/आन्दोलन परिचालन कमिटीले सर्लाहीको कर्मैयास्थित कार्यालयमा तालाबन्दी गरेको हो । उमेर हदका आधारमा दैनिक ज्यालादारी कर्मचारीलाई हटाउने निर्णयको विरोधमा संघर्ष समितिले आन्दोलन",
-      "link": "https://www.ratopati.com/story/605745/bagmati-irrigation-project-office-locked-down",
-      "image_url": "https://npcdn.ratopati.com/media/news/collage_lPlF5Rz4vY.webp",
-      "published": "Tue, 17 Nov 2026 06:46:51 +0000",
-      "collected_at": "2026-11-17T08:09:02.446515+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "स्वरूप परिवर्तन गरिएका ४०१ वटा बुलेट मोटरसाइकल ट्राफिक प्रहरीको नियन्त्रणमा",
-      "description": "काठमाडौँ । स्वरूप परिवर्तन गरेर चलाएको आरोपमा ट्राफिक प्रहरीले काठमाडौँ उपत्यकाबाट ठुलो संख्यामा बुलेट मोटरसाइकल नियन्त्रणमा लिएको छ । चर्को आवाज निकालेर चलाएको र स्वरूप परिवर्तन गरिएका ४०१ वटा बुलेट मोटरसाइकल नियन्त्रणमा लिइएको उपत्यका ट्राफिक",
-      "link": "https://www.ratopati.com/story/605746/401-modified-bullet-motorcycles-taken-into-custody-by-traffic-police",
-      "image_url": "https://npcdn.ratopati.com/media/news/bullet_rZ6sniQ9MQ.webp",
-      "published": "Tue, 17 Nov 2026 06:46:26 +0000",
-      "collected_at": "2026-11-17T08:09:02.780448+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "जतिसुकै अवधिको गर्भपतन प्रस्तावले तरङ्ग",
-      "description": "काठमाडौँ । मानौँ आमाको कोखभित्र शिशु हुर्किरहेको छ । उसका हातखुट्टा चलमलाउन थालिसकेका छन् । ऊ सास फेर्न सक्ने भइसकेको छ । र, पूर्ण मानव रूप लिइसकेको ऊ अब सुन्दर संसार देख्ने अन्तिम पर्खाइमा छ",
-      "link": "https://www.ratopati.com/exclusive/605744/proposal-to-allow-abortion-of-any-term-causes-waves",
-      "image_url": "https://npcdn.ratopati.com/media/news/av_BCwIn9IwXp.webp",
-      "published": "Tue, 17 Nov 2026 06:43:06 +0000",
-      "collected_at": "2026-11-17T08:09:03.127773+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "चीन र क्यानडाबिच व्यापार सम्झौता विस्तार, ४० करोड क्यानेडियन डलरका वस्तुमा भन्सार छुट",
-      "description": "काठमाडौँ । चीन र क्यानडाले द्विपक्षीय व्यापार सम्बन्ध थप विस्तार गर्ने सहमति गरेका छन् । चिनियाँ राष्ट्रपति सी जिनपिङ र क्यानडाका प्रधानमन्त्री मार्क कार्नीबीच मंगलबार चीनको सेन्जेनमा भएको भेटवार्तामा दुवै देशले व्यापार सहकार्य बढाउने र केही",
-      "link": "https://www.ratopati.com/story/605743/china-canada-trade-agreement-expanded-customs-duty-exemptions-on-goods-worth-400-million-canadian-dollars",
-      "image_url": "https://npcdn.ratopati.com/media/news/china-canada_o4gGl6Jeec.webp",
-      "published": "Tue, 17 Nov 2026 06:41:18 +0000",
-      "collected_at": "2026-11-17T08:09:03.469202+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "एनभिडियाका सीईओको राजीनामाले चिनियाँ प्रविधि कम्पनीको व्यवसायमा असर नपरेको दाबी",
-      "description": "काठमाडौँ । चिनियाँ प्रविधि कम्पनीहरूले अमेरिकी चिप निर्माता एनभिडियाका प्रमुख कार्यकारी अधिकृत (सीईओ) जेन्सेन ह्वाङको राजीनामाले आफ्नो व्यवसायमा कुनै असर नपारेको बताएका छन् । उनीहरूले नियमित अर्डर, स्थापित खरिद प्रक्रिया र विभिन्न चिप आपूर्तिकर्तासँगको सहकार्यका कारण",
-      "link": "https://www.ratopati.com/story/605742/nvidia-ceos-resignation-claims-it-has-not-affected-chinese-tech-companys-business",
-      "image_url": "https://npcdn.ratopati.com/media/news/nvidia_dTrQiaate1.webp",
-      "published": "Tue, 17 Nov 2026 06:38:52 +0000",
-      "collected_at": "2026-11-17T08:09:03.805475+00:00"
-    },
-    {
-      "source": "Ratopati",
-      "title": "अमेरिकी चिप प्रतिबन्धको सामना गर्न चीनले आफ्नै प्रविधि विकास गर्दै",
-      "description": "बेइजिङ । चीनले अमेरिकी एआई कम्पनीका अत्याधुनिक मोडलबाट प्राप्त जवाफ र तथ्याङ्क प्रयोग गरेर आफ्नै प्रतिस्पर्धी एआई प्रणाली विकास गर्ने प्रक्रिया अघि बढाएको छ । अमेरिकी चिप निर्यात प्रतिबन्धका कारण अत्याधुनिक कम्प्युटिङ प्रविधिमा पहुँच कठिन हुँदै",
-      "link": "https://www.ratopati.com/story/605741/china-developing-its-own-technology-to-counter-us-chip-ban",
-      "image_url": "https://npcdn.ratopati.com/media/news/ai-chip_AFayAhQ4Y8.webp",
-      "published": "Tue, 17 Nov 2026 06:34:14 +0000",
-      "collected_at": "2026-11-17T08:09:04.140133+00:00"
+      "collected_at": "2026-11-17T09:17:25.320023+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "आईएमई सर्वाधिक कर तिर्ने रेमिट्यान्स कम्पनीका रूपमा सम्मानित",
-      "description": "१ मंसिर, काठमाडौं । रेमिट्यान्स तथा मनी ट्रान्सफर कारोबार गर्ने कम्पनीहरूमध्ये आइएमई लिमिटेड सर्वाधिक कर तिर्ने कम्पनीका रूपमा सम्मानित भएको छ। राष्ट्रिय कर दिवस २०८३ का अवसरमा मंगलबार काठमाडौंमा आयोजित विशेष समारोहमा अर्थमन्त्री स्वर्णिम वाग्लेले आइएमई लिमिटेडका अध्यक्ष हेमराज ढकाललाई उक्त सम्मान प्रदान गरेका हुन्। सम्मान ग्रहणपछि अध्यक्ष ढकालले उल्लेख्य कर दाखिला गरी राष्ट्रिय विकासमा योगदान पुर्‍याउन पाउनु कम्पनीका लागि गौरवको विषय भएको बताए। उनले रेमिट्यान्स सेवालाई थप सरल, सहज र सुरक्षित बनाउँदै राष्ट्रिय तथा अन्तर्राष्ट्रिय बजारमा आइएमईको ब्रान्ड पहिचान विस्तार गर्ने प्रतिबद्धता पनि व्यक्त गरे। विभिन्न देशमा एक सयभन्दा बढी व्यावसायिक साझेदार सञ्जाल रहेको आइएमईले रेमिट्यान्स कारोबारसँगै आफूले सिर्जना तथा विकास गरेको उद्यमशीलताको पारिस्थितिक प्रणाली ९इकोसिस्टम० लाई थप सुदृढ बनाउने जनाएको छ। यसका लागि उन्नत प्रविधि, उत्कृष्ट सेवा र व्यावसायिक गतिशीलतालाई प्राथमिकता दिने अध्यक्ष ढकालले बताए। सन् २००१ मा स्थापना भएको आइएमईले नेपालको वैदेशिक मुद्रा आप्रवाहलाई संस्थागत बनाउन नेतृत्वदायी भूमिका निर्वाह गर्दै आएको छ। कम्पनीले यही योगदानका आधारमा विभिन्न राष्ट्रिय तथा अन्तर्राष्ट्रिय सम्मान प्राप्त गर्दै आएको जनाएको छ। यसअघि पनि आइएमई पटक–पटक सर्वाधिक कर तिर्ने कम्पनीका रूपमा सम्मानित भइसकेको छ।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059406/ime-honored-as-highest-tax-paying-remittance-company-2",
+      "title": "क्यानाडा र चीनबीच थप शुल्क कटौतीमा सहमति",
+      "description": "१ मङ्सिर, सेन्जेन (चीन) (रासस/एएफपी) । क्यानाडा र चीनले व्यापार विस्तार गर्ने उद्देश्यले थप भन्सार शुल्क कटौती गर्ने सहमति गरेका छन् । क्यानाडाका प्रधानमन्त्री मार्क कार्नी र चिनियाँ राष्ट्रपति सी जिनपिङबीच एपेक शिखर सम्मेलनका क्रममा भएको भेटवार्तापछि यस्तो सहमति भएको हो । कार्नीको कार्यालयका अनुसार यसबाट क्यानाडाको करिब ४० करोड क्यानेडियन डलर बराबरको निर्यातमा थप भन्सार छुट हुनेछ । यसमा चिस्यानमा राखिएको सुँगुरको मासु, माछा र समुद्री खाद्यवस्तु समावेश छन् । त्यसको बदलामा क्यानाडाले चिनियाँ स्टिल र आल्मुनियमका केही उत्पादनमा दिइएको भन्सार छुट दुई वर्ष थप्नेछ । अमेरिकामाथिको व्यापारिक निर्भरता घटाउन खोजिरहेका कार्नीले सन् २०३० सम्म चीनतर्फको निर्यात ५० प्रतिशतले बढाउने लक्ष्य निर्धारित समयभन्दा अगाडि नै पूरा हुने बताएका छन्। चिनियाँ राष्ट्रपति सीले पनि दुई देशबीचको सम्बन्ध सुधारले दुवै देशको हित र विश्वको स्थिरता तथा समृद्धिमा योगदान पुग्ने बताए। वर्षौंदेखि कूटनीतिक तनाव र भन्सार शुल्क विवादमा रहेका दुई देशबीच सम्बन्ध सुधारको प्रयास भइरहेको छ । सन् २०१८ मा क्यानाडाले अमेरिकी पक्राउ पुर्जीका आधारमा हुवावेका संस्थापककी छोरीलाई पक्राउ गरेपछि चीनले दुई क्यानाडेली नागरिकलाई हिरासतमा लिएको थियो । त्यसपछि दुवै देशले एकअर्काका निर्यातमा शुल्क लगाएका थिए । यसैबीच, अमेरिकी राष्ट्रपति डोनाल्ड ट्रम्पले क्यानाडाको अटोमोबाइल क्षेत्रमा दण्डात्मक शुल्क लगाएका थिए। कार्नी गत अगस्टमा अमेरिकासँगको व्यापार वार्ताबाट बाहिरिएको भए पनि पछिल्लो समय दुवै देशबीच सम्झौताको सम्भावना देखिएको छ ।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059475/canada-and-china-agree-to-further-tariff-cuts",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:59:09 +0000",
-      "collected_at": "2026-11-17T08:09:06.154144+00:00"
+      "published": "Tue, 17 Nov 2026 09:09:38 +0000",
+      "collected_at": "2026-11-17T09:17:26.726464+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "नेपालभित्रै महिला र श्रमिकहरू बेचबिखनमा परिरहेका छन् : सांसद विक",
-      "description": "१ मंसिर, काठमाडौं । नेपाली कम्युनिस्ट पार्टीकी सांसद पार्वती विकले मानव बेचबिखनको समस्या विदेशमा मात्रै नभएर नेपालभित्रै पनि रहेको बताएकी छन् । उनका अनुसार महिला, श्रमिक र बालबालिका नेपालभित्रै बेचबिखन तथा शोषणमा परिरहेका छन् । यसलाई ख्याल गरेर समयाअनुकुल हुने गरी मानव बेचबिखन तथा ओसारपसार (नियन्त्रण ऐन बन्नुपर्ने उनको आग्रह छ । यससम्बन्धी प्रस्तावित विधेयकमाथि मंगलबार प्रतिनिधिसभा अन्तर्गतको महिला तथा सामाजिक मामिला समितिको बैठकमा छलफल थियो । उक्त छलफलमा बोल्दै उनले वैदेशिक रोजगारीका नाममा हुने संगठित बेचबिखनसँगै देशभित्रै भइरहेको बेचबिखन र श्रम शोषण नियन्त्रणमा पनि ध्यान दिनुपर्ने बताएकी हुन् । गरिब तथा श्रमिक परिवारका बालबालिकालाई पढाइदिने र राम्रो भविष्य बनाइदिने प्रलोभनमा गाउँबाट सहर ल्याएर श्रम शोषण गर्ने गरिएको भनेर उनले यसलाई देश भित्रकै बेचबिखनको रूपमा व्याख्या गरेका हुन् । ‘देश भित्र यहाँ पनि केही बेचबिखनहरू छन् । गाउँबाट बच्चाबच्चीहरू सहर ल्याउने अर्थात् बजार ल्याउने अर्थात् गरिब परिवार त्यस्ता मजदुर परिवारहरूबाट ल्याउने । त्यसपछि हामी पढाइदिन्छौँ भन्ने बहानामा चरम शोषण भइराखेको छ, हैन ? यो कुरालाई कसरी नियन्त्रण गर्ने ?,’ उनको प्रश्न छ । त्यस्ता बालबालिकालाई होटल, रेस्टुरेन्ट र घरमा काममा लगाउने गरिएको उनले बताइन् । ‘यहाँ (सहर) ल्याइसकेपछि होटलहरूमा काम लगाउने, रेस्टुरेन्टमा काम लगाउने, अलिकतालाई अलिकता घरमा काम गर्न लगाउने, हैन त्यसपछि उनीहरूले जे गर्न पर्थ्यो, एउटा वातावरणमा आफ्नो बाबुबामासँग आफ्ना अभिभावककसँग घरमै त्यसरी हुर्कनुपर्थ्यो, त्यो गर्न नदिने,’ उनले भनिन् । सिधै बालबालिकालाई काममा राख्छु भन्न नमिल्ने भएकोले पढाइ आदिको प्रलोभन देखाउने गरिएको उनको भनाइ छ । इँटा भट्टामा बालबालिकालाई काममा लगाउने समस्या पनि अझै नियन्त्रण हुन नसकेको भनेर उनले सरकारको ध्यानाकर्षण गरिन् । एक वर्षअघि ललितपुरको एउटा इँटा भट्टाबाट सल्यानका पाँच जना बालबालिकालाई आफूले उद्धार गरेर ल्याएको अनुभव पनि सुनाइन् । ‘इँटा भट्टाहरूमा काम गर्न बालबालिकाहरूलाई लगाउने पनि छ । एक वर्ष मात्र अगाडि मैले ललितपुरको एउटा इँटा भट्टाबाट सल्यानका पाँच जना बालबालिकालाई आफैं तानेर ल्याएको थिएँ । त्यसपछि गएर त्यहाँ मलाई कति धेरै गाह्रो भएको थियो । अहिले पनि त्यो स्थिति छ,’ उनले भनिन्, ‘हामीले त्यो कुरालाई अझै नियन्त्रण गर्न सकिराखेका छैनौँ ।’ नेपाल बाहिर हुने ओसारपसार र बेचबिखनको प्रकृति पनि अलि फरक खालको भएको उनको भनाइ छ । उनका अनुसार पछिल्लो समय दलालहरूले वैदेशिक रोजगारीमा पठाउने नाममा संगठित रूपमा मानिस बेच्ने गरेका छन् । घरमै पुगेर अभिभावकसँग कुरा गर्ने, जिल्ला प्रशासन कार्यालयबाट राहदानी बनाइदिने, म्यानपावरदेखि हवाई यात्रासम्मको व्यवस्था मिलाउने गर्छन् । काम गर्न विदेश जान लागेको ठान्ने श्रमिक सम्बन्धित देश पुगेपछि मात्रै आफू बेचिएको अवस्थामा परेको थाहा पाउने अवस्था रहेको छ । ‘कामदारहरू हामी काममा जान्छौँ भन्ने ठानेर जान्छन् तर त्यहाँ पुगेपछि मात्रै आफू बेचिएको अवस्थामा रहेको थाहा पाउँछन्,’ उनले भनिन् । यस्तो प्रवृत्ति विशेषगरी महिला र श्रमिक वर्गका मानिसको हकमा बढी देखिएको उनको भनाइ छ । देशभित्र र बाहिरको यस्तो परिस्थितिलाई ख्याल गरेर ऐन बनाउनुपर्ने उनको आग्रह छ ।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059404/women-and-workers-are-being-trafficked-within-nepal-mp-bk",
+      "title": "ओलीको आपत्ति– जेनजी आन्दोलनको छानबिन गर्न बनेका आयोगबाट काम भएन",
+      "description": "१ मंसिर, काठमाडौं । नेकपा (एमाले)का अध्यक्ष केपी शर्मा ओलीले आफू नेतृत्वको तत्कालीन सरकार लोकतान्त्रिक प्रक्रियाबाट नभई बलजफ्ती, आगजनी र लुटपाटमार्फत हटाइएको जिकिर गरेका छन् । आइतबार काठमाडौंमा अखिल नेपाल किसान महासंघको बैठकलाई सम्बोधन गर्दै उनले उपद्रवकारीहरूले राज्यका संयन्त्र निष्क्रिय र निस्प्रभावी बनाएपछि आफूहरू सरकारबाट हट्नुपरेको दाबी गरे । जेनजी आन्दोलनको क्रममा भएका घटनाहरूको निष्पक्ष छानविन हुन नसकेको समेत टिप्पणी ओलीको थियो । सरकारद्वारा गठित छानविन आयोग र मानव अधिकार आयोगले आन्दोलनको क्रममा भएको लुटपाट र आगजनीका घटनाको निष्पक्ष छानविन गर्नुको सट्टा आफूहरूलाई आरोपित गर्ने उद्देश्यबाट प्रेरित भएको आरोप उनको थियो । ‘अहिले हामीले धक्का खाएका छौँ, हामीले लोकतान्त्रिक बाटोबाट धक्का खाएका होइनौँ । बलजफ्ती, आगो लगाएर, लुटपात गरेर, राज्यका संयन्त्रहरू निष्क्रिय र निस्प्रभावी भएर हामी सरकारबाट हटाइयौँ । मान्छे मराएर उनीहरूले कब्जा गरे । मान्छे कसले मार्‍यो ? कसले गोली चलायो ? आयोग बने, स्थायी मानव अधिकार आयोग त छँदैछ । वास्तवमा छानबिन भएन । सम्भवत: आयोगहरूलाई छानबिन गर्नु पनि थिएन । केपी ओलीलाई आरोपित गर्नु थियो,’ ओलीले भने । विदेशी सामाजिक सञ्जाल कम्पनीलाई नियमन गर्न खोजेको विषयमा तत्कालीन सञ्चारमन्त्रीमाथि कारबाही गर्नुपर्ने राष्ट्रिय मानव अधिकार आयोगको निष्कर्षप्रति समेत उनले आपत्ति जनाए । उनले विघठित प्रतिनिधि सभासम्बन्धी मुद्दाको फैसलामा ढिलाई गरेको भन्दै सर्वोच्च अदालतको आलोचना समेत गरे । ‘उहाँहरूले गोली चलाउन आदेश दिएको छ भन्दा छैन भन्ने आयोगहरूकै निष्कर्ष छ गोली चलाउने आदेश प्रधानमन्त्री पनि दिएन, गृहमन्त्रीले पनि दिएन । अझ के भने इटलीले अहिले मेटालाई अर्बौँ रुपैयाँको दण्ड गरेको छ । बेथिति रुपमा चलाएको र मानहानी गरेको सजाय गरेको छ । हामी कहाँ थितिमा नबस्दाखेरी राज्य मान्दिनँ, कानुन मान्दिन,’ ओलीले भने, ‘तेरो संविधान मान्दिनँ, सरकार मान्दिन भन्दा हामीले बन्द गर्ने निर्णय नगरेका हौँ । अनि विदेशी व्यवसायीलाई नियमन गर्न खोजेको आरोपमा तत्कालीन सञ्चारमन्त्रीलाई कारबाही गर्नुपर्छ भन्ने मानव अधिकार आयोगको निष्कर्ष छ ।’",
+      "link": "https://www.onlinekhabar.com/2026/11/2059470/olis-objection-the-commission-formed-to-investigate-the-genji-movement-did-not-work",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:56:00 +0000",
-      "collected_at": "2026-11-17T08:09:06.538166+00:00"
+      "published": "Tue, 17 Nov 2026 09:02:25 +0000",
+      "collected_at": "2026-11-17T09:17:27.073413+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "सामाजिक सञ्जालमा भ्रामक सूचना फैलाएको आरोपमा दुई जना पक्राउ",
-      "description": "१ मंसिर, सर्लाही । सामाजिक सञ्जालमार्फत भ्रामक तथा श्रामक सूचना प्रकाशन तथा प्रसारण गरेको आरोपमा सर्लाही प्रहरीले दुई जनालाई नियन्त्रणमा लिएको छ । जिल्ला प्रहरी कार्यालय सर्लाहीका अनुसार पक्राउ पर्नेमा मलंगवा नगरपालिका–४ का २८ वर्षीय महेश पासवान र बलरा नगरपालिका–४, गडहिया टोलका ३२ वर्षीय आलम बैठा छन् । प्रहरीका अनुसार उनीहरूले फेसबुकमार्फत प्रहरीसँग सम्बन्धित घटनाबारे वास्तविकताभन्दा फरक तथा भ्रामक सूचना सम्प्रेषण गरी सर्वसाधारणमा भ्रम सिर्जना गर्नुका साथै प्रहरीको कामकारबाहीप्रति अनावश्यक भ्रम र अन्योल फैलाउने कार्य गरेको प्रारम्भिक अनुसन्धानबाट खुलेको छ । पक्राउ परेका दुवै जनामाथि आवश्यक अनुसन्धान भइरहेको जिल्ला प्रहरी कार्यालय सर्लाहीका प्रहरी नायब उपरीक्षक एवं सूचना अधिकारी वेदप्रसाद गौतमले जानकारी दिएका छन् । प्रहरीले सामाजिक सञ्जालमा कुनै पनि सूचना प्रकाशन वा प्रसारण गर्नुअघि त्यसको सत्यतथ्य पुष्टि गर्न र भ्रामक सामग्री सेयर नगर्न सर्वसाधारणलाई आग्रह गरेको छ ।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059392/two-arrested-for-spreading-misleading-information-on-social-media",
+      "title": "युवा तथा साना व्यवसायी स्वरोजगार कोषको कार्यकारी निर्देशक पदमा दरखास्त आह्वान",
+      "description": "१ मंसिर, काठमाडौं । युवा तथा साना व्यवसायी स्वरोजगार कोषको कार्यकारी निर्देशक पदका लागि दरखास्त आह्वान गरिएको छ । युवा, श्रम तथा रोजगार मन्त्रालयले कोषको कार्यकारी निर्देशकका लागि दरखास्त आह्वान गरेको हो । कोष (सञ्चालन) नियमावली २०७७ को नियम २३ बमोजिम प्रतिस्पर्धाका आधारमा कोषको कार्यकारी निर्देशक पदमा दरखास्त आह्वान गरिएको हो । आगामी १५ दिनभित्र आवेदन दिन आह्वान गरिएको छ । कार्यकारी निर्देशकका लागि ३५ वर्ष पूरा भई ६० वर्ष ननाघेको हुनुपर्ने छ । मान्यताप्राप्त विश्वविद्यालयबाट अर्थशास्त्र, वाणिज्यशास्त्र, वाणिज्य कानुन वा व्यवस्थापन विषयमा स्नातकोत्तर तहको उपाधि हासिल गरेको हुनुपर्ने छ । त्यस्तै बैंक, वित्तीय वा आर्थिक क्षेत्रमा कम्तीमा अधिकृतस्तरको व्यवस्थापकीय जिम्मेवारीमा रही कम्तीमा १० वर्षको कार्य अनुभव हासिल गरेको हुनुपर्ने र तत्काल कुनै पनि राजनीतिक दलको सदस्य नरहेको व्यक्ति हुनुपर्ने छ । यसका लागि मन्त्रालयले कोषको नियमावली अनुसार युवा तथा साना व्यवसायी स्वरोजगार कोषको कार्यकारी निर्देशक नियुक्तिको सिफारिस सम्बन्धी कार्यविधि २०८३ जारी गरिएको छ । आवेदन दिनेले सम्बन्धित उम्मेदवार स्वयंबाट हस्ताक्षरित व्यक्तिगत विवरण र व्यावसायिक योजना पेस गर्नुपर्ने छ । कम्तीमा २ हजार ५ सय शब्दको व्यावसायिक योजना पेस गर्नुपर्ने छ ।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059462/applications-are-invited-for-the-post-of-executive-director-of-the-youth-and-small-business-self-employment-fund",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:42:51 +0000",
-      "collected_at": "2026-11-17T08:09:06.905141+00:00"
+      "published": "Tue, 17 Nov 2026 08:58:23 +0000",
+      "collected_at": "2026-11-17T09:17:27.427177+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "बर्लिनमा युक्रेनको सुरक्षा र पुनर्निर्माणबारे निर्णायक वार्ता हुँदै",
-      "description": "अमेरिकी राष्ट्रपति डोनाल्ड ट्रम्पका विशेष दूतहरू स्टिभ विटकफ र ज्यारेड कुश्नरले यसै साता युक्रेनी तथा युरोपेली अधिकारीहरूसँग भेटवार्ता गर्ने भएका छन् । युक्रेनका लागि दीर्घकालीन सुरक्षा ग्यारेन्टी र युद्धपछिको आर्थिक पुनर्निर्माण योजनामा काम गर्न वार्ता तय गरिएको हो । एक अमेरिकी अधिकारीका अनुसार, यो महत्त्वपूर्ण बैठक आगामी बिहीबार (नोभेम्बर १९) जर्मनीको राजधानी बर्लिनमा आयोजना हुँदै छ। विटकफ र कुश्नरले युरोपका लागि युद्धपछिको सुरक्षा ढाँचा प्रस्ताव गर्न रुसलाई आग्रह गरेको ठीक एक हप्तापछि बर्लिनमा यो बैठक हुन लागेको हो। रोचक संयोग के छ भने, बर्लिनमा वार्ता भइरहेकै दिन बिहीबार चीनको सेन्जेनमा राष्ट्रपति डोनाल्ड ट्रम्पले रुसी राष्ट्रपति भ्लादिमिर पुटिन र चिनियाँ राष्ट्रपति सी चिनफिङसँग त्रिपक्षीय भेटवार्ता गर्दै छन्। ट्रम्पले सोमबार उक्त भेटमा युक्रेन युद्ध अन्त्यका विषयमा समेत छलफल हुने अपेक्षा गरेको बताएका छन्। बर्लिन बैठकको मुख्य एजेन्डा र समन्वयात्मक कूटनीति अमेरिकी अधिकारीका अनुसार बर्लिन बैठकको मुख्य उद्देश्य भविष्यमा रुसबाट हुन सक्ने सम्भावित आक्रमणहरूलाई रोक्न युक्रेनका लागि ठोस सुरक्षा ग्यारेन्टी विकास गर्नु र युद्धले ध्वस्त पारेको युक्रेनी अर्थतन्त्र पुनर्निर्माण गर्ने योजना तयार पार्नु हो। ट्रम्पका सहयोगीहरूले मस्कोसँग प्रत्यक्ष संवाद गरिरहँदा सँगसँगै युक्रेनी र युरोपेली अधिकारीहरूसँग पनि नियमित सम्पर्क कायम राखेका छन्। अमेरिकी अधिकारीले बर्लिन बैठक र राष्ट्रपति ट्रम्पको चीन भ्रमणलाई एक ‘समन्वयात्मक कूटनीतिक प्रयास’का रूपमा व्याख्या गरेका छन्। राष्ट्रपति ट्रम्पसँगै चीन भ्रमणमा सहभागी हुने विदेशमन्त्री मार्को रुबियो, अर्थमन्त्री स्कट बेसेन्ट र ह्वाइट हाउसका चिफ अफ स्टाफ स्टिफन मिलरलाई युक्रेन शान्ति वार्ताबारे विस्तृत ब्रिफिङ दिइसकिएको छ। मस्को संवाद, डिजेल प्रतिबन्धमा सहुलियत र युरोपेली आशङ्का गत बिहीबार मात्र विटकफ र कुश्नरले मस्कोमा रुसी राष्ट्रपति भ्लादिमिर पुटिनसँग प्रत्यक्ष भेटवार्ता गरेका थिए। साथै, सोमबार उनीहरूले युद्ध वार्ताका आगामी चरणहरूबारे पुटिनका विदेश नीति सल्लाहकार युरी उशाकोभसँग टेलिफोन संवाद गरेका छन्। अमेरिकाले तनाव कम गर्ने कदमहरू समेटिएको युरोपेली सुरक्षा प्रस्ताव पेस गर्न रुससँग आग्रह गरेको थियो। यद्यपि, रुसले कुनै पनि सम्झौताको पालना गर्छ भन्नेमा धेरै युरोपेली सरकारहरू अत्यन्तै सशङ्कित छन्। यसै महिनाको सुरुमा अमेरिकाले रुसी डिजेलमाथिको प्रतिबन्ध खुकुलो पार्दा मस्कोबाट केही सहुलियत मिल्ने आशा राखेको थियो । तर पुटिनले अझै पनि युद्धविरामको प्रस्तावलाई अस्वीकार गर्दै आएका छन्। शान्ति वार्तामा युरोपको प्रत्यक्ष सहभागिताबारे मस्को र वासिङ्टनबिच मतभेद युद्ध समाधानका लागि हुने प्रत्यक्ष वार्तामा युरोपेली राष्ट्रहरू रुससँगै एउटै टेबुलमा सहभागी हुन्छन् वा हुँदैनन् भन्ने प्रश्न अझै अनुत्तरित र विवादित छ। विटकफ र कुश्नरले वार्ताको टेबुलमा युरोपलाई पनि स्थान दिन रुस सहमत भएको दाबी गरेका छन्। तर, सोमबार क्रेमलिनका सल्लाहकार युरी उशाकोभले युरोपको सहभागिताबारे त्यस्तो कुनै सहमति नभएको भन्दै अमेरिकी दाबीको खण्डन गरेका छन्। युक्रेनी राष्ट्रपति भोलोदिमिर जेलेन्स्कीले सोमबार सामाजिक सञ्जाल टेलिग्राममार्फत फ्रान्स, जर्मनी, बेलायत, इटाली, पोल्यान्ड, युरोपेली युनियन (ईयू) र नेटोका प्रतिनिधिहरू सम्मिलित युरोपेली टोलीले रुससँगको वार्तामा युरोपको प्रतिनिधित्व गर्ने स्पष्ट पारेका छन्। बिहीबार बर्लिनमा ‘कोअलिसन अफ द विलिङ’को ढाँचाभित्र हुने बैठकले रुससँगको आगामी वार्ताका ठोस संयुक्त कदमहरू तय गर्ने अपेक्षा गरिएको छ। एक्सियोसबाट",
-      "link": "https://www.onlinekhabar.com/2026/11/2059380/crucial-talks-on-ukraines-security-and-reconstruction-underway-in-berlin",
+      "title": "‘नेपाल-भारतका समस्या अब कार्पेटमुनि लुकाउन हुन्न, प्रधानमन्त्रीले आँखा जुधाएर कुरा गर्नुपर्छ’",
+      "description": "प्रधानमन्त्री बालेन शाह अर्को साता भारत भ्रमणमा जाँदैछन् । जेनजी आन्दोलनबाट बदलिएको राजनीतिक परिस्थितिपछि नवगठित संसद्बाट निर्वाचित प्रधानमन्त्रीको भ्रमणलाई निकै चासोपूर्वक हेरिएको छ ।फरक खालकै राजनीतिक पृष्ठभूमिबाट आएका युवा प्रधानमन्त्रीको भ्रमण कस्तो होला ? पुरानै सम्बन्धको निरन्तरता हुन्छ कि दुईपक्षीय सम्बन्धमा नयाँ आयाम थपिन्छ ? यसै सन्दर्भमा भारतका लागि पूर्वनेपाली राजदूत दीपकुमार उपाध्यायसँग अनलाइनखबरका दुर्गा खनालले गरेको कुराकानी : अर्को साता प्रधानमन्त्री भारत जाँदै हुनुहुन्छ । विगतमा प्रधानमन्त्री हुनेबित्तिकै पहिलो भ्रमण भारत गर्ने प्रचलनजस्तै थियो। तर यसपटक प्रधानमन्त्री भएको झन्डै आठ महिनापछि बालेन्द्र शाह भारत जाने तय भएको छ। यो भ्रमणलाई तपाईंले कसरी हेर्नुभएको छ? यो देशका लागि खुसीको खबर र एउटा राम्रो अवसर हो। तर, हामीले यसलाई कति उपयोग गर्न सक्छौँ भन्ने मुख्य कुरा हो। तपाईंले भन्नुभएजस्तै विगतमा यस्ता भ्रमण धेरै पटक भए। तर, राष्ट्रले परिणाममा कस्तो नतिजा पाउँछ, त्यसको आधारमा यसको मूल्याङ्कन गर्नुपर्दछ। जे होस्, अहिले भारतका लागि पनि नेपाल एक अचम्मको देश बनेको छ। यस्ता समस्या विश्वका धेरै ठाउँमा भए, तर यहाँ बहुत छोटो समयमा जुन किसिमको परिवर्तन सम्भव भयो, त्यसको राष्ट्रिय तथा अन्तर्राष्ट्रिय स्तरमा आफ्नै हिसाबले शोध–अनुसन्धान हुँदै गर्ला। तर, परिणाम स्वरूप नयाँ र निर्वाचित सरकार बनिसकेको छ। त्यो सरकार कस्तो हो र कसरी अगाडि बढ्छ भन्ने जिज्ञासा भारतलाई पनि रहनु स्वाभाविक हो। त्यसैले यो भ्रमण उनीहरूका लागि पनि एउटा अवसर हो, हाम्रा लागि त छँदैछ। यो भ्रमण विगतमा भएका भारतसँगका सम्बन्ध र सम्झौताहरूलाई नयाँ तरिकाले अगाडि बढाउने अवसर हो कि एकअर्काबीच चिनापर्ची गर्ने अवसर मात्रै हो? म कूटनीतिको अत्यन्त विद्वान वा विशेषज्ञ होइन। म सक्रिय राजनीतिक क्षेत्रको मान्छे हुँ। त्यस्तै परिस्थिति पर्‍यो र मैले एक–एक वर्ष गरी दुई वर्षको छोटो अवधि भारतमा काम गरेँ अनि फेरि राजनीतिमा फर्किएँ। त्यही अनुभवका आधारमा भन्दैछु— यो कूटनीति भन्ने कुरो रमाइलो विषय हो, यसमा नरमाइलो भन्ने हुँदैन। तपाईं–हामीले देखेकै छौँ, दुवै देशका परराष्ट्र मामिलामा योग्य व्यक्तिहरू हुन्छन्। उनीहरूले जाने–बुझेसम्मका मीठा र राम्रा शब्दहरू प्रयोग गर्छन्। ‘अब हिजोभन्दा राम्रो हुन्छ’ भन्दै सकेसम्म संयुक्त वक्तव्य (ज्वाइन्ट कम्युनिके) नै निकाल्छन्। वक्तव्य नआए पनि आ–आफ्नो तरिकाले आलंकारिक शब्दहरूसहित ‘भ्रमण सफल भयो, सम्बन्धलाई नयाँ उचाइमा पुर्‍याउँछु’ भनेकै हुन्छन्। तर, खासमा नेपालीहरूले त्यस्तो ठोस परिणाम देख्न पाइरहेका छैनौँ। यसको मूल कारण के हो भने, दुई देशबीचको विश्वासको स्तर (लेभल अफ ट्रस्ट) क्रमशः ह्रास हुँदै गयो। जस्तै, एउटा जमाना थियो, भारतको स्वतन्त्रता आन्दोलनमा नेपालका नेताहरूले भाग लिएका थिए। बीपी कोइराला, किसुनजी (कृष्णप्रसाद भट्टराई) देखि मनमोहन अधिकारीजीसम्मको कुरा गर्दा त्यतिबेला नेताहरूबीच एक किसिमको आत्मीयता र गहिरो विश्वास हुन्थ्यो। मैले त आफ्नै प्रत्यक्ष आँखाले देखेको छु नि। किसुनजी (कृष्णप्रसाद भट्टराई) भारत जाँदा उहाँ सेतो धोती र खराउ लगाएर ट्याक–ट्याक ओर्लिँदा त्यहाँका मन्त्रीहरूले सुटुक्क आएर खुट्टा नै ढोग्थे ! उनीहरूको त्यो संस्कार र चलन थियो। त्यहाँका प्रधानमन्त्रीहरूले वार्ताको छलफलमा, ‘ठीक छ, हाम्रो डिप्लोमेटिक हिसाबले जे गर्ने कुरा छ, त्यो छँदैछ; तर किसुनजीको अनुरोध चाहिँ हाम्रा लागि आज्ञा हो, यसलाई तुरुन्तै समय मिलाएर गरौँ’ भन्दिन्थे। त्यो बेलाको अवस्था र अहिलेको अवस्थामा धेरै फरक छ। अहिले नेपालमा पनि नयाँ, युवाहरूको एक प्रकारको एक्शनबाट आएको र भारतले पनि नसोचेको तथा परम्परागतभन्दा बिल्कुलै फरक खालको व्यक्तित्व सरकारमा छ। त्यसकारण यो भ्रमण उनीहरूका लागि पनि अवसर हो र हाम्रा लागि पनि अवसर हो। कूटनीतिमा नराम्रो भन्ने कुरो हुँदैन। तर, हामीले कति गम्भीरताका साथ, कति परिपक्वताका साथ र कति चातुर्यताका साथ नेपालका समस्याहरूलाई क्याटागोरिकली विश्लेषणसहित भारतलाई बुझाउन सक्छौँ भन्ने कुरा मुख्य हो। यसलाई दुवै पक्षलाई फाइदा हुने गरी (विन–विन सिचुएसन) उनीहरूले पनि सहजै मान्न सक्ने किसिमले प्रस्तुत गर्नुपर्छ। उच्च तहमा त एजेन्डा मात्रै छलफलमा आउँछन्, अन्य एजेन्डा त तलतल द्विपक्षीय छलफल (बाइलेटरल डिस्कसन) मा वा वान-टु-वान कुराकानीमा उठ्न सक्छन्। तर समस्या के हो भने, ती कुराहरूलाई संस्थागत रूपमा ‘इन्सेप्सन मेमोरी’ वा अभिलेखमा राख्ने हाम्रो चलन नै छैन। हामी भेटघाट सकिएपछि त्यो कुरा बिर्सन्छौँ। परराष्ट्र मन्त्रालयमा ल्याएर त्यसको रेकर्ड पनि राखिँदैन। तर भारतमा त्यस्तो हुँदैन। प्रधानमन्त्री नरेन्द्र मोदीले विदेशी विशिष्ट पाहुनाहरूलाई भेट्दा जहिले पनि नोट टेकर राखिएको हुन्छ। उसले सबै कुरा नोट गरेकै हुन्छ। मिटिङ हुनुभन्दा अगाडि उनीहरूले ब्रिफङ लिएका हुन्छन् । यसभन्दा पहिले के–के कुरा भएको थियो ? आज के सम्भावना छ ? कुन विषयमा कुरा हुन सक्छ ? उनीहरू यस्तो तयारीका साथ बसेका हुन्छन्। मिटिङ सकिएपछि पनि ‘डिब्रिफिङ’ गरेर एउटा नोट बनाएर राख्छन्। हामीकहाँ त्यस्तो चलन छैन। छलफल भएका एजेन्डा र विषयहरूलाई निरन्तरता (कन्टिन्युसन) दिन नसक्दा, नेपालले आफूलाई परेका पीरमर्का र समस्याहरू उठाउने प्रयास गरे पनि त्यसबाट ठोस परिणाम निकाल्न सकिरहेका छैनौँ । कूटनीतिमा बाहिरी हल्लाभन्दा पनि बडा चातुर्यता र परिपक्वताका साथ कुरा उठाएर रिजल्ट निकाल्नुपर्छ, तर हामी चाहिँ हल्ला धेरै गर्छौँ। जस्तै, भर्खरै कोपको सन्दर्भमा पनि हामीले त्रिदेशीय (नेपाल, भारत र चीन) साझेदारी संयन्त्र बनाउने कुरा गर्यौँ। त्यो कुरा यदि पहिलेदेखि नै मित्र राष्ट्र चीन र मित्र राष्ट्र भारत दुवैलाई समेटेर, उनीहरूको सहमति लिएर अगाडि बढाइएको भए त्यो एजेन्डा सहजै पास हुन्थ्यो। तर हामीले त्यो गर्न सकेनौँ। ठूला देशहरूको आफ्नै इगो हुन्छ । नेपालले भन्दैमा हामीले किन मान्ने ? भन्ने हुन्छ। त्यसैले अहिले त",
+      "link": "https://www.onlinekhabar.com/2026/11/2059415/nepal-india-problems-should-no-longer-be-hidden-under-the-carpet-the-prime-minister-should-talk-face-to-face",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:37:10 +0000",
-      "collected_at": "2026-11-17T08:09:07.283768+00:00"
+      "published": "Tue, 17 Nov 2026 08:49:12 +0000",
+      "collected_at": "2026-11-17T09:17:27.783699+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "विदेश पुर्‍याएर जबरजस्ती साइबर ठगीमा लगाइए त्यसलाई मानव बेचबिखनमा राख्नुपर्छ : सांसद खनाल",
-      "description": "१ मंसिर, काठमाडौं । राष्ट्रिय स्वतन्त्र पार्टी (रास्वपा) की सांसद शोभा खनालले रोजगारीको प्रलोभनमा विदेश पुर्‍याएर जबर्जस्ती साइबर ठगीमा लगाइए त्यसलाई मानव बेचबिखनमा राख्नुपर्ने बताएकी छन् । मंगलबार प्रतिनिधिसभा अन्तर्गतको महिला तथा सामाजिक मामिला समितिको बैठकमा ‘मानव बेचबिखन तथा ओसारपसार (नियन्त्रण) (पहिलो संशोधन) विधेयक, २०८३’माथिको छलफलमा उनले यस्तो बताएकी हुन् । ‘हामी मानव बेचबिखनलाई अझै परम्परागत दृष्टिकोणबाट हेरिराखेका छौँ । तर आजकल समाजमा, नेपालमा नेपाली युवाहरूले भोगिरहेको अवस्था हेर्ने हो भने मानव बेचबिखनको स्वरूप नै बदलिएको छ’ उनले भनिन्, ‘हाम्रा युवालाई आईटी विज्ञ, डिजिटल मार्केटिङ र ग्राहक सेवा प्रतिनिधिको रोजगारी दिने प्रलोभनमा विदेश पुर्‍याइन्छ तर त्यहाँ पुगेपछि राहदानी खोसिन्छ, बन्धक बनाइन्छ र अनलाइन ठगी, नक्कली प्रेम सम्बन्ध, क्रिप्टो करेन्सी ठगी तथा अनलाइन जुवा जस्ता गतिविधिमा जबरजस्ती संलग्न गराइन्छ ।’ यस्तो गतिविधिमा जबरजस्ती संलग्न गराउने कार्यलाई मानव बेचबिखनको दायरामा समेट्नुपर्ने उनको प्रस्ताव छ । उनले भनेकी छन्, ‘विदेशमा पुर्‍याएर काम गर्न अस्वीकार गर्दा यातना र धम्की दिइन्छ । यो केवल रोजगारीमा भएको ठगी मात्र होइन, मानव बेचबिखनको रूप पनि हो ।’ सांसद खनालले संसदीय समितिमा २६ असार २०८३ (१० जुलाई २०२६) सम्म कम्बोडिया, म्यानमार, लाओस र थाइल्यान्डबाट ८३६ जना नेपाली नागरिकको उद्धार तथा स्वदेश फिर्ती गरेको विषयलाई उदाहरणका रूपमा प्रस्तुत गरिन् । उनका अनुसार तीमध्ये ७०९ जना कम्बोडिया र ११३ जना म्यानमारबाट उद्धार भएका थिए । ‘यसको गम्भीरता बुझ्न यो एउटा तथ्य पर्याप्त छ’ उनले भनिन्, ‘सरकारले उद्धार र कूटनीतिक समन्वयको प्रयास गरेको छ तर प्रश्न के हो भने हामीले हाम्रा नागरिकलाई बेचबिखनमा पारिसकेपछि मात्र उद्धार गर्ने कि बेचबिखन हुने नदिने कानुनी र संस्थागत व्यवस्था पनि बनाउने ?’ जबरजस्ती साइबर ठगीमा लगाइएका नेपाली नागरिकलाई कतिपय अवस्थामा सम्बन्धित देशको कानुनले अपराधीको रूपमा हेर्न सक्ने उल्लेख गर्दै उनले थपिन्, ‘तर उनीहरू स्वयं मानव बेचबिखन र शोषणका पीडित हुन सक्छन्, त्यसैले उनीहरूको बाध्यत्मक परिस्थिति अनुसन्धान नगरी अपराधीको व्यवहार गर्नुहुँदैन । पीडितको पहिचान र संरक्षण सुनिश्चित हुनुपर्दछ ।’ यो पृष्ठभूमि र परिस्थिति समेत ख्याल गरेर मानव बेचबिखन तथा ओसारपसार (नियन्त्रण) (पहिलो संशोधन) विधेयकलाई परिमार्जन गरेर अगाडि बढाउनुपर्ने उनको आग्रह छ । ‘हामीले यस विधेयकलाई केवल पुरानो ऐनको संशोधनको रूपमा मात्र लिनुहुँदैन । यो बन्धनको प्रवृत्ति, अन्तरदेशीय, संगठित अपराध र मानव शोषणको नयाँ स्वरूपलाई सम्बोधन गर्ने अवसर पनि हो’ उनले भनेकी छन्, ‘राज्यको जिम्मेवारी नागरिक बेचबिखनमा परिसकेपछि उद्धार गर्नुमा मात्र सीमित हुनुहुँदैन । नागरिकलाई बेचबिखनमा पर्न नदिने सुरक्षा र उद्धार पछि समाजमा पुनर्स्थापना लगायतका प्रत्याभूति गर्नु पनि हो ।’",
-      "link": "https://www.onlinekhabar.com/2026/11/2059379/if-someone-is-taken-abroad-and-forced-into-cyber-fraud-they-should-be-classified-as-human-trafficking-mp-khanal",
+      "title": "के भएको हो अनिल सिंहलाई ? शुभचिन्तकहरूले गरे ‘स्वास्थ्यलाभको कामना’",
+      "description": "वि.सं. ५० को दशकमा उनका गीतले युवापुस्ताको हृदयमा प्रेमिल झङ्कार पैदा गरिदिन्थे । ‘डुब्न देऊ मलाई’, ‘तिम्रो त्यो नयनमा’, ‘इन्जिन गाडीमा’, ‘सक्छौ भने विष देऊ’ जस्ता गीतमा उनीहरू आफ्ना भावना व्यक्त भएको महसुस गर्थे । त्यसैले, त क्यासेट प्लेयर र सीडीमा यी गीत खोजीखोजी खरिद गर्थे । धीत मरुन्जेल सुन्थे र प्रेमस्वरूप उपहार आदानप्रदान गर्थे । यी गीतमा जादुमयी आवाज भरिएको हुन्थ्यो । र, त्यो आवाज अनिल सिंहको थियो । अनिल सिंह, कुनै समयका सर्वप्रिय गायक । क्यासेट र सीडीमा मात्र होइन, उनलाई प्रत्यक्ष सुन्न चाहने जमात पनि कम थिएन । त्यसैले, त कन्सर्टमा उनलाई हेर्न र सुन्न युवा दर्शकको ओइरो लाग्थ्यो । रोमान्टिक पप संगीतबाट अनिलले छुट्टै चिनारी बनाए । उनको आवाजको विशिष्टताले युवापुस्तालाई लठ्ठै बनाइदियो । फरक स्वर, आधुनिक भाका र प्रेमिल भावका गीतका कारण उनले नेपाली संगीतमा आफ्नो छुट्टै मुकाम बनाए । खिपेर प्रेमपत्र लेख्ने, मायाका शब्दले अटोग्राफ भर्ने त्यो जमानामा उनले ‘आई लभ यू’, ‘प्रेमपत्र’, ‘डुब्न देऊ मलाई’ जस्ता गीत ल्याए, जुन युवामनको ढुकढुकी बने । फरक शैलीको ‘इन्जिन गाडीमा’ले भने उनको गायकीलाई अर्को उचाइमा पुर्‍यायो । उनी गीत गाउन मात्र होइन, लेख्न र संगीत भर्न पनि उत्तिकै सिपालु छन् । अर्थात्, उनी संगीतको सम्पूर्ण प्याकेज थिए । उनले आफ्ना सिर्जनामा आधुनिक धुन, पश्चिमेली संगीतको रस र नेपालीपनको सुमधुर समायोजन गरेको पाइन्छ । स्टेज शोमा पनि उत्तिकै माग हुने अनिल पछिल्लो समय भने एकाएक ओझेलमा परे । कहाँ गए ? के गर्दैछन् ? भन्ने चासोबीच उनी गुपचुपजस्तै रहे । प्रेमिल र अजम्बरी गीतहरूको थुप्रो लगाएका अनिल पछि एकाएक फरक संघर्षबाट गुज्रिँदै चर्चामा आए । खासमा उनी आफ्नै गीतको डिजिटल अधिकारका लागि ठूलो संघर्ष गरिरहेको बताउँथे । संगीत करियरको डेढ दशक लामो यात्रापछि उनी आफ्ना सिर्जनामा आफ्नो अधिकार खोज्दै सार्वजनिक रूपमा प्रस्तुत भए । अन्ततः यसमा उनले बाजी जिते । आफूले सिर्जना गरेका २२ वटा गीतको डिजिटल अधिकार उनले फिर्ता पाए । तर, त्यसपछि पनि उनी आफ्नो पुरानै लयमा भने फर्किएनन् । केही अन्तर्वार्ता र स्टेज कार्यक्रममा देखिएका उनी फेरि कतै हराए । कहाँ गए त अनिल सिंह ? अनिल सिंहले भर्खरै आफ्नो फेसबुक पेजमा एउटा भिडियो सन्देश जारी गरेका छन् । त्यसमा उनले एउटा पीडादायी घटनाबारे उल्लेख गरेका छन् । उनी भन्छन्, ‘म चेन स्मोकर थिएँ । मेरो खुट्टामा समस्या देखियो । जब डाक्टरले मेरो खुट्टा काट्नुपर्ने हुन सक्छ भन्नुभयो, तब म अस्ट्रेलिया आइपुगेँ ।’ उनले यसका पछाडि र अगाडिका घटनाक्रमलाई जोड्दै भिडियो सन्देश जारी गरेका हुन् । उनको भनाइ यहाँ जस्ताको तस्तै प्रस्तुत गरिएको छ । ‘यतिबेला म अष्ट्रेलियाको सांगीतिक टुरमा छु । आज म हजुरहरूसामु आफ्नो व्यक्तिगत कुरा खोल्न आएको छु । आफ्नो जीवनमा गरेको गल्तीका लागि माफी माग्न र व्यक्तिगत संघर्षका कुरा साझा गरेर केही राहत महसुस गर्न आएको हुँ । जब डाक्टरले अब मेरो खुट्टा काट्नुपर्ने हुन सक्छ भन्नुभयो, त्यसपछि म नेपालबाट यहाँ आइपुगेँ । यहाँ आउनुअघि म सामान्य उपचार गराइरहेको थिएँ । खुट्टामा समस्या देखिएपछि अस्पताल पुगेँ । चिकित्सकले मेरो पूरै शरीरको जाँच गर्नुभयो । त्यसपछि मात्रै मैले आफ्नो स्वास्थ्य समस्याको कारण थाहा पाएँ । म अत्यधिक धूम्रपान गर्ने व्यक्ति थिएँ, ‘चेन स्मोकर ।’ चिकित्सकले अत्यधिक धूम्रपानकै कारण खुट्टामा यस्तो समस्या आएको बताउनुभयो र तत्काल चुरोट छाड्न सल्लाह दिनुभयो । मलाई काठमाडौंमा बसेर अब सम्भव छैन भन्ने लाग्यो । यही बेला अष्ट्रेलियाको टुरको कुरा आयो । बुधबार मैले बायोमेट्रिक दिएँ, बिहीबार भिसा लाग्यो । यो मेरा लागि कुनै चमत्कारभन्दा कम थिएन । बिहीबार नै म हतारहतार यहाँ आएँ । तास्मानिया पुगेँ र त्यहाँ कार्यक्रम गरेँ । कार्यक्रम राम्रो भयो, दर्शकको माया पनि पाएँ । पहिले म दिनमा चार–पाँच बट्टा चुरोट खान्थेँ । अहिले दुई खिल्लीमा झारेको छु । धूम्रपान नियन्त्रण गर्ने प्रयास गरिरहेको छु । जीवन अनिश्चित छ । कुनै पनि बेला जे पनि हुन सक्छ भन्ने लाग्छ । भोलि मलाई केही भयो भने त्यसको दोष अरू कसैलाई जाने छैन । मैले नै आफ्नो स्वास्थ्यमा खेलबाड गरेको हुँ । यसका लागि म आफ्ना चिकित्सक डा. दीपेश शाक्यलाई धन्यवाद दिन चाहन्छु । अहिले पनि म औषधि सेवन गरिरहेको छु । म जीवनको कुनै पनि पल गुमाउन चाहन्नँ । त्यसैले, सबैलाई भन्न चाहन्छु, धूम्रपान छाड्नुहोस् । मसँगै अष्ट्रेलिया आउनुभएका प्रकाश सपूत र रचना रिमालले पनि मेरो निकै हेरचाह गर्नुभयो । उहाँहरू दुवैलाई विशेष धन्यवाद दिन चाहन्छु । अब हाम्रो अर्को कार्यक्रम एडिलेडमा हुनेछ । त्यहाँको कार्यक्रममा चाहिँ म सधैँका लागि धूम्रपान छाड्ने प्रण गरेर जानेछु । भोलिका दिनमा यी कुरा फेरि यसरी पोख्न पाउँछु कि पाउँदिनँ, थाहा छैन । तर जति बाँच्नेछु, गीत गाइरहनेछु । आफ्ना कुरा साझा गरिरहनेछु, संगीतले जोडिरहनेछु र संगीतबाटै सबैलाई रुझाइरहनेछु । मेरो लागि प्रार्थना गरिरहनुहोस् ।’ यस्तो छ उनको १२ घण्टा अघि हालिएको भिडियो सन्देश: अनलाइनखबरकर्मी संवाददाता थापा स्वास्थ्य र जीवनशैली विषयमा लेख्छिन् ।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059427/what-happened-to-anil-singh-well-wishers-wished-for-his-recovery",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:36:01 +0000",
-      "collected_at": "2026-11-17T08:09:07.679105+00:00"
+      "published": "Tue, 17 Nov 2026 08:48:00 +0000",
+      "collected_at": "2026-11-17T09:17:28.123407+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "रास्वपा सहप्रवक्ता भन्छन्- अदालतले दानबहादुर कार्कीलाई पुनर्बहाली गरे पनि काम गर्न दिन्नौं",
-      "description": "१ मंसिर, काठमाडौं । राष्ट्रिय स्वतन्त्र पार्टी (रास्वपा) का सहप्रवक्ता सुरेन्द्र चौधरीले नेपाल प्रहरीका निवर्तमान आईजीपी दानबहादुर कार्कीलाई अदालतले पुनर्बहाली गरेपनि काम गर्न नदिने चेतावनी दिएका छन् । रास्वपा सहप्रवक्ता चौधरीले हिमालय टीभीसँगको कुराकानीमा उक्त चेतावनी दिएका हुन् । ‘म तपाईँलाई यत्ति भन्छु– जस्ट इनकेस, अदालतले दानबहादुर कार्कीलाई पुनर्बहाली गर्‍यो भनेपनि आईजीपी बन्नुहुन्न् । त्यस्तो मान्छेलाई राख्नै हुन्न नि अब’, उनले भने । दानबहादुर कार्कीबाट प्रहरी संगठन चल्नै नसक्ने चौधरीले दाबी गरे । पूर्ववत् रूपमा कार्य गर्न नदिन सरकारले अरु वैधानिक बाटोहरू खोज्नसक्ने चौधरीले संकेत गरे । सरकारले नयाँ पद सिर्जना गरेर आईजीपीबाट हटाएपछि पुनर्बहालीको माग लिएर पूर्व आइजीपी कार्कीले सर्वोच्च अदालतमा रिट दायर गरेका छन् । सर्वोच्च अदालतले उक्त रिट निवेदनमाथि बुधबार (भोलि) प्रारम्भिक सुनुवाइ गर्ने भएको छ । २० कात्तिकमा रिट निवेदन दर्ता भएकोमा सर्वोच्च अदालतले तिहार बिदापछि ३० कात्तिकमा मिति तोकेको थियो । तर सरकारले त्यो दिन छठको बिदा दिएकाले मुद्दाको सुनुवाइ स्वतः सरेको थियो ।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059377/rashtriya-swayamsevak-sangh-rss-joint-spokesperson-says-even-if-the-court-reinstates-dan-bahadur-karki-we-will-not-allow-him-to-work",
+      "title": "यती एयरलाइन्सको सीईओमा युवराज विष्ट नियुक्त",
+      "description": "१ मंसिर, काठमाडौं । यती एयरलाइन्सको प्रमुख कार्यकारी अधिकृत (सीईओ)मा युवराज विष्ट नियुक्त भएका छन् । यसअघि उनी कम्पनीमै प्रमुख विजनेश अफिसर (सीबीओ) र उत्तरदायी प्रवन्धकका रुपमा कार्यरत थिए । उनी सन् २००९ देखि नै यस कम्पनीमा आवद्ध छन् । म्यानेजमेन्ट ट्रेनीका रुपमा प्रवेश गरेका उनी यती एयरलाइन्सको नेतृत्वमा पुग्न सफल भएका हुन् । उनीसँग उड्डयन क्षेत्रमा १७ वर्षभन्दा लामो अनुभव छ । यती एयरलाइन्स निजी लगानीको वायुसेवा कम्पनी हो । साढे दुई दशकदेखि नेपाली आकासमा निरन्तर सेवा दिइरहेको यतीले नेपालका मुख्य गन्तब्यहरूमा उडान सेवा पुर्‍याइरहेको छ । यतीको भगिनी तारा एयरले दुर्गम भेगका विमानस्थलमा उडान सेवा दिइरहेको छ ।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059451/yuvraj-bista-appointed-ceo-of-yeti-airlines",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:35:29 +0000",
-      "collected_at": "2026-11-17T08:09:08.053462+00:00"
+      "published": "Tue, 17 Nov 2026 08:46:39 +0000",
+      "collected_at": "2026-11-17T09:17:28.462210+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "कुखुराको खुट्टा भनेपछि हुरुक्कै हरिवंश, ‘कुकुरका लागि भन्दै किनेर खान्थे’",
-      "description": "हरिवंश आचार्यले एउटा रमाइलो प्रसङ्ग उप्काएका छन्। एक टेलिभिजन अन्तर्वार्ताका क्रममा उनलाई सोधिन्छ, ‘मासुको खुब सौखिन हुनुहुन्छ रे ?’ हरिवंशको जवाफ आउनुअघि मदनकृष्ण श्रेष्ठ भन्छन्, ‘ए, कुखुराको खुट्टा खोजीखोजी खान्छ ।’ त्यसपछि पालो आउँछ हरिवंशको । उनी सुरुमा कुखुराको खुट्टाको मूल्य होइन, महत्त्व बताउँछन् । भन्छन्, ‘कुखुराको खुट्टा भनेको वास्तवमा नेपालको लागि मात्र कुखुराको खुट्टा हो । चिनियाँहरूको चाहिँ सर्वप्रिय परिकार हो क्या !’ त्यसपछि उनी थप्छन्, ‘त्यसलाई पकाउन जान्नुपर्छ ।’ नजिकै बसेका मदनकृष्ण बीचमै भन्छन्, ‘कुखुराको खुट्टा किन्न जाँदाको कुरा भन न ।’ हरिवंश आचार्य त्यसबेला घट्टेकुलोमा बस्ने गर्थे । उनलाई कुखुराको खुट्टा खान खुब मन लाग्थ्यो । तर कुखुराको खुट्टा किन्न जान लाज लाग्थ्यो । किनभने कुखुराको खुट्टा किन्नेलाई साहुजीले पुलुक्कै हेर्थे । अब कुखुराको खुट्टा खान पनि मन लागेको छ, तर किन्न लाज लाग्छ । के गर्ने ? हरिवंशले निन्जा टेक्निक लगाउँथे, ‘साहुजी, कुकुरको लागि केही कुखुराको खुट्टा दिनु न ।’ यसरी कुकुरको लागि भनेर मागेपछि साहुजीले अलि बढी नै खुट्टा राखिदिन्थे । अनि हरिवंश तीमध्ये केही खुट्टा कुकुरलाई दिन्थे भने बाँकी आफू खानका लागि राख्थे । कुखुराको खुट्टा कसरी पकाउने भन्ने रेसिपी पनि उनले दिएका छन् । उनी भन्छन्, ‘कुखुराको खुट्टा सुरुमा पानीमा उमाल्ने। त्यसपछि तेलमा डिप फ्राई गर्ने । यसमा धेरै मरमसला हाल्नुपर्दैन । नुन र बेसार मिसाइदिए पुग्छ ।’ यसरी झटपट तयार भएको कुखुराको खुट्टा खान पनि जान्नुपर्ने उनको भनाइ छ । उनका अनुसार खुट्टाको पञ्जातिरबाट खानुपर्छ । यद्यपि, यो उहिलेको कुरा हो । अहिले उनी मासु खान यसरी हत्ते गर्दैनन् ।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059365/harivansh-was-furious-when-he-heard-about-chicken-feet-he-used-to-buy-them-for-the-dog-and-eat-them",
+      "title": "च्यासलमा एमाले स्थायी कमिटी बैठक जारी",
+      "description": "१ मंसिर, काठमाडौं । नेकपा एमालेको स्थायी कमिटी बैठक सुरु भएको छ । पार्टी केन्द्रीय कार्यालय च्यासलमा केहीबेरदेखि बैठक बसिरहेको हो । एमालेले गर्न लागेको राष्ट्रिय भेला लगायतका विषयमा छलफल गर्नका लागि आजको बैठक बसेको हो । एमालेका अनुसार राष्ट्रिय भेलामा ३ हजार ५१४ जना सहभागी हुनेछन् । पार्टीको केन्द्रीय नेतृत्वदेखि पालिका तहका कमिटीका पदाधिकारी तथा पार्टीबाट निर्वाचित जनप्रतिनिधिसम्मको सहभागिता रहने भेलालाई आगामी स्थानीय तह निर्वाचनको तयारी र पार्टीको वैचारिक तथा संगठनात्मक एकता सुदृढ गर्ने अवसरका रूपमा एमालेले लिएको छ ।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059447/uml-standing-committee-meeting-continues-in-chyasal",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:33:36 +0000",
-      "collected_at": "2026-11-17T08:09:08.445802+00:00"
+      "published": "Tue, 17 Nov 2026 08:41:24 +0000",
+      "collected_at": "2026-11-17T09:17:28.811970+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "चीन भ्रमणमा किमसँग भेट्ने ट्रम्पको सङ्केत",
-      "description": "अमेरिकी राष्ट्रपति डोनाल्ड ट्रम्पले यसै साता चीन भ्रमणका क्रममा उत्तर कोरियाली नेता किम जोङ उनसँग भेटवार्ता हुन सक्ने सङ्केत दिएका छन्। सोमबार फिलिपिन्स र चीनको पूर्वी एसियाली भ्रमणका लागि ह्वाइट हाउसबाट प्रस्थान गर्ने क्रममा पत्रकारहरूसँग बोल्दै ट्रम्पले उक्त घोषणा गरेका हुन् । जसले उनको एसिया भ्रमणको कूटनीतिक समीकरणलाई नाटकीय रूपमा बदल्न सक्ने देखिएको छ। यद्यपि, उत्तर कोरियाली नेता चीन आउने वा नआउने भन्ने अन्तिम निर्णय चिनियाँ राष्ट्रपति सी चिनफिङको हातमा रहेको ट्रम्पले स्पष्ट पारेका छन्। उनले भने, ‘हामी किम जोङ उनसँग पनि भेट्न सक्छौँ। त्यसैले त्यो राम्रो हुनेछ। हामीसँग धेरै उपलब्धि हासिल गर्ने अवसर छ।’ किमको उपस्थितिको सम्भावनाबारे सोध्दा ट्रम्पले थपे, ‘उनी आउन सक्छन्। मलाई थाहा छैन। त्यो राष्ट्रपति सीको निर्णयमा भर पर्छ।’ चीनको प्रविधि सहर सेन्जेनमा नोभेम्बर १८ र १९ मा आयोजना हुने एसिया-प्रशान्त आर्थिक सहयोग (एपेक) शिखर सम्मेलनको साइडलाइनमा ट्रम्प, सी चिनफिङ र रुसी राष्ट्रपति भ्लादिमिर पुटिनबिच ऐतिहासिक त्रिपक्षीय शिखर भेटवार्ता तय भएको छ। रुसी राष्ट्रपति कार्यालय क्रेमलिनले सोमबार पुटिन, ट्रम्प र सीबिचको योजनाबद्ध बैठकले विश्व मामिलामा ठूलो प्रभाव पार्ने बताएको छ। रुसी समाचार एजेन्सी ‘इन्टरफ्याक्स’ का अनुसार क्रेमलिनका प्रवक्ता दिमित्री पेस्कोभले यदि किम जोङ उन चीन आएमा राष्ट्रपति पुटिनले पनि उनीसँग भेटवार्ता गर्न सक्ने बताएका छन्। ट्रम्पले सी र पुटिनसँग आणविक निशस्त्रीकरण, इरान र युक्रेन युद्धका साथै व्यापार र अर्थतन्त्रका विषयमा छलफल गर्ने बताएका छन्। यद्यपि, अमेरिकी अधिकारी र विश्लेषकहरूले भने उक्त बैठकबाट कुनै ठोस सम्झौता निस्कने सम्भावनालाई कम आकलन गरेका छन्। ट्रम्पको टिप्पणीबारे संयुक्त राष्ट्रसङ्घस्थित उत्तर कोरियाली नियोगले तत्काल कुनै प्रतिक्रिया दिएको छैन। प्योङयाङले हालैका साताहरूमा अमेरिकासँग तत्काल वार्ताको आवश्यकता नरहेको बताउँदै अमेरिकी नीतिहरूको आलोचना गर्दै आएको थियो। ट्रम्पले आफ्नो पहिलो कार्यकालमा किम जोङ उनसँग तीनपटक ऐतिहासिक प्रत्यक्ष भेटवार्ता गरेका थिए। तर, उत्तर कोरियाको आणविक हतियार कार्यक्रम र आर्थिक प्रतिबन्ध फुकुवा गर्ने विषयमा सहमति जुट्न नसक्दा सात वर्षअघिको वार्ता विनानिष्कर्ष टुङ्गिएको थियो। त्यसयताका सात वर्षमा उत्तर कोरियाली प्रायद्वीप र विश्व भूराजनीतिमा ठूलो परिवर्तन आइसकेको छ। सन् २०१९ मा सीमित परीक्षण र वार्ताको चरणमा रहेको उत्तर कोरियाले हाल दर्जनौँ आणविक वारहेड र अन्तरमहादेशीय क्षेप्यास्त्रहरूको क्षमता तीव्र रूपमा विस्तार गरिसकेको छ। यसैगरी, सन् २०१९ मा रुससँग सामान्य कूटनीतिक सम्बन्ध मात्र राखेको प्योङयाङले अहिले मस्कोसँग गहिरो सैन्य साझेदारी कायम गरेको छ। सन् २०२४ यता युक्रेन युद्धमा रुसलाई सघाउन उत्तर कोरियाले करिब १४ हजार देखि १५ हजार सैनिकहरू परिचालन गरिसकेको छ। विगतमा अमेरिकाले उत्तर कोरियालाई आणविक राष्ट्रका रूपमा अस्वीकार गर्दै आएको थियो । तर पछिल्लो समयमा पछिल्लो समय ट्रम्प स्वयम्ले उत्तर कोरियालाई ‘आणविक शक्ति’ भनी उल्लेख गरेपछि दक्षिण कोरिया र जापान लगायतका क्षेत्रीय सहयोगी राष्ट्रहरू सशङ्कित बनेका छन्।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059373/trump-hints-at-meeting-with-kim-during-china-visit",
+      "title": "आन्दोलनका लागि तयार रहन नेता कार्यकर्तालाई ओलीको निर्देशन",
+      "description": "१ मंसिर, काठमाडौं । नेकपा एमालेका अध्यक्ष केपी शर्मा ओलीले सरकारविरुद्धको आन्दोलनको तयारी गर्न नेता तथा कार्यकर्तालाई निर्देशन दिएका छन्। मंगलबार काठमाडौंमा अखिल नेपाल किसान महासङ्घ केन्द्रीय कमिटीको विस्तारित बैठकलाई सम्बोधन गर्दै अध्यक्ष ओलीले जुनसुकै बेला पनि आन्दोलन गर्नुपर्ने अवस्था आउने भन्दै आन्दोलनको मानसिकताका साथ तयार रहन निर्देशन दिएका हुन्। उनले आन्दोलन सधैँ लामो तयारी गरेर मात्रै नहुने भएकाले असह्य भएपछि आन्दोलन तत्काल हुनसक्ने उल्लेख गरे। आतंकपूर्ण वातावरण र कृयाकलापले आफूहरू पछाडि धकेलिएको भए पनि, त्यस्तो आतंक सधैँ कायम नरहने र आत्मविश्वास तथा मनोबलकासाथ अगाडि बढ्ने ओलीको भनाइ छ। अध्यक्ष ओलीले चुनावको माध्यमबाट पार्टी बनाउन खोज्नेहरूका विरुद्ध पार्टी लिएर आगामी चुनावमा जित्न जाने उल्लेख गरे। त्यस्तै उनले सर्वोच्च अदालतको व्याख्या र आदेशप्रति असन्तुष्टि व्यक्त गरे। अघिपछि हतारिएर फैसला गर्ने अदालतले प्रतिनिधिसभा बिघटनको मुद्दामा अहिलेसम्म फैसला गर्न नसकेको उनको भनाइ छ । ओलीले समयमा न्याय प्राप्त नहुनु र ढिला प्राप्त हुनु भनेको न्याय प्राप्त नहुनुजस्तै भए पनि अदालतका विषयमा थप नबोल्ने बताए । अदालतका बारे धेरै बोल्दा आफूमाथि मानहानीको मुद्दा थपिन सक्ने ओलीको भनाइ थियो। आगामी दिनमा जनताको घरदैलोमा पुग्ने, किसान र जनतासँग संवाद गर्ने तथा पार्टीलाई अझ बढी सशक्त बनाएर देशको निर्णायक राजनीतिक तथा लोकतान्त्रिक शक्तिका रूपमा स्थापित गर्ने काममा जुट्न नेता कार्यकर्तालाई ओलीको निर्देशन थियो।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059439/oli-instructs-leaders-and-activists-to-be-prepared-for-the-movement",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:29:50 +0000",
-      "collected_at": "2026-11-17T08:09:08.826251+00:00"
+      "published": "Tue, 17 Nov 2026 08:40:16 +0000",
+      "collected_at": "2026-11-17T09:17:29.182364+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "इमरान खानले मागे उपचार, यातनाका कारण जीवित फर्कन नसक्ने अवस्था रहेको जिकिर",
-      "description": "१ मंसिर, काठमाडौं । जेलमा रहेका पाकिस्तानका पूर्वप्रधानमन्त्री इमरान खानले यातनाका कारण आफू जीवित फर्कन नसक्ने अवस्था रहेको भन्दै तत्काल उपचारको माग गरेका छन् । ७४ वर्षीय खानले आफ्नो वकिल सलमान सफदरमार्फत सार्वजनिक गरेको पत्रमा आफ्नो र पत्नी बुशरा बीबीको स्वास्थ्य अवस्था बिग्रँदै गएको भन्दै तत्काल उपचारको व्यवस्था गर्न माग गरेका हुन् । इस्लामाबादका अधिकारीहरूले भने खानको स्वास्थ्य अवस्था सन्तोषजनक रहेको दाबी गरेका छन् । उनलाई हरेक साता चिकित्सकले स्वास्थ्य परीक्षण गर्दै आएको अधिकारीहरूको भनाइ छ । १०० भन्दा बढी मुद्दा खेपिरहेका खान सन् २०२३ अगस्टदेखि जेलमा छन् । उनकी पत्नी बुशरा बीबी पनि गत वर्षदेखि जेलमा छिन् । खानले आफू र पत्नीविरुद्ध लगाइएका भ्रष्टाचार तथा सरकारी उपहार बिक्रीलगायतका आरोप राजनीतिक प्रतिशोधबाट प्रेरित रहेको दाबी गर्दै आएका छन् । पछिल्लो एक वर्षयता खानको स्वास्थ्य अवस्थाबारे चिन्ता बढ्दै गएको छ । उनको परिवारले जेल प्रशासनले समयमै उपचारको व्यवस्था नगर्दा दाहिने आँखाको अधिकांश दृष्टि गुमेको दाबी गरेको छ । आफ्नो पत्रमा खानले चिकित्सकहरूले आफूलाई मस्तिष्कमा रक्तस्राव र हृदयाघातको उच्च जोखिम रहेको जानकारी दिएको उल्लेख गरेका छन् । उनको मुटुमा समेत क्षति पुगिसकेको उनले बताएका छन् । खानले पत्नी बुशरा बीबीको स्वास्थ्य अवस्थाप्रति पनि चिन्ता व्यक्त गरेका छन् । उनका अनुसार बुशराको गत अप्रिलमा आँखाको रेटिनामा क्षति पुगेको थियो र गोप्य रूपमा शल्यक्रिया गरिएको थियो । थप शल्यक्रिया नगरिए उनले दृष्टि गुमाउन सक्ने खानको आशंका छ । ‘मैले अनगिन्ती मुद्दामा असम्भवजस्ता कानुनी लडाइँ लडेको छु र अझै हार मानेको छैन । तर यो प्रणालीले मलाई न्याय दिन छाडेको छ,’ खानले पत्रमा लेखेका छन् । यसैबीच, खानले आफूलाई दिनको २२ घण्टासम्म एकान्त कारावासमा राखिएको दाबी गरेका छन् । यस्तो अवस्थामा परिवारका सदस्यसँग भेटघाट गर्न, पुस्तक पढ्न र टेलिभिजन हेर्नसमेत नदिइएको उनको भनाइ छ । यसले आफ्नो मानसिक स्वास्थ्यमा गम्भीर असर पारेको उनले पत्रमा उल्लेख गरेका छन् । पछिल्लो एक वर्षमा आफूले वकिलहरूसँग जम्मा चार पटक मात्रै भेट्न पाएको पनि खानले दाबी गरेका छन् । ‘म जीवित रहेँ भने मात्रै आफ्नो निर्दोषिता प्रमाणित गर्न सक्षम हुनेछु,’ उनले पत्रमा लेखेका छन् । तर पाकिस्तानका संसदीय मामिलामन्त्री तारिक फजल चौधरीले खानका दाबी अस्वीकार गरेका छन् । उनले खानलाई जेलभित्र आफूले रोजेको खानासहित आवश्यक सबै सुविधा उपलब्ध गराइएको बताएका छन् । ‘उहाँ अहिले पाकिस्तानकै सबैभन्दा बढी सुविधा पाउने कैदी हुनुहुन्छ,’ मन्त्री चौधरीले पत्रकारहरूसँग भनेका छन् । अधिकारीहरूका अनुसार एक साताअघि आँखामा औषधि (इन्जेक्सन) लगाउन खानलाई सरकारी अस्पताल लगिएको थियो । अस्पतालका चिकित्सकहरूले उनको स्वास्थ्य अवस्था चिकित्सकीय दृष्टिले स्थिर रहेको बताएका थिए । पाकिस्तानको राष्ट्रिय क्रिकेट टोलीका पूर्वकप्तानसमेत रहेका खान सन् २०१८ देखि २०२२ सम्म देशको प्रधानमन्त्री थिए । सन् २०२३ मेमा उनको गिरफ्तारीपछि समर्थकहरूले देशका विभिन्न स्थानमा ठूलो स्तरका हिंसात्मक प्रदर्शन गरेका थिए । प्रदर्शनका क्रममा लाहोरस्थित सैनिक कोर कमान्डरको निवासमा तोडफोड र लुटपाटसमेत भएको थियो । प्रदर्शनकारीहरूले झुमर फुटाउनुका साथै फर्निचर, चित्रकलादेखि मयूरसमेत लिएर गएको समाचारमा उल्लेख छ । प्रदर्शनका क्रममा कम्तीमा आठ जनाको मृत्यु भएको थियो भने हिंसा नियन्त्रणमा लिन सेनासमेत परिचालन गरिएको थियो । जेलभित्र रहे पनि खान पाकिस्तानी राजनीतिमा अझै प्रभावशाली व्यक्तित्वका रूपमा रहँदै आएका छन् । उनको रिहाइको माग गर्दै अक्टोबरको सुरुवातमा हजारौँ समर्थक सडकमा उत्रिएपछि अधिकारीहरूले प्रदर्शनमाथि दमन गर्ने आदेश दिएका थिए भने खानको पार्टीको बलियो पकड रहेको खैबर पख्तुनख्वा प्रान्तमा संकटकाल घोषणा गरेका थिए । यसैबीच, पूर्वअन्तर्राष्ट्रिय क्रिकेट कप्तानहरूले पछिल्ला केही महिनायता पाकिस्तानका प्रधानमन्त्री शहबाज सरिफलाई पटक–पटक अपिल गर्दै खानलाई उचित स्वास्थ्य उपचारको व्यवस्था गर्न आग्रह गरेका छन् ।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059303/imran-khan-seeks-treatment-claims-he-may-not-return-alive-due-to-torture",
+      "title": "‘हिमालयन गोल्ड’ : कर्मा र परीक्षा दुवैका लागि नयाँ अनुभव",
+      "description": "काठमाडौं । अभिनेता कर्मा शाक्य र अभिनेत्री परीक्षा लिम्बुका लागि आगामी मंसिर ४ गतेदेखि प्रदर्शनमा आउने फिल्म ‘हिमालयन गोल्ड’ विशेष बनेको छ । फरक कथावस्तु, हिमाली परिवेश र चुनौतीपूर्ण चरित्रका कारण दुवै कलाकारले यस फिल्मलाई आफ्नो करियरको नयाँ अनुभवका रूपमा लिएका छन् । फिल्ममा कर्मा ‘प्रकाश’ नामक नकारात्मक चरित्रमा देखिँदैछन् भने परीक्षा ‘सोनाम’ को भूमिकामा छिन् । कर्माका लागि यो चरित्र उनका यसअघिका केही फिल्ममा देखिएका खलपात्रभन्दा फरक अनुभव हो । उनी आफ्नो चरित्रलाई पुरानो भाषामा ‘गुण्डा’ भन्न रुचाउँछन् । यद्यपि, उनको बुझाइमा पात्रले गर्ने काम उसको परिस्थिति र अवस्थाले निर्धारण गर्छ । ‘मेरो चरित्र नै नेगेटिभ सेडको छ । पहिलाको चलनचल्तीको भाषामा भन्नुपर्दा गुण्डाको छ । तर म त्यसलाई त्यसरी लिँदिनँ, किनकि यो एउटा पात्र हो । संयोगवश त्यो पात्रले आफ्नो परिस्थितिअनुसार काम गरेको हुन्छ,’ कर्मा भन्छन् । उनका अनुसार फिल्ममा उनको पात्रले यार्सागुम्बा लुट्नेदेखि अन्य आपराधिक गतिविधिसम्म गर्छ । यसअघि फिल्म ‘लुट’ मा बैंक लुट्ने पात्रको भूमिका निर्वाह गरेका कर्मा कुनै पनि चरित्रलाई उसको परिस्थितिबाट अलग गरेर हेर्न नहुने बताउँछन् । अभिनेत्री परीक्षा भने ‘सोनाम’ पात्रलाई फिल्मको महत्वपूर्ण आधारका रूपमा लिन्छिन् । उनका लागि हिमाली परिवेशमा आधारित कथामा काम गर्नु नयाँ अनुभवसँगै चुनौती पनि थियो । आफूले यसअघि प्रत्यक्ष रूपमा नभेटेको र नदेखेको परिवेश तथा पात्रलाई पर्दामा उतार्नुपर्ने भएकाले सुरुमा उत्साहसँगै केही नर्भसनेससमेत भएको उनी सुनाउँछिन् । ‘म उत्साहित पनि थिएँ र अलिकति नर्भस पनि’ उनी भन्छिन्, ‘यस्तो परिवेशको कथा र चरित्र दर्शकमाझ आउनुपर्छ भन्ने लागेको थियो । हिमाली भेगको कथामा मैले आफूलाई कहिल्यै एक्सप्लोर गरेकी थिइनँ । त्यसैले यो चरित्र मेरा लागि चुनौतीपूर्ण थियो ।’ सोनाम पात्रलाई बुझ्न उनले त्यसको सोचाइ, व्यवहार, परिस्थिति र निर्णयपछाडिका कारणलाई केलाउने प्रयास गरेकी छन् । यसका लागि निर्देशक धिराज राजवंशीसँग चरित्रबारे लामो छलफलसमेत भएको थियो । परीक्षाका अनुसार टिमको सहयोग र निर्देशकको स्पष्ट भिजनले पात्रलाई पर्दामा उतार्न सहज बनाएको हो। कर्मा र परीक्षा दुवैका लागि फिल्मको कथावस्तु र प्रस्तुति आकर्षणका अर्को पक्ष हुन् । निर्देशक धिराज राजवंशीको यो पहिलो निर्देशकीय फिल्म भए पनि कर्माले यसको स्क्रिप्ट र चरित्र निर्माणलाई पृथक् पाएका छन् । निर्देशकका पिता राजु राजवंशीसँग यसअघि फिल्म ‘शेरबहादुर’ मा काम गरिसकेका कर्मालाई धिराजसँग सहकार्य गर्न पनि सहज भएको थियो । यता, परीक्षा अग्रज कलाकारहरूसँग काम गर्नुलाई चुनौतीभन्दा पनि सिकाइको अवसर मान्छिन् । फिल्ममा सुनिल थापा, मेनुका प्रधानलगायतका कलाकारसँग पर्दा बाँड्न पाउँदा आफ्नो आत्मविश्वाससमेत बढेको उनको अनुभव छ । उनी दर्शकले फिल्म हेरिसकेपछि आफूलाई भन्दा पनि सोनाम पात्रलाई लामो समयसम्म सम्झिरहून् भन्ने चाहन्छिन् । फिल्मको छायांकनका क्रममा मुस्ताङको उच्च हिमाली क्षेत्र र गुफामा एक्सन दृश्य खिच्नु पनि कलाकारका लागि चुनौतीपूर्ण बनेको थियो । विशेषगरी अक्सिजनको कमी र धुलोका कारण सुटिङ सहज थिएन । उक्त गुफामा झन्डै पाँच दिन लगाएर एक्सन दृश्य खिचिएको कर्मा बताउँछन् । यार्सागुम्बा संकलन हुने डोल्पालगायतका क्षेत्रको परिवेशबारे यसअघि नै केही अनुभव बटुलेका कर्मालाई फिल्मले त्यो संसारलाई नजिकबाट बुझ्ने अवसरसमेत दिएको छ । ह्वाइट एलिफेन्ट मोसन पिक्चर प्रोडक्सनको ब्यानरमा निर्माण भएको ‘हिमालयन गोल्ड’ सर्भाइभल थ्रिलर विधाको फिल्म हो । हिमाली परिवेशमा अस्तित्वको संघर्ष, लोभ र विश्वासघातको कथा प्रस्तुत गर्ने फिल्ममा कर्मा शाक्य, परीक्षा लिम्बु र सुनिल थापासँगै मेनुका प्रधान, राहुल एन. मुखिया, अङ्कित खड्का, सुनिल तामाङ, तेन्जिङ ठकुरी, सविता अधिकारी र ऋषिकेश बस्याललगायतका कलाकारको अभिनय छ । फिल्मको सबैभन्दा भावनात्मक पक्ष वरिष्ठ अभिनेता सुनिल थापाको अन्तिम चलचित्र हुनु हो । निर्देशक धिराज राजवंशीका अनुसार थापाको अन्तिम अभिनयलाई नेपाल र भारतका दर्शकमाझ पुर्‍याउन पाउनु उनका लागि थापाप्रति श्रद्धाञ्जली अर्पण गर्ने अवसर हुनेछ । फिल्मका निर्माता मीनबहादुर भाम, लाइन प्रोड्युसर शैलेन्द्र डी. कार्की, सह-निर्माता सुयश ज्ञवाली र कार्यकारी निर्माता राजु राजवंशी हुन् । निर्देशक राजवंशीकै कथा रहेको फिल्ममा दीपेन्द्र गौचन र धिराज राजवंशीको पटकथा, विशिष्ट प्रधानको डीओपी तथा निमेश श्रेष्ठको सम्पादन रहेको छ । फिल्मको भिएफएक्स सजल लोप्चन र करुण थापाले गरेका छन् । नेपालमा एप्पल इन्टरटेनमेन्टले वितरण गर्ने फिल्मलाई भारतमा प्रतिष्ठित वितरण कम्पनी ए ए फिल्म्सले प्रदर्शन गर्नेछ । ए ए फिल्म्सले ‘बाहुबली’, ‘आरआरआर’ र ‘केजीएफ’जस्ता फिल्म वितरण गरिसकेको छ । यसबाहेक मध्यपूर्वमा फार्स फिल्म्स मोसन पिक्चर्स र जापानमा टोकियो ड्रिम इन्टरटेनमेन्टले फिल्म वितरणको जिम्मेवारी लिएका छन् । निर्माण टिमका अनुसार नेपाली फिल्मले ए ए फिल्म्सजस्तो प्रतिष्ठित कम्पनीमार्फत भारतव्यापी प्रदर्शनको अवसर पाउनु महत्वपूर्ण उपलब्धि हो । थडानीले फिल्मको कथावस्तुले भाषा र भौगोलिक सीमाभन्दा बाहिरका दर्शकसँग पनि जोडिन सक्ने विश्वास व्यक्त गरेका छन् । मंसिर ४ गतेदेखि प्रदर्शनमा आउने ‘हिमालयन गोल्ड’ लाई कर्मा र परीक्षाले फरक कथावस्तु, नयाँ चरित्र र अन्तर्राष्ट्रिय बजारसम्म पुग्ने सम्भावनासहितको विशेष फिल्मका रूपमा लिएका छन् ।",
+      "link": "https://www.onlinekhabar.com/2026/11/2059422/himalayan-gold-a-new-experience-for-both-karma-and-exams",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:26:50 +0000",
-      "collected_at": "2026-11-17T08:09:09.219820+00:00"
+      "published": "Tue, 17 Nov 2026 08:38:22 +0000",
+      "collected_at": "2026-11-17T09:17:29.536822+00:00"
     },
     {
       "source": "Onlinekhabar",
-      "title": "जेफ्री एपस्टिनको मृत्यु आत्महत्या नभई ‘हत्या’ भएको फोरेन्सिक विज्ञहरूको दाबी",
-      "description": "कुख्यात यौन अपराधी तथा फाइनान्सर जेफ्री एपस्टिनको सन् २०१९ मा हिरासतमै भएको मृत्यु आत्महत्या नभई हत्या भएको निष्कर्ष फोरेन्सिक विज्ञहरूको एक टोलीले सार्वजनिक गरेको छ। सोमबार लन्डनमा फोरेन्सिक विज्ञहरूले एपस्टिन झुण्डिएर मरेको कुनै प्रमाण नभेटिएको र उनलाई पछाडिबाट घाँटी थिचेर मारिएको दाबी गरेका हुन्। यो निष्कर्षले न्युयोर्क सहरको मुख्य चिकित्सा परीक्षकको कार्यालय (अफिस अफ चिफ मेडिकल एक्जामिनर) को आधिकारिक प्रतिवेदनलाई प्रत्यक्षको चुनौती दिएको छ। यद्यपि, सीएनएनलाई दिएको प्रतिक्रियामा न्युयोर्कको मुख्य चिकित्सा परीक्षकको कार्यालयले एपस्टिनको मृत्यु आत्महत्या नै भएको आफ्नो पूर्वनिर्णयमा अडिग रहेको स्पष्ट पारेको छ। लन्डन प्रस्तुति र पोस्टमार्टम पुनर्निर्माणका मुख्य निष्कर्षहरू लन्डनस्थित युनिभर्सिटी कलेज लन्डन (यूसीएल) मा सोमबार आयोजित उक्त प्रस्तुति फोरेन्सिक मेडिसिन इपिडिमियोलोजीका विद्वान तथा सल्लाहकार माइकल फ्रिम्यान, स्विडेनको उमिया विश्वविद्यालयका फोरेन्सिक प्याथोलोजिस्ट तथा प्राध्यापक एन्डर्स एरिक्सन र स्नायुवैज्ञानिक इटिएल ड्रोरले संयुक्त रूपमा तयार पारेका हुन्। सम्पूर्ण पोस्टमार्टम फाइलको समीक्षा र घटनास्थलको बायोमेकानिकल रिकन्स्ट्रक्सन पूरा गरेपछि विज्ञहरूले एपस्टिनका चोटहरू झुण्डिएको नभई आक्रमण र सङ्घर्ष (असोल्ट एन्ड स्ट्रगल) सँग मेल खाने बताएका छन्। प्रस्तुतिमा भनिएको छ, ‘घाँटीमा देखिएका डामहरू पछाडिबाट कपडाको साँघुरो गाँठो पारिएको पासो प्रयोग गरी गरिएको हत्या गर्ने नियतले गरिएको घाँटी थिचाइ (होमिसाइडल स्ट्र्याङ्गुलेसन) सँग सबैभन्दा बढी मेल खान्छन्।’ विज्ञहरूका अनुसार, एपस्टिनको शरीर अन्य भागमा खासै नीलडाम वा चोटहरू थिएनन् । तर घाँटी, बायाँ काँधको भित्री तन्तु र ढाडमा देखिएका केही चोटहरूलाई आत्महत्याको झुण्डाइले व्याख्या गर्न नसक्ने फ्रिम्यानले औँल्याएका छन्। २०१९ को रहस्यमय मृत्यु र षड्यन्त्रका सिद्धान्तहरू सन् २०१९ अगस्ट १० मा न्युयोर्क सहरको ‘मेट्रोपोलिटन करेक्सनल सेन्टर’ को एक कोठामा एपस्टिन मृत फेला परेका थिए। त्यतिबेला उनी ‘सुसाइड वाच’ अर्थात् आत्महत्या रोक्न विशेष निगरानीमा राखिएका थिए। एपस्टिनको मृत्युको एक हप्तापछि आत्महत्याको आधिकारिक निष्कर्ष सार्वजनिक हुँदा उनका वकिलहरूले असन्तुष्टि व्यक्त गर्दै जेल प्रशासनमाथि थप छानबिनको माग गरेका थिए। एपस्टिनका भाइ मार्क एपस्टिनले स्वतन्त्र समीक्षाका लागि उपलब्ध गराएका पोस्टमार्टम फाइल र तस्बिरहरूको अध्ययनपछि यो नयाँ विश्लेषण बाहिर आएको हो। यसअघि अमेरिकी सङ्घीय जाँच ब्युरो (एफबीआई) र न्याय मन्त्रालयको महानिरीक्षकको कार्यालय (इन्स्पेक्टर जनरल) दुवैले एपस्टिनको मृत्युको परिस्थितिको छानबिन गरेका थिए। सोमबारको निष्कर्षले एपस्टिनको मृत्यु आत्महत्या हो भन्ने विषयमा अमेरिकामा व्याप्त जनसङ्का र षड्यन्त्रका सिद्धान्तहरू लाई पुनः सतहमा ल्याइदिएको छ। न्युयोर्क टाइम्ससँगको अन्तर्वार्तामा हत्याका घटनाहरूको विश्लेषण गर्ने फोरेन्सिक वैज्ञानिक फ्रिम्यानले एपस्टिनको हत्या कसले गर्‍यो भन्नेबारे आफूलाई कुनै जानकारी नभएको र त्यसमा चासो पनि नरहेको बताए। उनले मृत्युको अनुसन्धान र पोस्टमार्टम प्रतिवेदनमा भएका लापरबाहीमा मात्र आफ्नो ध्यान केन्द्रित रहेको उल्लेख गर्दै भने, ‘मेरो एउटै चासो के हो भने – यो अनुसन्धान कसरी यति धेरै बाटो बिराएर गलत दिशामा गयो?’ यौन तस्करीको आरोप र सार्वजनिक भएका लाखौँ सरकारी दस्ताबेजहरू सन् २०१९ मा एपस्टिनमाथि दर्जनौँ नाबालिग बालिकाहरूको यौन शोषण गर्ने यौन तस्करी सञ्जाल सञ्चालन गरेको गम्भीर अभियोग लगाइएको थियो। सन् २००२ देखि २००५ को बिचमा उनले १४ वर्षसम्मका कलिला बालिकाहरूलाई सयौँ डलर नगद दिएर न्युयोर्कको अपर इस्ट साइडस्थित घर र फ्लोरिडाको पाम बिचस्थित निवासमा यौन सम्पर्क राख्न बाध्य पारेको आरोप थियो। गत वर्षभरि शृङ्खलाबद्ध रूपमा एपस्टिनसँग सम्बन्धित गोप्य फाइलहरू सार्वजनिक गरिएका छन्। विशेष गरी गत नोभेम्बरमा अमेरिकी कङ्ग्रेसले पारदर्शिता र सबै दस्ताबेज सार्वजनिक गर्न बाध्यकारी कानुन पारित गरेपछि राष्ट्रपति डोनाल्ड ट्रम्पको प्रशासनले न्याय मन्त्रालयमार्फत लाखौँ इमेल, टेक्स्ट मेसेज, तस्बिर र अन्य दस्ताबेजहरू सार्वजनिक गरेको थियो।",
-      "link": "https://www.onlinekhabar.com/2026/11/2059362/jeffrey-epsteins-death-was-not-suicide-but-murder-claim-forensic-experts",
+      "title": "अन्टाल्यामा स्थानीय सरकार बिनाको जलवायु कूटनीति कति सार्थक ?",
+      "description": "टर्कीको अन्टाल्यामा जलवायु परिवर्तनसम्बन्धी संयुक्त राष्ट्रसंघीय महासन्धिको ३१औँ पक्ष राष्ट्रहरूको सम्मेलन (कोप ३१) चलिरहँदा नेपालको संघीय सरकारका मन्त्रीहरू र उच्चपदस्थ कर्मचारीहरूको बाक्लो उपस्थिति देखिएको छ । अर्थमन्त्री, परराष्ट्रमन्त्री, वन तथा वातावरणमन्त्रीलगायतको टोलीले हिमाली पारिस्थितिकीय प्रणालीको संवेदनशीलता, ‘सगरमाथादेखि समुद्रसम्म’ को अन्तरसम्बन्ध, र जलवायु न्याय तथा हानि-नोक्सानी कोषमा सहज पहुँचको वकालत गरिरहनु निश्चय नै स्वागतयोग्य छ । अन्तर्राष्ट्रिय मञ्चमा नेपालको आवाज बुलन्द हुनु राम्रो कुरा हो । तर, यही कूटनीतिक उपस्थितिको अर्को पाटो भने निकै उदेकलाग्दो र चिन्ताजनक छ । जलवायु अनुकूलन योजनाको स्थानीयकरण, उत्थानशीलता र जलवायुजन्य विपद विरुद्धको पूर्वतयारीका ठूला-ठूला नारा घन्काइरहँदा, ती योजनालाई व्यवहारमा उतार्ने र विपद्को पहिलो प्रहार झेल्ने स्थानीय तथा प्रदेश सरकारका जनप्रतिनिधिहरूको उपस्थिति अन्टाल्यामा नगण्य छ । तीन तहको संघीय शासन प्रणाली अभ्यास गरिरहेको नेपालले जलवायु कूटनीतिमा भने केन्द्रीकृत शैली अपनाएको देखिन्छ । भोटेकोशीको विपत्तिको मार सबैभन्दा बढी कसले झेल्यो ? गत भदौ १० को बिहान भोटेकोशी–त्रिशूली करिडोरमा आएको बाढीले रसुवा, नुवाकोट, धादिङ हुँदै तल्लो तटीय क्षेत्र चितवन, तनहुँ र नवलपरासीसम्म अकल्पनीय विनाश निम्त्यायो । प्रारम्भिक तथा द्रुत क्षति आकलन प्रतिवेदनअनुसार, उक्त बाढीबाट करिब ४ खर्ब ८ अर्ब रुपैयाँ बराबरको कुल क्षति गरेको छ । ऊर्जा र प्रसारण प्रणालीमा मात्र करिब ३ खर्ब ९० अर्ब रुपैयाँको क्षति पुग्यो भने १३ वटा जलविद्युत् आयोजना (करिब ७५९ मेगावाट क्षमताका) प्रभावित भए । ६९ किलोमिटर सडक क्षतिग्रस्त भयो, ३७ वटा पक्की मोटरेबल पुलमध्ये ३३ वटा पूर्ण रूपमा बगे र ६८ वटा झोलुङ्गे पुलमा क्षति पुग्यो । अझ दर्दनाक पक्ष के छ भने, प्रभावित परिवारमध्ये ८२ प्रतिशत घरपरिवारले जीविकोपार्जन र पुनर्स्थापनाका लागि ऋण लिनुपरेको छ । यो विपत्तिको सामना पहिले कसले गर्‍यो ? पक्कै पनि रसुवाका गोसाइँकुण्ड, उत्तरगया, कालिका, आमाछोदिङ्मो र नुवाकोट तथा धादिङका स्थानीय सरकार प्रमुख, उपप्रमुख वडाध्यक्ष र स्थानीय स्वयंसेवकहरू नै पहिलो उद्धारकर्ता बनेर उभिए । सडक सञ्जाल विच्छेद हुँदा, सञ्चार टुट्दा र पुलहरू बग्दा स्थानीय सरकारहरूले नै आफ्नो सीमित स्रोतसाधन परिचालन गरेर नागरिकको ज्यान जोगाए, अस्थायी आश्रयस्थल बनाए र राहत वितरण गरे । विडम्बना! आज अन्टाल्यामा त्यही भोटेकोशीको विनाश र ‘हिमाली सुनामी’ को उदाहरण दिँदै संघीय मन्त्रीहरूले विश्व समुदायसँग जलवायु वित्त मागिरहँदा त्यो विपद् प्रत्यक्ष भोगेका रसुवा र नुवाकोटका स्थानीय सरकार प्रमुख, उपप्रमुखहरूलाई भने त्यो बहसमा सहभागी नै गराइएन । न त बागमती प्रदेश वा अन्य प्रदेश सरकारहरूको नै उल्लेखनीय सहभागिता देखियो । नेपालको संविधान, २०७२ र प्रचलित कानुनहरूले विपद् व्यवस्थापन र वातावरण संरक्षणको मुख्य जिम्मेवारी स्थानीय र प्रदेश सरकारलाई सुम्पिएको छ । तर, व्यवहारमा नीति निर्माण, परियोजना सञ्चालन र अन्तर्राष्ट्रिय प्रतिनिधित्वमा भने पुरानै केन्द्रीकृत मानसिकता हाबी देखिन्छ । नेपालको संविधानको धारा ५७ र अनुसूची–८ ले ‘विपद् व्यवस्थापन’, ‘वातावरण संरक्षण र जैविक विविधता’ तथा ‘जलाधार संरक्षण’ लाई स्थानीय तहको एकल अधिकारको सूचीमा राखेको छ । त्यसैगरी, अनुसूची–७ ले प्राकृतिक तथा गैरप्राकृतिक विपद् पूर्वतयारी, उद्धार, राहत र पुनर्लाभलाई संघ र प्रदेशको साझा अधिकारमा राखेको छ भने अनुसूची–९ ले विपद् व्यवस्थापन तथा वातावरण संरक्षणलाई संघ, प्रदेश र स्थानीय तीनै तहको साझा अधिकारको सूचीमा समेटेको छ । विपद् जोखिम न्यूनीकरण तथा व्यवस्थापन ऐन, २०७४ ले तीनै तहमा संस्थागत संरचनाको परिकल्पना गरेको छ । ऐनको दफा १३ क र १४ ले मुख्यमन्त्रीको अध्यक्षतामा प्रदेश विपद् व्यवस्थापन परिषद् र आन्तरिक मामिला मन्त्रीको अध्यक्षतामा प्रदेश कार्यकारी समिति रहने व्यवस्था गरेको छ । त्यस्तै, दफा १७ ले गाउँपालिका अध्यक्ष वा नगरपालिका प्रमुखको अध्यक्षतामा ‘स्थानीय विपद् व्यवस्थापन समिति’ रहने र दफा २३ ले प्रत्येक स्थानीय सरकारमा ‘विपद् व्यवस्थापन कोष’ रहने अनिवार्य व्यवस्था गरेको छ । स्थानीय सरकार सञ्चालन ऐन, २०७४ को दफा ११ ले स्थानीय तहलाई विपद् पूर्वतयारी तथा प्रतिकार्य योजना तर्जुमा, जोखिमयुक्त बस्तीको स्थानान्तरण, जलाधार संरक्षण, र स्थानीय स्तरमा जलवायु अनुकूलनका कार्यक्रम सञ्चालन गर्ने व्यापक अधिकार र कर्तव्य तोकेको छ । अन्तरसरकारी वित्त व्यवस्थापन ऐन, २०७४ र राष्ट्रिय जलवायु परिवर्तन नीति, २०७६ ले कुल जलवायु वित्तको कम्तीमा ८० प्रतिशत रकम स्थानीय स्तरमा परिचालन गर्ने महत्त्वाकांक्षी लक्ष्य राखेको छ । तर, विडम्बना के छ भने नेपालमा जलवायु परिवर्तनसम्बन्धी विषयलाई अझै पनि वन तथा वातावरण मन्त्रालयको मात्रै सरोकारको विषयजस्तो ठानिन्छ । जलवायु परिवर्तन कृषि, खानेपानी, ऊर्जा, भौतिक पूर्वाधार, स्वास्थ्य र समग्र मानव जीवनसँग जोडिएको बहुआयामिक विषय हो, जसको प्रत्यक्ष कार्यान्वयन स्थानीय सरकारमार्फत हुन्छ । अझ गम्भीर कुरा, जलवायु अनुकूलन र न्यूनीकरणसम्बन्धी दातृ निकायका ठूला परियोजनाहरू अझै पनि सिंहदरबारमै केन्द्रित छन् । संवैधानिक व्यवस्था र नीतिको मर्मविपरीत केन्द्रबाटै परियोजना लाद्ने परिपाटी तत्काल अन्त्य गरी त्यस्ता सबै परियोजनाहरू स्थानीय सरकारमार्फत कार्यान्वयन गरिनुपर्छ । जलवायु परिवर्तनको असर भौगोलिक रूपमा विशिष्ट हुन्छ । मुस्ताङको हिमताल विस्फोटको जोखिम, रसुवाको भोटेकोशीमा आउने लेदोसहितको बाढी, तराईको शीतलहर र डुबान, अनि चुरेको खडेरी सबैको प्रकृति र समाधान फरक-फरक छन् । सिंहदरबारमा बसेर बनाइने योजनाले न त हिमाली बस्ती जोगाउन सक्छ, न त तराईको कृषि प्रणाली । भोटेकोशीको बाढीले निम्त्याएको खर्बौँको क्षतिपूर्ति गर्न संघीय सरकारको वार्षिक विकास बजेटले मात्र भ्याउँदैन । अर्कोतर्फ, स्थानीय तहसँग विपद् जोखिम ",
+      "link": "https://www.onlinekhabar.com/2026/11/2059407/how-meaningful-is-climate-diplomacy-without-local-government-in-antalya",
       "image_url": "",
-      "published": "Tue, 17 Nov 2026 07:23:18 +0000",
-      "collected_at": "2026-11-17T08:09:09.604999+00:00"
+      "published": "Tue, 17 Nov 2026 08:22:45 +0000",
+      "collected_at": "2026-11-17T09:17:29.880461+00:00"
     }
   ]
 }
