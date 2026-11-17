@@ -5,6 +5,7 @@ import re
 import base64
 import subprocess
 import wave
+import time
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -18,12 +19,11 @@ import imageio_ffmpeg
 # ==========================================
 # I LOVE CHITWAN - NEWS VIDEO GENERATOR
 # Gemini TTS | Aoede Voice
-# One video per run | Maximum 2 per Nepal day
+# ONE NEWS PER RUN | MAXIMUM 2 PER NEPAL DAY
 # ==========================================
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
 
-# Updated Gemini models
 TEXT_MODEL = "gemini-3.8-flash"
 TTS_MODEL = "gemini-3.8-flash-lite-tts"
 VOICE_NAME = "Aoede"
@@ -36,6 +36,9 @@ OUTPUT_DIR = Path("news_videos")
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
 MAX_DAILY_VIDEOS = 2
 MAX_VIDEO_SECONDS = 60
+
+RETRY_ATTEMPTS = 3
+RETRY_WAIT_SECONDS = 10
 
 OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -60,6 +63,63 @@ def save_json(path, data):
 def clean_text(value):
     value = re.sub(r"<[^>]+>", " ", str(value or ""))
     return re.sub(r"\s+", " ", value).strip()
+
+
+def gemini_request(url, payload, timeout):
+    """Retry temporary Gemini server or rate-limit errors."""
+    last_error = None
+
+    for attempt in range(1, RETRY_ATTEMPTS + 1):
+        try:
+            response = requests.post(
+                url,
+                params={"key": API_KEY},
+                json=payload,
+                timeout=timeout
+            )
+
+            if response.status_code in (429, 500, 502, 503, 504):
+                last_error = (
+                    f"Gemini API Error {response.status_code}: "
+                    f"{response.text[:1000]}"
+                )
+
+                if attempt < RETRY_ATTEMPTS:
+                    wait_time = RETRY_WAIT_SECONDS * attempt
+                    print(
+                        f"Gemini अस्थायी समस्या। "
+                        f"{attempt}/{RETRY_ATTEMPTS} प्रयास असफल। "
+                        f"{wait_time} सेकेन्डपछि पुनः प्रयास..."
+                    )
+                    time.sleep(wait_time)
+                    continue
+
+                raise RuntimeError(last_error)
+
+            if not response.ok:
+                raise RuntimeError(
+                    f"Gemini API Error {response.status_code}: "
+                    f"{response.text[:1000]}"
+                )
+
+            return response.json()
+
+        except requests.RequestException as exc:
+            last_error = str(exc)
+
+            if attempt < RETRY_ATTEMPTS:
+                wait_time = RETRY_WAIT_SECONDS * attempt
+                print(
+                    f"Network समस्या। {wait_time} सेकेन्डपछि "
+                    f"पुनः प्रयास..."
+                )
+                time.sleep(wait_time)
+            else:
+                raise RuntimeError(
+                    f"Gemini Network Error: {last_error}"
+                )
+
+    raise RuntimeError(str(last_error or "Gemini API असफल भयो।"))
 
 
 def make_script(article):
@@ -92,10 +152,9 @@ def make_script(article):
         f"models/{TEXT_MODEL}:generateContent"
     )
 
-    response = requests.post(
+    data = gemini_request(
         url,
-        params={"key": API_KEY},
-        json={
+        {
             "contents": [{
                 "parts": [{"text": prompt}]
             }]
@@ -103,19 +162,13 @@ def make_script(article):
         timeout=90
     )
 
-    if not response.ok:
-        raise RuntimeError(
-            f"Gemini Script API Error {response.status_code}: "
-            f"{response.text[:1000]}"
-        )
-
-    data = response.json()
-
     candidates = data.get("candidates", [])
+
     if not candidates:
         raise RuntimeError("Gemini ले समाचार स्क्रिप्ट दिएन।")
 
     parts = candidates[0].get("content", {}).get("parts", [])
+
     script = " ".join(
         p.get("text", "") for p in parts if p.get("text")
     ).strip()
@@ -132,10 +185,9 @@ def generate_voice(text, output_file):
         f"models/{TTS_MODEL}:generateContent"
     )
 
-    response = requests.post(
+    data = gemini_request(
         url,
-        params={"key": API_KEY},
-        json={
+        {
             "contents": [{
                 "parts": [{"text": text}]
             }],
@@ -153,19 +205,12 @@ def generate_voice(text, output_file):
         timeout=120
     )
 
-    if not response.ok:
-        raise RuntimeError(
-            f"Gemini TTS API Error {response.status_code}: "
-            f"{response.text[:1000]}"
-        )
-
-    data = response.json()
-
     audio_part = None
     candidates = data.get("candidates", [])
 
     if candidates:
         parts = candidates[0].get("content", {}).get("parts", [])
+
         for part in parts:
             if "inlineData" in part:
                 audio_part = part["inlineData"]
@@ -176,7 +221,6 @@ def generate_voice(text, output_file):
 
     raw_audio = base64.b64decode(audio_part["data"])
 
-    # Gemini TTS PCM audio to WAV
     sample_rate = 24000
     channels = 1
     bits = 16
@@ -211,6 +255,7 @@ def download_image(url):
         )
         r.raise_for_status()
         return Image.open(BytesIO(r.content)).convert("RGB")
+
     except Exception as exc:
         print("News image error:", exc)
         return None
@@ -225,8 +270,8 @@ def create_video_image(article, script, output_file):
     title_font = get_font(35)
     small_font = get_font(23)
 
-    # Header
     draw.rectangle((0, 0, width, 95), fill="#b51225")
+
     draw.text(
         (30, 22),
         "I LOVE CHITWAN  |  BREAKING NEWS",
@@ -234,14 +279,12 @@ def create_video_image(article, script, output_file):
         fill="white"
     )
 
-    # Presenter
     presenter = Image.open(PRESENTER_FILE).convert("RGB")
     presenter.thumbnail((660, 500))
 
     px = (width - presenter.width) // 2
     canvas.paste(presenter, (px, 110))
 
-    # News image
     news_image = download_image(article.get("image_url", ""))
 
     if news_image:
@@ -257,16 +300,17 @@ def create_video_image(article, script, output_file):
             fill="white"
         )
 
-    # Headline
     draw.rectangle((0, 950, width, 1280), fill="#071a35")
 
     title = clean_text(article.get("title", ""))
     words = title.split()
+
     lines = []
     line = ""
 
     for word in words:
         test = (line + " " + word).strip()
+
         if draw.textbbox((0, 0), test, font=title_font)[2] > 660:
             if line:
                 lines.append(line)
@@ -278,8 +322,14 @@ def create_video_image(article, script, output_file):
         lines.append(line)
 
     y = 970
+
     for line in lines[:3]:
-        draw.text((30, y), line, font=title_font, fill="#ffd166")
+        draw.text(
+            (30, y),
+            line,
+            font=title_font,
+            fill="#ffd166"
+        )
         y += 48
 
     draw.text(
@@ -341,91 +391,82 @@ def main():
         print("आजको २ वटा Reel बनिसक्यो।")
         return
 
-    created = False
-    errors = []
+    # पहिलो प्रकाशित गर्न बाँकी समाचार मात्र छान्ने।
+    selected_article = None
 
     for article in articles:
         link = article.get("link", "")
-
-        if not link or link in done:
-            continue
-
         title = clean_text(article.get("title", ""))
 
-        if not title:
-            continue
-
-        print("Creating video:", title)
-
-        video_number = len(history.get("videos", [])) + 1
-
-        safe_name = re.sub(
-            r"[^a-zA-Z0-9_-]",
-            "_",
-            str(video_number)
-        )
-
-        image_file = OUTPUT_DIR / f"news_{safe_name}.jpg"
-        audio_file = OUTPUT_DIR / f"news_{safe_name}.wav"
-        video_file = OUTPUT_DIR / f"news_{safe_name}.mp4"
-
-        try:
-            script = make_script(article)
-
-            generate_voice(
-                script,
-                audio_file
-            )
-
-            create_video_image(
-                article,
-                script,
-                image_file
-            )
-
-            build_mp4(
-                image_file,
-                audio_file,
-                video_file
-            )
-
-            if not video_file.exists() or video_file.stat().st_size == 0:
-                raise RuntimeError("MP4 भिडियो फाइल बनेन।")
-
-            done.add(link)
-
-            history.setdefault("videos", []).append({
-                "date": today(),
-                "title": title,
-                "link": link,
-                "file": str(video_file)
-            })
-
-            history["published_links"] = list(done)
-
-            save_json(HISTORY_FILE, history)
-
-            print("VIDEO CREATED:", video_file)
-            created = True
-
-            # प्रत्येक Workflow मा एउटा मात्र Reel
+        if link and title and link not in done:
+            selected_article = article
             break
 
-        except Exception as exc:
-            print("VIDEO FAILED:", exc)
-            errors.append(str(exc))
-
-    if not created:
-        if errors:
-            raise RuntimeError(
-                "कुनै पनि समाचारको भिडियो बन्न सकेन। "
-                + " | ".join(errors[:3])
-            )
-
-        print("नयाँ प्रकाशित गर्न बाँकी समाचार भेटिएन।")
+    if selected_article is None:
+        print("प्रकाशित गर्न बाँकी नयाँ समाचार भेटिएन।")
         return
 
-    print("Video generation successful.")
+    article = selected_article
+    link = article.get("link", "")
+    title = clean_text(article.get("title", ""))
+
+    print("ONE NEWS SELECTED:", title)
+
+    video_number = len(history.get("videos", [])) + 1
+
+    safe_name = re.sub(
+        r"[^a-zA-Z0-9_-]",
+        "_",
+        str(video_number)
+    )
+
+    image_file = OUTPUT_DIR / f"news_{safe_name}.jpg"
+    audio_file = OUTPUT_DIR / f"news_{safe_name}.wav"
+    video_file = OUTPUT_DIR / f"news_{safe_name}.mp4"
+
+    # एउटा समाचार मात्र: असफल भए अर्को समाचारमा जाने छैन।
+    try:
+        print("Generating Nepali news script...")
+        script = make_script(article)
+
+        print("Generating Aoede voice...")
+        generate_voice(script, audio_file)
+
+        print("Creating news video image...")
+        create_video_image(article, script, image_file)
+
+        print("Building MP4 video...")
+        build_mp4(image_file, audio_file, video_file)
+
+        if not video_file.exists() or video_file.stat().st_size == 0:
+            raise RuntimeError("MP4 भिडियो फाइल बनेन।")
+
+        history.setdefault("videos", []).append({
+            "date": today(),
+            "title": title,
+            "link": link,
+            "file": str(video_file)
+        })
+
+        history["published_links"] = list(
+            set(history.get("published_links", [])) | {link}
+        )
+
+        save_json(HISTORY_FILE, history)
+
+        print("VIDEO CREATED:", video_file)
+        print("Video generation successful.")
+
+    except Exception as exc:
+        print("VIDEO FAILED:", exc)
+
+        # असफल समाचारलाई history मा राखिँदैन।
+        # अर्को Workflow मा यही समाचार फेरि प्रयास हुनेछ।
+        raise RuntimeError(
+            "यो पटक एउटा समाचारको भिडियो बन्न सकेन। "
+            "अर्को समाचारमा प्रयास गरिएको छैन। "
+            + str(exc)
+        )
 
 
 if __name__ == "__main__":
