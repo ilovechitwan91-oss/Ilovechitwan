@@ -22,8 +22,10 @@ import imageio_ffmpeg
 # ==========================================
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Updated Gemini models
+TEXT_MODEL = "gemini-3.8-flash"
 TTS_MODEL = "gemini-3.8-flash-lite-tts"
-TEXT_MODEL = "gemini-2.5-flash"
 VOICE_NAME = "Aoede"
 
 NEWS_FILE = Path("news.json")
@@ -100,10 +102,28 @@ def make_script(article):
         },
         timeout=90
     )
-    response.raise_for_status()
+
+    if not response.ok:
+        raise RuntimeError(
+            f"Gemini Script API Error {response.status_code}: "
+            f"{response.text[:1000]}"
+        )
 
     data = response.json()
-    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+
+    candidates = data.get("candidates", [])
+    if not candidates:
+        raise RuntimeError("Gemini ले समाचार स्क्रिप्ट दिएन।")
+
+    parts = candidates[0].get("content", {}).get("parts", [])
+    script = " ".join(
+        p.get("text", "") for p in parts if p.get("text")
+    ).strip()
+
+    if not script:
+        raise RuntimeError("समाचार स्क्रिप्ट खाली आयो।")
+
+    return script
 
 
 def generate_voice(text, output_file):
@@ -132,15 +152,24 @@ def generate_voice(text, output_file):
         },
         timeout=120
     )
-    response.raise_for_status()
+
+    if not response.ok:
+        raise RuntimeError(
+            f"Gemini TTS API Error {response.status_code}: "
+            f"{response.text[:1000]}"
+        )
 
     data = response.json()
 
     audio_part = None
-    for part in data["candidates"][0]["content"]["parts"]:
-        if "inlineData" in part:
-            audio_part = part["inlineData"]
-            break
+    candidates = data.get("candidates", [])
+
+    if candidates:
+        parts = candidates[0].get("content", {}).get("parts", [])
+        for part in parts:
+            if "inlineData" in part:
+                audio_part = part["inlineData"]
+                break
 
     if not audio_part:
         raise RuntimeError("Gemini ले Audio पठाएन।")
@@ -239,7 +268,8 @@ def create_video_image(article, script, output_file):
     for word in words:
         test = (line + " " + word).strip()
         if draw.textbbox((0, 0), test, font=title_font)[2] > 660:
-            lines.append(line)
+            if line:
+                lines.append(line)
             line = word
         else:
             line = test
@@ -311,6 +341,9 @@ def main():
         print("आजको २ वटा Reel बनिसक्यो।")
         return
 
+    created = False
+    errors = []
+
     for article in articles:
         link = article.get("link", "")
 
@@ -356,8 +389,10 @@ def main():
                 video_file
             )
 
+            if not video_file.exists() or video_file.stat().st_size == 0:
+                raise RuntimeError("MP4 भिडियो फाइल बनेन।")
+
             done.add(link)
-            daily_count += 1
 
             history.setdefault("videos", []).append({
                 "date": today(),
@@ -371,14 +406,26 @@ def main():
             save_json(HISTORY_FILE, history)
 
             print("VIDEO CREATED:", video_file)
+            created = True
 
             # प्रत्येक Workflow मा एउटा मात्र Reel
             break
 
         except Exception as exc:
             print("VIDEO FAILED:", exc)
+            errors.append(str(exc))
 
-    print("Video generation finished.")
+    if not created:
+        if errors:
+            raise RuntimeError(
+                "कुनै पनि समाचारको भिडियो बन्न सकेन। "
+                + " | ".join(errors[:3])
+            )
+
+        print("नयाँ प्रकाशित गर्न बाँकी समाचार भेटिएन।")
+        return
+
+    print("Video generation successful.")
 
 
 if __name__ == "__main__":
