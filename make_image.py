@@ -1,18 +1,23 @@
 
 import json
 import os
+import re
 import urllib.request
 from pathlib import Path
 from io import BytesIO
 
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
+# =====================================
+# CANVAS SETTINGS
+# =====================================
+
 WIDTH, HEIGHT = 1080, 1350
 PHOTO_HEIGHT = 760
 
-BG = (8, 19, 43)
-RED = (224, 15, 55)
-YELLOW = (255, 211, 0)
+BG = (10, 21, 48)
+RED = (208, 20, 60)
+YELLOW = (255, 212, 0)
 WHITE = (255, 255, 255)
 
 NEWS_FILE = Path("news.json")
@@ -41,6 +46,10 @@ def font(paths, size):
     return ImageFont.load_default()
 
 
+# =====================================
+# NEPALI DATE
+# =====================================
+
 def nepali_date():
     try:
         import nepali_datetime
@@ -62,9 +71,9 @@ def nepali_date():
             )
 
         return (
-            f"{nepali_num(today.year)} "
+            f"{nepali_num(today.day)} "
             f"{months[today.month - 1]} "
-            f"{nepali_num(today.day)}"
+            f"{nepali_num(today.year)}"
         )
 
     except Exception as exc:
@@ -72,7 +81,12 @@ def nepali_date():
         return ""
 
 
+# =====================================
+# DOWNLOAD NEWS PHOTO
+# =====================================
+
 def download_photo(url):
+
     if not url:
         return None
 
@@ -96,6 +110,7 @@ def download_photo(url):
 
 
 def fit_photo(image):
+
     if image is None:
         image = Image.new(
             "RGB",
@@ -111,164 +126,360 @@ def fit_photo(image):
     )
 
 
+# =====================================
+# TEXT UTILITIES
+# =====================================
+
 def text_width(draw, text, fnt):
-    box = draw.textbbox((0, 0), text, font=fnt)
-    return box[2] - box[0]
+
+    bbox = draw.textbbox(
+        (0, 0),
+        text,
+        font=fnt
+    )
+
+    return bbox[2] - bbox[0]
 
 
-# --------------------------------
-# AUTOMATIC HEADLINE WRAPPING
-# --------------------------------
+def split_news_title(title):
+    """
+    Colon वा dash पछाडिको नामलाई
+    subtitle बनाउने।
+    """
 
-def wrap_headline(draw, title, max_width, fnt):
+    title = title.strip()
+
+    parts = re.split(
+        r"\s*[:：–—]\s*",
+        title,
+        maxsplit=1
+    )
+
+    if len(parts) == 2 and parts[1].strip():
+        return parts[0].strip(), parts[1].strip()
+
+    return title, ""
+
+
+def split_headline(draw, title):
+
     words = title.split()
-    lines = []
-    current = ""
 
-    for word in words:
-        test = word if not current else current + " " + word
+    if len(words) < 2:
+        return title, ""
 
-        if text_width(draw, test, fnt) <= max_width:
-            current = test
-        else:
-            if current:
-                lines.append(current)
-            current = word
+    # First line 54px, second line 88px
+    for first_size in range(54, 39, -2):
 
-    if current:
-        lines.append(current)
-
-    return lines
-
-
-def prepare_headline(draw, title):
-    for size in range(112, 53, -2):
-
-        fnt = font(NEPALI_BOLD, size)
-
-        lines = wrap_headline(
-            draw,
-            title,
-            990,
-            fnt
+        first_font = font(
+            NEPALI_BOLD,
+            first_size
         )
 
-        if len(lines) <= 3 and all(
-            text_width(draw, line, fnt) <= 990
-            for line in lines
-        ):
-            return lines, fnt, size
+        for second_size in range(90, 57, -2):
 
-    fnt = font(NEPALI_BOLD, 54)
+            second_font = font(
+                NEPALI_BOLD,
+                second_size
+            )
+
+            best = None
+            best_score = float("inf")
+
+            for i in range(1, len(words)):
+
+                first = " ".join(words[:i])
+                second = " ".join(words[i:])
+
+                w1 = text_width(draw, first, first_font)
+                w2 = text_width(draw, second, second_font)
+
+                if w1 <= 1000 and w2 <= 1000:
+
+                    # Prefer balanced visual widths
+                    score = abs(w1 - w2)
+
+                    if score < best_score:
+                        best_score = score
+                        best = (
+                            first,
+                            second,
+                            first_font,
+                            second_font
+                        )
+
+            if best:
+                return best
+
+    # Fallback for unusually long headlines
+    first = " ".join(words[:-1])
+    second = words[-1]
 
     return (
-        wrap_headline(draw, title, 990, fnt),
-        fnt,
-        54
+        first,
+        second,
+        font(NEPALI_BOLD, 40),
+        font(NEPALI_BOLD, 58)
     )
 
 
-# --------------------------------
+# =====================================
+# DATE BADGE
+# =====================================
+
+def draw_date(draw):
+
+    date = nepali_date()
+
+    if not date:
+        return
+
+    date_font = font(
+        NEPALI_BOLD,
+        34
+    )
+
+    bx = 760
+    by = 40
+    bw = 285
+    bh = 60
+
+    draw.rounded_rectangle(
+        (bx, by, bx + bw, by + bh),
+        radius=8,
+        fill=RED
+    )
+
+    draw.text(
+        (
+            bx + bw // 2,
+            by + bh // 2
+        ),
+        date,
+        font=date_font,
+        fill=WHITE,
+        anchor="mm"
+    )
+
+
+# =====================================
+# HEADLINE SECTION
+# =====================================
+
+def draw_headline(draw, title):
+
+    first, second, font1, font2 = split_headline(
+        draw,
+        title
+    )
+
+    # LINE 1 - WHITE
+    draw.text(
+        (WIDTH // 2, 850),
+        first,
+        font=font1,
+        fill=WHITE,
+        anchor="mm"
+    )
+
+    # LINE 2 - LARGE YELLOW
+    if second:
+
+        draw.text(
+            (WIDTH // 2, 950),
+            second,
+            font=font2,
+            fill=YELLOW,
+            anchor="mm"
+        )
+
+    return 1 if second else 0
+
+
+# =====================================
+# RED DIVIDER
+# =====================================
+
+def draw_divider(draw):
+
+    draw.rounded_rectangle(
+        (480, 1011, 600, 1019),
+        radius=5,
+        fill=RED
+    )
+
+
+# =====================================
+# SUBTITLE / PERSON NAME
+# =====================================
+
+def draw_subtitle(draw, subtitle):
+
+    if not subtitle:
+        return
+
+    # Automatically reduce font if name is long
+    for size in range(48, 29, -2):
+
+        subtitle_font = font(
+            NEPALI_BOLD,
+            size
+        )
+
+        if text_width(draw, subtitle, subtitle_font) <= 950:
+            break
+
+    draw.text(
+        (WIDTH // 2, 1070),
+        subtitle,
+        font=subtitle_font,
+        fill=WHITE,
+        anchor="mm"
+    )
+
+
+# =====================================
+# COMMENT CTA BUTTON
+# =====================================
+
+def draw_cta(draw):
+
+    label = "पूरा समाचार कमेन्टमा"
+
+    label_font = font(
+        NEPALI_BOLD,
+        40
+    )
+
+    bx = 190
+    by = 1125
+    bw = 700
+    bh = 76
+
+    draw.rounded_rectangle(
+        (bx, by, bx + bw, by + bh),
+        radius=38,
+        fill=RED
+    )
+
+    draw.text(
+        (WIDTH // 2, by + bh // 2),
+        label,
+        font=label_font,
+        fill=WHITE,
+        anchor="mm"
+    )
+
+
+# =====================================
 # SOCIAL MEDIA FOOTER
-# --------------------------------
+# =====================================
 
 def draw_social_icons(draw):
 
-    y = 1280
+    y = 1297
 
-    # FACEBOOK
-    fx = 95
+    # FACEBOOK GROUP
+    fx = 76
 
     draw.ellipse(
-        (fx, y, fx + 42, y + 42),
+        (fx, y, fx + 46, y + 46),
         fill=(24, 119, 242)
     )
 
     draw.text(
-        (fx + 21, y + 21),
+        (fx + 23, y + 23),
         "f",
-        font=font(ENGLISH_BOLD, 32),
+        font=font(ENGLISH_BOLD, 35),
         fill=WHITE,
         anchor="mm"
     )
 
     draw.text(
-        (145, y + 8),
+        (fx + 56, y + 23),
         "ilovechitwan",
-        font=font(ENGLISH_BOLD, 22),
-        fill=WHITE
+        font=font(ENGLISH_BOLD, 25),
+        fill=WHITE,
+        anchor="lm"
     )
 
-    # YOUTUBE
-    yx = 435
+    # YOUTUBE GROUP
+    yx = 410
 
     draw.rounded_rectangle(
-        (yx, y + 5, yx + 49, y + 37),
+        (yx, y + 7, yx + 50, y + 39),
         radius=9,
         fill=(255, 0, 0)
     )
 
     draw.polygon(
         [
-            (yx + 20, y + 12),
-            (yx + 20, y + 30),
-            (yx + 34, y + 21)
+            (yx + 19, y + 13),
+            (yx + 19, y + 33),
+            (yx + 34, y + 23)
         ],
         fill=WHITE
     )
 
     draw.text(
-        (yx + 58, y + 8),
+        (yx + 59, y + 23),
         "hamraikhabar",
-        font=font(ENGLISH_BOLD, 21),
-        fill=WHITE
+        font=font(ENGLISH_BOLD, 25),
+        fill=WHITE,
+        anchor="lm"
     )
 
-    # INSTAGRAM
-    ix = 790
+    # INSTAGRAM GROUP
+    ix = 750
 
     draw.rounded_rectangle(
-        (ix, y + 2, ix + 42, y + 42),
+        (ix, y, ix + 46, y + 46),
         radius=11,
         fill=(210, 55, 130)
     )
 
     draw.rounded_rectangle(
-        (ix + 8, y + 10, ix + 34, y + 34),
-        radius=7,
+        (ix + 8, y + 8, ix + 38, y + 38),
+        radius=8,
         outline=WHITE,
         width=3
     )
 
     draw.ellipse(
-        (ix + 15, y + 17, ix + 27, y + 29),
+        (ix + 16, y + 16, ix + 30, y + 30),
         outline=WHITE,
         width=3
     )
 
     draw.ellipse(
-        (ix + 27, y + 12, ix + 31, y + 16),
+        (ix + 30, y + 10, ix + 35, y + 15),
         fill=WHITE
     )
 
     draw.text(
-        (ix + 49, y + 8),
+        (ix + 55, y + 23),
         "khabar.short",
-        font=font(ENGLISH_BOLD, 21),
-        fill=WHITE
+        font=font(ENGLISH_BOLD, 25),
+        fill=WHITE,
+        anchor="lm"
     )
 
 
-# --------------------------------
+# =====================================
 # CREATE NEWS CARD
-# --------------------------------
+# =====================================
 
 def create_card(article, index):
 
-    title = (article.get("title") or "").strip()
+    title = (
+        article.get("title") or ""
+    ).strip()
 
     if not title:
         return False
+
+    # Separate headline and subtitle
+    headline, subtitle = split_news_title(title)
 
     canvas = Image.new(
         "RGB",
@@ -276,7 +487,7 @@ def create_card(article, index):
         BG
     )
 
-    # NEWS PHOTO
+    # PHOTO
     photo = download_photo(
         article.get("image_url", "")
     )
@@ -287,187 +498,37 @@ def create_card(article, index):
 
     draw = ImageDraw.Draw(canvas)
 
-    # --------------------------------
-    # NEPALI DATE - DOUBLE SIZE
-    # --------------------------------
+    # DATE BADGE
+    draw_date(draw)
 
-    date = nepali_date()
-
-    if date:
-
-        date_font = font(NEPALI_BOLD, 58)
-
-        bbox = draw.textbbox(
-            (0, 0),
-            date,
-            font=date_font
-        )
-
-        dw = bbox[2] - bbox[0]
-        dh = bbox[3] - bbox[1]
-
-        padding_x = 25
-        padding_y = 17
-
-        x = WIDTH - dw - padding_x * 2 - 35
-        y = 30
-
-        draw.rounded_rectangle(
-            (
-                x,
-                y,
-                x + dw + padding_x * 2,
-                y + dh + padding_y * 2
-            ),
-            radius=17,
-            fill=RED
-        )
-
-        draw.text(
-            (
-                x + padding_x,
-                y + padding_y - bbox[1]
-            ),
-            date,
-            font=date_font,
-            fill=WHITE
-        )
-
-    # --------------------------------
-    # NEWS TEXT BACKGROUND
-    # --------------------------------
-
+    # NAVY LOWER PANEL
     draw.rectangle(
         (0, PHOTO_HEIGHT, WIDTH, HEIGHT),
         fill=BG
     )
 
-    # --------------------------------
-    # HEADLINE - LARGE TEXT
-    # WITH AUTOMATIC HIGHLIGHTER
-    # --------------------------------
-
-    lines, headline_font, size = prepare_headline(
+    # HEADLINE
+    draw_headline(
         draw,
-        title
+        headline
     )
 
-    line_height = int(size * 1.28)
+    # DIVIDER
+    draw_divider(draw)
 
-    total_height = len(lines) * line_height
-
-    start_y = 785 + max(
-        0,
-        (265 - total_height) // 2
+    # SUBTITLE
+    draw_subtitle(
+        draw,
+        subtitle
     )
 
-    for i, line in enumerate(lines):
+    # COMMENT BUTTON
+    draw_cta(draw)
 
-        bbox = draw.textbbox(
-            (0, 0),
-            line,
-            font=headline_font
-        )
-
-        tw = bbox[2] - bbox[0]
-        th = bbox[3] - bbox[1]
-
-        # HIGHLIGHTER FITS TEXT SIZE
-        padding_x = 19
-        padding_y = 10
-
-        highlight_width = tw + padding_x * 2
-        highlight_height = th + padding_y * 2
-
-        hx = (WIDTH - highlight_width) // 2
-        hy = start_y + i * line_height
-
-        draw.rounded_rectangle(
-            (
-                hx,
-                hy,
-                hx + highlight_width,
-                hy + highlight_height
-            ),
-            radius=13,
-            fill=RED
-        )
-
-        # ALTERNATE WHITE AND YELLOW TEXT
-        text_color = WHITE if i % 2 == 0 else YELLOW
-
-        draw.text(
-            (
-                hx + padding_x - bbox[0],
-                hy + padding_y - bbox[1]
-            ),
-            line,
-            font=headline_font,
-            fill=text_color
-        )
-
-    # --------------------------------
-    # RED UNDERLINE
-    # --------------------------------
-
-    draw.rounded_rectangle(
-        (475, 1065, 605, 1077),
-        radius=6,
-        fill=RED
-    )
-
-    # --------------------------------
-    # FULL NEWS COMMENT BUTTON
-    # DOUBLE SIZE
-    # --------------------------------
-
-    label = "पूरा समाचार कमेन्टमा"
-
-    label_font = font(
-        NEPALI_BOLD,
-        60
-    )
-
-    bx = 85
-    by = 1100
-    bw = 910
-    bh = 105
-
-    draw.rounded_rectangle(
-        (bx, by, bx + bw, by + bh),
-        radius=48,
-        fill=RED
-    )
-
-    bbox = draw.textbbox(
-        (0, 0),
-        label,
-        font=label_font
-    )
-
-    tw = bbox[2] - bbox[0]
-    th = bbox[3] - bbox[1]
-
-    draw.text(
-        (
-            (WIDTH - tw) // 2,
-            by + (bh - th) // 2 - bbox[1]
-        ),
-        label,
-        font=label_font,
-        fill=WHITE
-    )
-
-    # --------------------------------
-    # SOCIAL MEDIA FOOTER
-    # --------------------------------
-
+    # SOCIAL FOOTER
     draw_social_icons(draw)
 
-    # --------------------------------
-    # SAVE HD CARD
-    # --------------------------------
-
+    # SAVE HD IMAGE
     output = IMAGE_DIR / f"news_{index:02d}.jpg"
 
     canvas.save(
@@ -484,9 +545,9 @@ def create_card(article, index):
     return True
 
 
-# --------------------------------
-# MAIN
-# --------------------------------
+# =====================================
+# MAIN AUTOMATION
+# =====================================
 
 def main():
 
@@ -506,10 +567,12 @@ def main():
     published = []
 
     if STATE_FILE.exists():
+
         try:
             published = json.loads(
                 STATE_FILE.read_text(encoding="utf-8")
             )
+
         except Exception:
             published = []
 
