@@ -1,10 +1,9 @@
 
 import json
 import re
-import time
 import os
+import time
 import urllib.request
-import urllib.parse
 import xml.etree.ElementTree as ET
 from html import unescape
 from html.parser import HTMLParser
@@ -13,8 +12,8 @@ from urllib.parse import urljoin, urlparse
 
 # ==========================================
 # I LOVE CHITWAN NEWS AUTOMATION
-# 1 CHITWAN + 4 NATIONAL NEWS
-# NO GOOGLE NEWS / NO RATOPATI
+# 1 CHITWAN + 4 NATIONAL / INTERNATIONAL / SPORTS
+# SOURCES: NARAYANI ONLINE, ONLINEKHABAR, RATOPATI
 # ==========================================
 
 OUTPUT_FILE = "news.json"
@@ -23,54 +22,81 @@ STATE_FILE = "published_news.json"
 MAX_NEWS = 5
 REQUEST_TIMEOUT = 25
 
-# ------------------------------------------
+# GitHub ma rakheko I Love Chitwan photo
+FALLBACK_IMAGE_URL = (
+    "https://raw.githubusercontent.com/"
+    "ilovechitwan91-oss/Ilovechitwan/main/"
+    "file_00000000b28c8208bbcc5d31991825cf.png"
+)
+
+# ==========================================
 # NEWS SOURCES
-# ------------------------------------------
+# ==========================================
 
 NARAYANI_URL = "https://narayanionline.com/chitwan/"
-JANA_AASTHA_URL = "https://janaaastha.com/"
-ONLINEKHABAR_URL = "https://www.onlinekhabar.com/"
-EKANTIPUR_URL = "https://ekantipur.com/"
-RONB_URL = "https://www.ronbpost.com/"
 
+ONLINEKHABAR_URL = "https://www.onlinekhabar.com/"
 ONLINEKHABAR_RSS = "https://www.onlinekhabar.com/feed"
 
-NATIONAL_SOURCE_ORDER = [
-    "Jana Aastha",
-    "Onlinekhabar",
-    "eKantipur",
-    "Routine of Nepal Banda"
-]
+RATOPATI_URL = "https://www.ratopati.com/"
+RATOPATI_SPORTS_URL = "https://www.ratopati.com/sports"
+RATOPATI_WORLD_URL = "https://www.ratopati.com/international"
 
 CHITWAN_WORDS = [
-    "चितवन",
-    "भरतपुर",
-    "माडी",
-    "रत्ननगर",
-    "खैरहनी",
-    "इच्छाकामना",
-    "कालिका नगरपालिका",
-    "राप्ती नगरपालिका",
-    "सौराहा",
-    "मेघौली",
-    "पटिहानी",
-    "देवघाट",
-    "जुटपानी",
-    "chitwan",
-    "bharatpur",
-    "madi",
-    "ratnanagar",
-    "khairahani",
-    "ichchhakamana"
+    "चितवन", "भरतपुर", "नारायणगढ", "माडी",
+    "रत्ननगर", "खैरहनी", "इच्छाकामना",
+    "कालिका", "राप्ती नगरपालिका", "सौराहा",
+    "मेघौली", "पटिहानी", "जुटपानी",
+    "देवघाट", "मुग्लिन", "घोप्टेभीर",
+    "chitwan", "bharatpur", "narayangadh",
+    "madi", "ratnanagar", "khairahani",
+    "ichchhakamana", "sauraha", "meghauli"
+]
+
+# स्वास्थ्य टिप्स, विज्ञापन, मनोरञ्जन आदि हटाउने
+EXCLUDED_WORDS = [
+    "health tips", "स्वास्थ्य टिप्स",
+    "स्वास्थ्य सुझाव", "स्वस्थ जीवन",
+    "राशिफल", "ज्योतिष", "विज्ञापन",
+    "प्रायोजित", "प्रमोसन",
+    "ग्यालरी", "मनोरञ्जन", "फिल्म",
+    "चलचित्र", "गीत सार्वजनिक",
+    "म्युजिक भिडियो", "फेसन",
+    "रेसिपी", "खाना बनाउने",
+    "lifestyle", "horoscope",
+    "entertainment", "advertisement",
+    "sponsored", "recipe", "fashion"
+]
+
+SPORT_WORDS = [
+    "खेल", "खेलकुद", "क्रिकेट", "फुटबल",
+    "भलिबल", "बास्केटबल", "टेनिस",
+    "विश्वकप", "प्रिमियर लिग", "एनपीएल",
+    "आईपीएल", "olympic", "cricket",
+    "football", "sports", "tournament",
+    "world cup", "league", "tennis",
+    "basketball", "volleyball"
+]
+
+INTERNATIONAL_WORDS = [
+    "अमेरिका", "भारत", "चीन", "पाकिस्तान",
+    "बंगलादेश", "श्रीलंका", "जापान",
+    "रुस", "युक्रेन", "इजरायल",
+    "प्यालेस्टाइन", "इरान", "इराक",
+    "संयुक्त राष्ट्र", "विश्व",
+    "international", "world",
+    "america", "india", "china",
+    "pakistan", "bangladesh", "japan",
+    "russia", "ukraine", "israel",
+    "palestine", "iran", "united nations"
 ]
 
 
 # ==========================================
-# TEXT AND LINK HELPERS
+# TEXT HELPERS
 # ==========================================
 
 def clean_text(value):
-
     if not value:
         return ""
 
@@ -82,7 +108,6 @@ def clean_text(value):
 
 
 def normalize_link(link):
-
     if not link:
         return ""
 
@@ -92,174 +117,167 @@ def normalize_link(link):
         return ""
 
     return (
-        parsed.scheme
-        + "://"
-        + parsed.netloc.lower()
-        + parsed.path
+        parsed.scheme + "://" +
+        parsed.netloc.lower() +
+        parsed.path
     ).rstrip("/")
 
 
-def is_chitwan(title, description=""):
+def make_timestamp():
+    return datetime.now(timezone.utc).isoformat()
 
-    # स्थानीय समाचार छुट्याउन शीर्षकलाई प्राथमिकता
-    text = (title or "").lower()
+
+def contains_word(text, words):
+    text = (text or "").lower()
 
     return any(
         word.lower() in text
-        for word in CHITWAN_WORDS
+        for word in words
     )
 
 
-def make_timestamp():
+def is_excluded(article):
+    text = (
+        article.get("title", "") + " " +
+        article.get("description", "")
+    ).lower()
 
-    return datetime.now(
-        timezone.utc
-    ).isoformat()
+    return contains_word(text, EXCLUDED_WORDS)
+
+
+def is_chitwan_news(article):
+    text = (
+        article.get("title", "") + " " +
+        article.get("description", "")
+    )
+
+    return contains_word(text, CHITWAN_WORDS)
+
+
+def classify_national(article):
+    text = (
+        article.get("title", "") + " " +
+        article.get("description", "")
+    )
+
+    if contains_word(text, SPORT_WORDS):
+        return "sports"
+
+    if contains_word(text, INTERNATIONAL_WORDS):
+        return "international"
+
+    return "national"
 
 
 # ==========================================
-# PUBLISHED NEWS HISTORY
+# PUBLISHED HISTORY
 # ==========================================
 
 def load_published_links():
-
     links = set()
 
     if not os.path.exists(STATE_FILE):
         return links
 
     try:
-
         with open(
             STATE_FILE,
             "r",
             encoding="utf-8"
         ) as f:
-
             data = json.load(f)
 
         def collect(obj):
-
             if isinstance(obj, dict):
-
                 for key, value in obj.items():
 
                     if (
                         isinstance(key, str)
                         and key.startswith("http")
                     ):
+                        link = normalize_link(key)
 
-                        normalized = normalize_link(key)
-
-                        if normalized:
-                            links.add(normalized)
+                        if link:
+                            links.add(link)
 
                     if isinstance(value, str):
-
-                        lower_key = key.lower()
-
-                        if lower_key in (
-                            "link",
-                            "url",
+                        if key.lower() in (
+                            "link", "url",
                             "article_url",
                             "news_url",
                             "original_url"
                         ):
+                            link = normalize_link(value)
 
-                            normalized = normalize_link(value)
-
-                            if normalized:
-                                links.add(normalized)
+                            if link:
+                                links.add(link)
 
                     collect(value)
 
             elif isinstance(obj, list):
-
                 for item in obj:
                     collect(item)
 
         collect(data)
 
-        print(
-            "Published history loaded:",
-            len(links)
-        )
+        print("Published links loaded:", len(links))
 
     except Exception as exc:
-
-        print(
-            "History read error:",
-            exc
-        )
+        print("History error:", exc)
 
     return links
 
 
 # ==========================================
-# HTML LINK PARSER
+# HTML PARSERS
 # ==========================================
 
 class ArticleLinkParser(HTMLParser):
 
     def __init__(self):
-
         super().__init__()
-
         self.links = []
-        self.current_href = None
-        self.current_text = ""
+        self.active = False
+        self.href = ""
+        self.text = ""
 
     def handle_starttag(self, tag, attrs):
-
-        if tag.lower() == "a":
-
+        if tag.lower() == "a" and not self.active:
             attrs = dict(attrs)
 
-            href = (
+            self.href = (
                 attrs.get("href")
                 or attrs.get("data-href")
                 or ""
             )
 
-            if href:
-
-                self.current_href = href
-                self.current_text = ""
+            if self.href:
+                self.active = True
+                self.text = ""
 
     def handle_data(self, data):
-
-        if self.current_href:
-
-            self.current_text += data
+        if self.active:
+            self.text += " " + data
 
     def handle_endtag(self, tag):
+        if tag.lower() == "a" and self.active:
 
-        if (
-            tag.lower() == "a"
-            and self.current_href
-        ):
+            title = clean_text(self.text)
 
-            title = clean_text(
-                self.current_text
-            )
+            if title:
+                self.links.append({
+                    "href": self.href,
+                    "title": title
+                })
 
-            self.links.append({
-                "href": self.current_href,
-                "title": title
-            })
+            self.active = False
+            self.href = ""
+            self.text = ""
 
-            self.current_href = None
-            self.current_text = ""
-
-
-# ==========================================
-# ARTICLE DETAIL PARSER
-# ==========================================
 
 class ParagraphParser(HTMLParser):
 
     def __init__(self):
-
         super().__init__()
 
         self.parts = []
@@ -268,62 +286,38 @@ class ParagraphParser(HTMLParser):
         self.skip = 0
 
     def handle_starttag(self, tag, attrs):
-
         tag = tag.lower()
 
         if tag in (
-            "script",
-            "style",
-            "nav",
-            "footer",
-            "header",
-            "aside",
-            "noscript"
+            "script", "style", "nav",
+            "footer", "header", "aside",
+            "noscript", "form"
         ):
-
             self.skip += 1
 
         elif tag == "p" and not self.skip:
-
             self.in_p = True
             self.current = ""
 
     def handle_data(self, data):
-
         if self.in_p and not self.skip:
-
-            self.current += data
+            self.current += " " + data
 
     def handle_endtag(self, tag):
-
         tag = tag.lower()
 
         if tag in (
-            "script",
-            "style",
-            "nav",
-            "footer",
-            "header",
-            "aside",
-            "noscript"
+            "script", "style", "nav",
+            "footer", "header", "aside",
+            "noscript", "form"
         ):
-
-            self.skip = max(
-                0,
-                self.skip - 1
-            )
+            self.skip = max(0, self.skip - 1)
 
         elif tag == "p" and self.in_p:
-
-            paragraph = clean_text(
-                self.current
-            )
+            paragraph = clean_text(self.current)
 
             if len(paragraph) > 35:
-
-                self.parts.append(
-                    paragraph
-                )
+                self.parts.append(paragraph)
 
             self.in_p = False
             self.current = ""
@@ -332,37 +326,29 @@ class ParagraphParser(HTMLParser):
 class MetaImageParser(HTMLParser):
 
     def __init__(self):
-
         super().__init__()
-
         self.image = ""
 
     def handle_starttag(self, tag, attrs):
-
         if tag.lower() != "meta":
             return
 
         attrs = dict(attrs)
 
         prop = (
-            attrs.get("property", "")
-            or attrs.get("name", "")
+            attrs.get("property", "") or
+            attrs.get("name", "")
         ).lower()
 
-        if prop in (
-            "og:image",
-            "twitter:image"
-        ):
-
+        if prop in ("og:image", "twitter:image"):
             image = attrs.get("content", "")
 
             if image.startswith("http"):
-
                 self.image = image
 
 
 # ==========================================
-# DOWNLOAD WEBSITE
+# DOWNLOAD WEB PAGE
 # ==========================================
 
 def download_page(url):
@@ -371,12 +357,10 @@ def download_page(url):
         url,
         headers={
             "User-Agent": (
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 Chrome/120 Safari/537.36"
+                "Mozilla/5.0 (Linux; Android 13) "
+                "AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36"
             ),
-            "Accept-Language": (
-                "ne-NP,ne;q=0.9,en;q=0.8"
-            )
+            "Accept-Language": "ne-NP,ne;q=0.9,en;q=0.8"
         }
     )
 
@@ -392,6 +376,27 @@ def download_page(url):
 
 
 # ==========================================
+# IMAGE CHECK
+# ==========================================
+
+def valid_news_image(url):
+
+    if not url or not url.startswith("http"):
+        return False
+
+    bad_words = [
+        "logo", "favicon", "placeholder",
+        "default", "avatar", "banner",
+        "site-icon", "no-image"
+    ]
+
+    if contains_word(url, bad_words):
+        return False
+
+    return True
+
+
+# ==========================================
 # WEBSITE ARTICLE COLLECTOR
 # ==========================================
 
@@ -401,13 +406,13 @@ def fetch_website(
     allowed_domain,
     category,
     published_links,
-    limit=20
+    limit=30,
+    chitwan_only=False
 ):
 
-    print("Fetching:", source)
+    print("Fetching:", source, page_url)
 
     try:
-
         html = download_page(page_url)
 
         parser = ArticleLinkParser()
@@ -417,42 +422,29 @@ def fetch_website(
         seen = set()
 
         blocked = {
-            "category",
-            "categories",
-            "tag",
-            "author",
-            "page",
-            "search",
-            "contact",
-            "about",
-            "privacy",
-            "wp-content",
-            "wp-admin",
-            "login",
-            "register",
-            "feed",
-            "comment"
+            "category", "categories", "tag",
+            "author", "page", "search",
+            "contact", "about", "privacy",
+            "wp-content", "wp-admin",
+            "login", "register", "feed",
+            "comment", "sports", "international",
+            "national", "video"
         }
 
         for item in parser.links:
 
-            title = item["title"]
+            title = clean_text(item["title"])
 
             if len(title) < 15:
                 continue
 
-            link = urljoin(
-                page_url,
-                item["href"]
-            )
-
+            link = urljoin(page_url, item["href"])
             parsed = urlparse(link)
-
             domain = parsed.netloc.lower()
 
             if not (
                 domain == allowed_domain
-                or domain == "www." + allowed_domain
+                or domain.endswith("." + allowed_domain)
             ):
                 continue
 
@@ -462,15 +454,13 @@ def fetch_website(
                 continue
 
             parts = [
-                part.lower()
-                for part in path.split("/")
-                if part
+                p.lower()
+                for p in path.split("/")
+                if p
             ]
 
-            if any(
-                part in blocked
-                for part in parts
-            ):
+            # Category page lai article nabanaune
+            if any(part in blocked for part in parts):
                 continue
 
             link = normalize_link(link)
@@ -478,143 +468,70 @@ def fetch_website(
             if not link:
                 continue
 
-            if link in seen:
+            if link in seen or link in published_links:
                 continue
 
-            if link in published_links:
+            article = {
+                "source": source,
+                "category": category,
+                "title": title,
+                "description": title,
+                "link": link,
+                "image_url": "",
+                "published": "",
+                "collected_at": make_timestamp()
+            }
+
+            if is_excluded(article):
+                continue
+
+            if chitwan_only and not is_chitwan_news(article):
                 continue
 
             seen.add(link)
-
-            results.append({
-
-                "source": source,
-
-                "category": category,
-
-                "title": title,
-
-                "description": title,
-
-                "link": link,
-
-                "image_url": "",
-
-                "published": "",
-
-                "collected_at": make_timestamp()
-
-            })
+            results.append(article)
 
             if len(results) >= limit:
                 break
 
-        print(
-            source,
-            "articles found:",
-            len(results)
-        )
+        print(source, "articles:", len(results))
 
         return results
 
     except Exception as exc:
-
-        print(
-            source,
-            "website error:",
-            exc
-        )
-
+        print(source, "error:", exc)
         return []
 
 
 # ==========================================
-# NARAYANI ONLINE - CHITWAN
+# NARAYANI ONLINE - CHITWAN ONLY
 # ==========================================
 
 def fetch_narayani(published_links):
 
-    return fetch_website(
-
+    articles = fetch_website(
         source="Narayani Online",
-
         page_url=NARAYANI_URL,
-
         allowed_domain="narayanionline.com",
-
         category="chitwan",
-
         published_links=published_links,
-
-        limit=20
+        limit=30,
+        chitwan_only=True
     )
 
+    # Narayani bata Chitwan sambandhit news matra
+    results = []
 
-# ==========================================
-# JANA AASTHA - NATIONAL
-# ==========================================
+    for article in articles:
+        if is_chitwan_news(article):
+            results.append(article)
 
-def fetch_janaastha(published_links):
-
-    return fetch_website(
-
-        source="Jana Aastha",
-
-        page_url=JANA_AASTHA_URL,
-
-        allowed_domain="janaaastha.com",
-
-        category="national",
-
-        published_links=published_links,
-
-        limit=20
+    print(
+        "Narayani verified Chitwan news:",
+        len(results)
     )
 
-
-# ==========================================
-# EKANTIPUR - NATIONAL
-# ==========================================
-
-def fetch_ekantipur(published_links):
-
-    return fetch_website(
-
-        source="eKantipur",
-
-        page_url=EKANTIPUR_URL,
-
-        allowed_domain="ekantipur.com",
-
-        category="national",
-
-        published_links=published_links,
-
-        limit=20
-    )
-
-
-# ==========================================
-# ROUTINE OF NEPAL BANDA - NATIONAL
-# Official RONB website
-# ==========================================
-
-def fetch_ronb(published_links):
-
-    return fetch_website(
-
-        source="Routine of Nepal Banda",
-
-        page_url=RONB_URL,
-
-        allowed_domain="ronbpost.com",
-
-        category="national",
-
-        published_links=published_links,
-
-        limit=20
-    )
+    return results
 
 
 # ==========================================
@@ -624,14 +541,10 @@ def fetch_ronb(published_links):
 def child_text(item, names):
 
     for child in item.iter():
-
         tag = child.tag.split("}")[-1].lower()
 
         if tag in names and child.text:
-
-            value = clean_text(
-                child.text
-            )
+            value = clean_text(child.text)
 
             if value:
                 return value
@@ -643,10 +556,7 @@ def get_rss_link(item, feed_url):
 
     for child in item.iter():
 
-        if (
-            child.tag.split("}")[-1].lower()
-            == "link"
-        ):
+        if child.tag.split("}")[-1].lower() == "link":
 
             link = (
                 child.attrib.get("href")
@@ -655,11 +565,7 @@ def get_rss_link(item, feed_url):
             ).strip()
 
             if link:
-
-                return urljoin(
-                    feed_url,
-                    link
-                )
+                return urljoin(feed_url, link)
 
     return ""
 
@@ -673,25 +579,16 @@ def get_rss_description(item):
         tag = child.tag.split("}")[-1].lower()
 
         if tag in (
-            "encoded",
-            "description",
-            "summary",
-            "content"
+            "encoded", "description",
+            "summary", "content"
         ) and child.text:
 
-            value = clean_text(
-                child.text
-            )
+            value = clean_text(child.text)
 
             if value and value not in values:
-
                 values.append(value)
 
-    return (
-        max(values, key=len)
-        if values
-        else ""
-    )
+    return max(values, key=len) if values else ""
 
 
 def get_rss_image(item, raw_description):
@@ -700,32 +597,21 @@ def get_rss_image(item, raw_description):
 
         tag = child.tag.split("}")[-1].lower()
 
-        if tag in (
-            "content",
-            "thumbnail",
-            "enclosure"
-        ):
+        if tag in ("content", "thumbnail", "enclosure"):
 
-            image_url = child.attrib.get(
-                "url",
-                ""
-            )
-
-            media_type = child.attrib.get(
-                "type",
-                ""
-            )
+            image = child.attrib.get("url", "")
+            media_type = child.attrib.get("type", "")
 
             if (
-                image_url.startswith("http")
+                image.startswith("http")
                 and (
                     tag != "enclosure"
                     or not media_type
                     or media_type.startswith("image")
                 )
+                and valid_news_image(image)
             ):
-
-                return image_url
+                return image
 
     match = re.search(
         r"""<img[^>]+src=["'](https?://[^"']+)""",
@@ -733,19 +619,19 @@ def get_rss_image(item, raw_description):
         re.I
     )
 
-    return (
-        match.group(1)
-        if match
-        else ""
-    )
+    if match:
+        return match.group(1)
+
+    return ""
 
 
 def fetch_onlinekhabar(published_links):
 
-    print("Fetching Onlinekhabar RSS...")
+    print("Fetching Onlinekhabar RSS")
+
+    results = []
 
     try:
-
         request = urllib.request.Request(
             ONLINEKHABAR_RSS,
             headers={
@@ -758,30 +644,19 @@ def fetch_onlinekhabar(published_links):
             timeout=REQUEST_TIMEOUT
         ) as response:
 
-            root = ET.fromstring(
-                response.read()
-            )
+            root = ET.fromstring(response.read())
 
-        results = []
         seen = set()
 
         for item in root.iter():
 
             if item.tag.split("}")[-1].lower() not in (
-                "item",
-                "entry"
+                "item", "entry"
             ):
                 continue
 
-            title = child_text(
-                item,
-                ["title"]
-            )
-
-            link = get_rss_link(
-                item,
-                ONLINEKHABAR_RSS
-            )
+            title = child_text(item, ["title"])
+            link = get_rss_link(item, ONLINEKHABAR_RSS)
 
             if not title or not link:
                 continue
@@ -791,107 +666,130 @@ def fetch_onlinekhabar(published_links):
             if not link:
                 continue
 
-            if (
-                link in seen
-                or link in published_links
-            ):
+            if link in seen or link in published_links:
                 continue
 
-            seen.add(link)
+            description = get_rss_description(item)
 
-            description = get_rss_description(
-                item
-            )
-
-            results.append({
-
+            article = {
                 "source": "Onlinekhabar",
-
                 "category": "national",
-
                 "title": title,
-
-                "description": (
-                    description or title
-                ),
-
+                "description": description or title,
                 "link": link,
-
                 "image_url": get_rss_image(
                     item,
                     description
                 ),
-
                 "published": child_text(
                     item,
-                    [
-                        "pubdate",
-                        "published",
-                        "updated"
-                    ]
+                    ["pubdate", "published", "updated"]
                 ),
-
                 "collected_at": make_timestamp()
+            }
 
-            })
+            if is_excluded(article):
+                continue
 
-            if len(results) >= 20:
+            article["category"] = classify_national(article)
+
+            seen.add(link)
+            results.append(article)
+
+            if len(results) >= 30:
                 break
 
-        print(
-            "Onlinekhabar articles found:",
-            len(results)
-        )
-
-        # RSS खाली भए वेबसाइटबाट प्रयास
-        if not results:
-
-            print(
-                "Onlinekhabar RSS empty; trying website..."
-            )
-
-            results = fetch_website(
-
-                source="Onlinekhabar",
-
-                page_url=ONLINEKHABAR_URL,
-
-                allowed_domain="onlinekhabar.com",
-
-                category="national",
-
-                published_links=published_links,
-
-                limit=20
-            )
-
-        return results
+        print("Onlinekhabar RSS articles:", len(results))
 
     except Exception as exc:
+        print("Onlinekhabar RSS error:", exc)
 
-        print(
-            "Onlinekhabar RSS error:",
-            exc
-        )
+    # RSS bata kam news aaye homepage bata pani khojne
+    if len(results) < 10:
 
-        print(
-            "Trying Onlinekhabar website..."
-        )
-
-        return fetch_website(
-
+        extra = fetch_website(
             source="Onlinekhabar",
-
             page_url=ONLINEKHABAR_URL,
-
             allowed_domain="onlinekhabar.com",
-
             category="national",
-
             published_links=published_links,
-
-            limit=20
+            limit=30
         )
+
+        existing = {
+            a["link"] for a in results
+        }
+
+        for article in extra:
+
+            if article["link"] not in existing:
+
+                article["category"] = classify_national(article)
+
+                results.append(article)
+                existing.add(article["link"])
+
+    return results
+
+
+# ==========================================
+# RATOPATI - NATIONAL / INTERNATIONAL / SPORTS
+# ==========================================
+
+def fetch_ratopati(published_links):
+
+    results = []
+    seen = set()
+
+    pages = [
+        RATOPATI_URL,
+        RATOPATI_SPORTS_URL,
+        RATOPATI_WORLD_URL
+    ]
+
+    for page_url in pages:
+
+        if "sports" in page_url:
+            page_category = "sports"
+        elif "international" in page_url:
+            page_category = "international"
+        else:
+            page_category = "national"
+
+        articles = fetch_website(
+            source="Ratopati",
+            page_url=page_url,
+            allowed_domain="ratopati.com",
+            category=page_category,
+            published_links=published_links,
+            limit=30
+        )
+
+        for article in articles:
+
+            if article["link"] in seen:
+                continue
+
+            if is_excluded(article):
+                continue
+
+            if page_category == "sports":
+                article["category"] = "sports"
+
+            elif page_category == "international":
+                article["category"] = "international"
+
+            else:
+                article["category"] = classify_national(article)
+
+            seen.add(article["link"])
+            results.append(article)
+
+        time.sleep(1)
+
+    print("Ratopati total articles:", len(results))
+
+    return results
 
 
 # ==========================================
@@ -901,7 +799,6 @@ def fetch_onlinekhabar(published_links):
 def read_article(url):
 
     try:
-
         html = download_page(url)
 
         paragraph_parser = ParagraphParser()
@@ -914,18 +811,16 @@ def read_article(url):
             paragraph_parser.parts
         )[:5000]
 
-        return (
-            detail,
-            image_parser.image
-        )
+        image = image_parser.image
+
+        if not valid_news_image(image):
+            image = ""
+
+        return detail, image
 
     except Exception as exc:
 
-        print(
-            "Article detail unavailable:",
-            url,
-            exc
-        )
+        print("Article detail error:", exc)
 
         return "", ""
 
@@ -936,8 +831,8 @@ def read_article(url):
 
 def remove_duplicates(articles):
 
-    unique = {}
     output = []
+    seen = set()
 
     for article in articles:
 
@@ -945,15 +840,11 @@ def remove_duplicates(articles):
             article.get("link", "")
         )
 
-        if not link:
-            continue
-
-        if link in unique:
+        if not link or link in seen:
             continue
 
         article["link"] = link
-
-        unique[link] = True
+        seen.add(link)
 
         output.append(article)
 
@@ -961,187 +852,119 @@ def remove_duplicates(articles):
 
 
 # ==========================================
-# SELECT 1 LOCAL + 4 NATIONAL
+# SELECT 1 CHITWAN + 4 NATIONAL
 # ==========================================
 
 def select_news(all_articles):
 
-    articles = remove_duplicates(
-        all_articles
-    )
+    articles = remove_duplicates(all_articles)
 
     local_news = [
-        item for item in articles
+        a for a in articles
         if (
-            item["category"] == "chitwan"
-            and item["source"] == "Narayani Online"
+            a["source"] == "Narayani Online"
+            and a["category"] == "chitwan"
+            and is_chitwan_news(a)
         )
     ]
 
-    other_local = [
-        item for item in articles
-        if (
-            item["category"] == "chitwan"
-            and item["source"] != "Narayani Online"
-        )
+    online_news = [
+        a for a in articles
+        if a["source"] == "Onlinekhabar"
     ]
 
-    national_news = [
-        item for item in articles
-        if item["category"] == "national"
+    rato_news = [
+        a for a in articles
+        if a["source"] == "Ratopati"
     ]
 
     selected = []
 
-    # First priority: Narayani local news
+    # First: one Chitwan news
     if local_news:
+        selected.append(local_news[0])
 
-        selected.append(
-            local_news[0]
-        )
+    # Then: national news from both sources
+    # Alternating sources helps balance the selection
+    while len(selected) < MAX_NEWS:
 
-    # If Narayani has no new local story,
-    # use another verified Chitwan story
-    elif other_local:
+        added = False
 
-        selected.append(
-            other_local[0]
-        )
+        for source_list in (online_news, rato_news):
 
-    # Prefer one story from each national source
-    for source in NATIONAL_SOURCE_ORDER:
+            if len(selected) >= MAX_NEWS:
+                break
 
-        if len(selected) >= MAX_NEWS:
-            break
-
-        for article in national_news:
-
-            if article["source"] == source:
+            for article in source_list:
 
                 if article not in selected:
 
                     selected.append(article)
+                    added = True
                     break
 
-    # Fill remaining spaces with other new stories
-    if len(selected) < MAX_NEWS:
-
-        for article in national_news:
-
-            if len(selected) >= MAX_NEWS:
-                break
-
-            if article not in selected:
-
-                selected.append(article)
-
-    # Final fallback: any other new article
-    if len(selected) < MAX_NEWS:
-
-        for article in articles:
-
-            if len(selected) >= MAX_NEWS:
-                break
-
-            if article not in selected:
-
-                selected.append(article)
+        if not added:
+            break
 
     return selected[:MAX_NEWS]
 
 
 # ==========================================
-# MAIN NEWS COLLECTION
+# MAIN
 # ==========================================
 
 def main():
 
-    print("================================")
+    print("====================================")
     print("I LOVE CHITWAN NEWS AUTOMATION")
-    print("================================")
+    print("====================================")
 
     published_links = load_published_links()
 
     all_articles = []
     failed = []
 
-    # 1. Narayani Online local news
-    narayani = fetch_narayani(
-        published_links
-    )
+    # 1. Narayani Online - Chitwan only
+    narayani = fetch_narayani(published_links)
 
     if narayani:
         all_articles.extend(narayani)
     else:
-        failed.append("Narayani Online")
+        failed.append("Narayani Online - Chitwan")
 
     time.sleep(1)
 
-    # 2. Jana Aastha national news
-    janaastha = fetch_janaastha(
-        published_links
-    )
+    # 2. Onlinekhabar - national, international, sports
+    online = fetch_onlinekhabar(published_links)
 
-    if janaastha:
-        all_articles.extend(janaastha)
-    else:
-        failed.append("Jana Aastha")
-
-    time.sleep(1)
-
-    # 3. Onlinekhabar national news
-    onlinekhabar = fetch_onlinekhabar(
-        published_links
-    )
-
-    if onlinekhabar:
-        all_articles.extend(onlinekhabar)
+    if online:
+        all_articles.extend(online)
     else:
         failed.append("Onlinekhabar")
 
     time.sleep(1)
 
-    # 4. eKantipur national news
-    ekantipur = fetch_ekantipur(
-        published_links
-    )
+    # 3. Ratopati - national, international, sports
+    ratopati = fetch_ratopati(published_links)
 
-    if ekantipur:
-        all_articles.extend(ekantipur)
+    if ratopati:
+        all_articles.extend(ratopati)
     else:
-        failed.append("eKantipur")
+        failed.append("Ratopati")
 
-    time.sleep(1)
-
-    # 5. Routine of Nepal Banda
-    ronb = fetch_ronb(
-        published_links
-    )
-
-    if ronb:
-        all_articles.extend(ronb)
-    else:
-        failed.append("Routine of Nepal Banda")
-
-    # Do not overwrite old news.json if every source failed
     if not all_articles:
-
         raise RuntimeError(
-            "No news received. Existing news.json was not changed."
+            "No news received. Old news.json was not changed."
         )
 
-    # Select news
-    selected = select_news(
-        all_articles
-    )
+    selected = select_news(all_articles)
 
     if not selected:
-
         raise RuntimeError(
-            "No new articles available."
+            "No fresh articles available. Old news.json was not changed."
         )
 
-    # Download details and images
+    # Read full details and images
     for article in selected:
 
         detail, image_url = read_article(
@@ -1151,12 +974,19 @@ def main():
         if len(detail) > len(
             article.get("description", "")
         ):
-
             article["description"] = detail
 
+        # Real article photo first
         if image_url:
-
             article["image_url"] = image_url
+
+        # I Love Chitwan photo if no usable news photo
+        if not valid_news_image(
+            article.get("image_url", "")
+        ):
+            article["image_url"] = FALLBACK_IMAGE_URL
+
+        article["fallback_image"] = FALLBACK_IMAGE_URL
 
         article["description"] = (
             article.get("description")
@@ -1172,29 +1002,28 @@ def main():
             article["title"]
         )
 
+        print("IMAGE:", article["image_url"])
+
         time.sleep(0.5)
 
-    # Prepare output
     output = {
-
         "updated_at": make_timestamp(),
-
         "total_news": len(selected),
 
         "chitwan_news": sum(
-            1 for item in selected
-            if item["category"] == "chitwan"
+            1 for a in selected
+            if a["category"] == "chitwan"
         ),
 
         "national_news": sum(
-            1 for item in selected
-            if item["category"] == "national"
+            1 for a in selected
+            if a["category"] in (
+                "national", "international", "sports"
+            )
         ),
 
         "failed_sources": failed,
-
         "articles": selected
-
     }
 
     # Safe JSON save
@@ -1213,18 +1042,15 @@ def main():
             indent=2
         )
 
-    os.replace(
-        temp_file,
-        OUTPUT_FILE
-    )
+    os.replace(temp_file, OUTPUT_FILE)
 
-    print("--------------------------------")
+    print("------------------------------------")
     print("NEWS COLLECTION SUCCESSFUL")
-    print("TOTAL NEWS:", output["total_news"])
+    print("TOTAL:", output["total_news"])
     print("CHITWAN:", output["chitwan_news"])
-    print("NATIONAL:", output["national_news"])
+    print("NATIONAL / INTERNATIONAL / SPORTS:", output["national_news"])
     print("FAILED SOURCES:", failed)
-    print("--------------------------------")
+    print("------------------------------------")
 
 
 if __name__ == "__main__":
