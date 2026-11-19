@@ -1,20 +1,39 @@
+
 import json
 import os
 import re
 import sys
 import time
 from pathlib import Path
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import requests
 
 API_VERSION = "v27.0"
+
 NEWS_FILE = Path("news.json")
 IMAGE_DIR = Path("news_images")
 STATE_FILE = Path("published_news.json")
-MAX_HISTORY = 500
 
+MAX_HISTORY = 500
 MAX_PHOTO_RETRIES = 3
 MAX_COMMENT_RETRIES = 3
 MAX_POSTS_PER_RUN = 5
+
+NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
+
+
+def check_posting_time():
+    now = datetime.now(NEPAL_TZ)
+
+    print("NEPAL TIME:", now.strftime("%Y-%m-%d %H:%M:%S"))
+
+    if not 6 <= now.hour <= 20:
+        print("POSTING CLOSED: 6 AM to 8 PM only.")
+        return False
+
+    return True
 
 
 def load_published():
@@ -26,12 +45,14 @@ def load_published():
             STATE_FILE.read_text(encoding="utf-8")
         )
         return value if isinstance(value, list) else []
-    except Exception:
+    except Exception as exc:
+        print("HISTORY READ ERROR:", exc)
         return []
 
 
 def save_published(items):
     temp = STATE_FILE.with_suffix(".tmp")
+
     temp.write_text(
         json.dumps(
             items[-MAX_HISTORY:],
@@ -40,6 +61,7 @@ def save_published(items):
         ),
         encoding="utf-8"
     )
+
     temp.replace(STATE_FILE)
 
 
@@ -112,6 +134,7 @@ def api_error(response):
 
 
 def publish_photo(page_id, token, image_path, caption):
+
     url = (
         f"https://graph.facebook.com/"
         f"{API_VERSION}/{page_id}/photos"
@@ -120,13 +143,15 @@ def publish_photo(page_id, token, image_path, caption):
     last_error = None
 
     for attempt in range(1, MAX_PHOTO_RETRIES + 1):
+
         try:
             print(
-                f"PHOTO UPLOAD ATTEMPT "
+                f"PHOTO UPLOAD "
                 f"{attempt}/{MAX_PHOTO_RETRIES}"
             )
 
             with image_path.open("rb") as photo:
+
                 response = requests.post(
                     url,
                     data={
@@ -147,8 +172,10 @@ def publish_photo(page_id, token, image_path, caption):
             result = response.json()
 
             if not response.ok or "error" in result:
+
                 last_error = api_error(response)
-                print("PHOTO API ERROR:", last_error)
+
+                print("PHOTO ERROR:", last_error)
 
                 if attempt < MAX_PHOTO_RETRIES:
                     time.sleep(attempt * 5)
@@ -161,34 +188,25 @@ def publish_photo(page_id, token, image_path, caption):
                 or result.get("id")
             )
 
-            if not post_id:
-                last_error = (
-                    "Facebook did not return a post ID: "
-                    + str(result)
-                )
+            if post_id:
+                return post_id
 
-                if attempt < MAX_PHOTO_RETRIES:
-                    time.sleep(attempt * 5)
-                    continue
-
-                break
-
-            return post_id
+            last_error = "Facebook returned no post ID."
 
         except Exception as exc:
             last_error = str(exc)
             print("PHOTO REQUEST ERROR:", last_error)
 
-            if attempt < MAX_PHOTO_RETRIES:
-                time.sleep(attempt * 5)
+        if attempt < MAX_PHOTO_RETRIES:
+            time.sleep(attempt * 5)
 
     raise RuntimeError(
-        "Photo Publish Error after retries: "
-        + str(last_error)
+        "PHOTO PUBLISH FAILED: " + str(last_error)
     )
 
 
 def publish_first_comment(post_id, token, link):
+
     url = (
         f"https://graph.facebook.com/"
         f"{API_VERSION}/{post_id}/comments"
@@ -210,14 +228,16 @@ def publish_first_comment(post_id, token, link):
 
     if not response.ok or "error" in result:
         raise RuntimeError(
-            "First Comment Error: " + api_error(response)
+            "COMMENT ERROR: " + api_error(response)
         )
 
     return result.get("id")
 
 
 def retry_pending_comments(token, published):
+
     for item in published:
+
         if item.get("comment_posted") is not False:
             continue
 
@@ -228,10 +248,10 @@ def retry_pending_comments(token, published):
             continue
 
         for attempt in range(1, MAX_COMMENT_RETRIES + 1):
+
             try:
                 print(
-                    f"COMMENT RETRY "
-                    f"{attempt}/{MAX_COMMENT_RETRIES}:",
+                    "RETRY OLD COMMENT:",
                     item.get("title", "")
                 )
 
@@ -241,14 +261,14 @@ def retry_pending_comments(token, published):
 
                 item["comment_posted"] = True
                 item["comment_id"] = cid
-                item.pop("comment_text", None)
 
                 save_published(published)
 
-                print("PENDING COMMENT POSTED:", cid)
+                print("COMMENT SUCCESS:", cid)
                 break
 
             except Exception as exc:
+
                 print("COMMENT RETRY FAILED:", exc)
 
                 if attempt < MAX_COMMENT_RETRIES:
@@ -256,6 +276,12 @@ def retry_pending_comments(token, published):
 
 
 def main():
+
+    # 1. समय जाँच
+    if not check_posting_time():
+        return
+
+    # 2. Facebook credentials
     page_id = os.environ.get(
         "FB_PAGE_ID", ""
     ).strip()
@@ -269,10 +295,9 @@ def main():
             "Facebook GitHub Secrets missing"
         )
 
+    # 3. News load
     if not NEWS_FILE.exists():
-        raise FileNotFoundError(
-            "news.json not found"
-        )
+        raise FileNotFoundError("news.json not found")
 
     data = json.loads(
         NEWS_FILE.read_text(encoding="utf-8")
@@ -281,36 +306,34 @@ def main():
     articles = data.get("articles", [])
 
     if not articles:
-        print("No news available")
+        print("NO NEWS AVAILABLE")
         return
 
+    # 4. Previously published news
     published = load_published()
 
-    # पहिले पोस्ट भएका समाचारका बाँकी कमेन्ट पूरा गर्ने।
     retry_pending_comments(token, published)
 
     published_links = {
-        normalize_link(x.get("link"))
-        for x in published
-        if isinstance(x, dict)
+        normalize_link(item.get("link"))
+        for item in published
+        if isinstance(item, dict)
     }
 
     success_count = 0
     failed_count = 0
     skipped_count = 0
 
+    print("\n========== NEWS PUBLISHING START ==========")
+
+    # 5. Publish maximum five NEW news cards
     for index, article in enumerate(articles, start=1):
 
         if success_count >= MAX_POSTS_PER_RUN:
             break
 
-        title = (
-            article.get("title") or ""
-        ).strip()
-
-        link = normalize_link(
-            article.get("link")
-        )
+        title = (article.get("title") or "").strip()
+        link = normalize_link(article.get("link"))
 
         if not title or not link:
             print("SKIP: Missing title or link")
@@ -322,15 +345,10 @@ def main():
             skipped_count += 1
             continue
 
-        image_path = (
-            IMAGE_DIR / f"news_{index:02d}.jpg"
-        )
+        image_path = IMAGE_DIR / f"news_{index:02d}.jpg"
 
-        if not image_path.exists():
-            print(
-                "HD photo not available; skip:",
-                image_path
-            )
+        if not image_path.is_file():
+            print("IMAGE MISSING:", image_path)
             skipped_count += 1
             continue
 
@@ -338,16 +356,17 @@ def main():
             f"{title}\n\n{hashtags_for(title)}"
         )
 
-        print("\n================================")
+        print("\n===================================")
         print(
-            f"POSTING NEWS "
+            f"POSTING CARD "
             f"{success_count + 1}/{MAX_POSTS_PER_RUN}"
         )
         print("TITLE:", title)
         print("IMAGE:", image_path)
-        print("================================")
+        print("===================================")
 
         try:
+
             post_id = publish_photo(
                 page_id,
                 token,
@@ -356,14 +375,12 @@ def main():
             )
 
         except Exception as exc:
-            print(
-                "PHOTO FAILED; MOVING TO NEXT NEWS:",
-                exc
-            )
+
+            print("PHOTO FAILED:", exc)
             failed_count += 1
             continue
 
-        # पोस्ट सफल भएपछि तुरुन्तै इतिहासमा सुरक्षित गर्ने।
+        # 6. Save immediately after successful publication
         record = {
             "link": link,
             "title": title,
@@ -373,16 +390,20 @@ def main():
 
         published.append(record)
         published_links.add(link)
+
         save_published(published)
 
         success_count += 1
 
         print("PHOTO SUCCESS:", post_id)
 
-        # प्रत्येक पोस्टमा समाचारको लिंक मात्र कमेन्ट गर्ने।
+        # 7. Post URL only in first comment
         try:
+
             comment_id = publish_first_comment(
-                post_id, token, link
+                post_id,
+                token,
+                link
             )
 
             record["comment_posted"] = True
@@ -393,17 +414,17 @@ def main():
             print("LINK COMMENT SUCCESS:", comment_id)
 
         except Exception as exc:
+
             print(
-                "LINK COMMENT FAILED; WILL RETRY:",
+                "COMMENT FAILED; WILL RETRY:",
                 exc
             )
 
         print(
-            f"NEWS POST COMPLETED "
-            f"({success_count}/{MAX_POSTS_PER_RUN})"
+            f"COMPLETED: "
+            f"{success_count}/{MAX_POSTS_PER_RUN}"
         )
 
-        # Facebook मा धेरै छिटो अनुरोध नहोस्।
         time.sleep(3)
 
     print("\n========== FINAL REPORT ==========")
@@ -412,10 +433,18 @@ def main():
     print("Skipped:", skipped_count)
     print("==================================")
 
+    if success_count < MAX_POSTS_PER_RUN:
+        print(
+            "WARNING: Five successful posts were not completed. "
+            "Check news availability and images."
+        )
+
 
 if __name__ == "__main__":
+
     try:
         main()
+
     except Exception as exc:
         print("PUBLISH ERROR:", exc)
         sys.exit(1)
