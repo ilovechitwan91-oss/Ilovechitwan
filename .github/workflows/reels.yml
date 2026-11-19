@@ -1,76 +1,80 @@
-
-name: I Love Chitwan Facebook Reels
+name: I Love Chitwan Daily Landscape News Video
 
 on:
-  workflow_dispatch:
-  schedule:
-    # Nepal time: 2:50 PM and 9:00 PM
-    - cron: '5 9 * * *'
-    - cron: '15 15 * * *'
+workflow_dispatch:
+schedule:
+# Nepal time: Every day at 6:30 PM
+- cron: '45 12 * * *'
 
 permissions:
-  contents: write
+contents: write
 
 concurrency:
-  group: ilovechitwan-reels
-  cancel-in-progress: false
+group: ilovechitwan-daily-news-video
+cancel-in-progress: false
 
 jobs:
-  create-and-publish-reel:
-    runs-on: ubuntu-latest
+create-and-publish-video:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+steps:
+  - name: Checkout repository
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+  - name: Setup Python
+    uses: actions/setup-python@v5
+    with:
+      python-version: '3.11'
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg fonts-noto-core
-          pip install -r requirements.txt
+  - name: Install dependencies
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y ffmpeg fonts-noto-core
+      pip install -r requirements.txt
 
-      - name: Generate one news Reel
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-        run: python make_video.py
+  - name: Collect 10 news stories
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    run: python main_reels.py
 
-      - name: Publish Reel to Facebook Page
-        env:
-          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
-        run: |
-          if [ -n "$(find news_videos -maxdepth 1 -name '*.mp4' -print -quit 2>/dev/null)" ]; then
-            python publish_reel.py
-          else
-            echo "No new Reel generated. Skipping publish."
-          fi
+  - name: Generate Landscape News Video
+    env:
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+    run: python make_video.py
 
-      - name: Save video history
-        run: |
-          if [ -f video_history.json ]; then
-            git config user.name "News Bot"
-            git config user.email "news-bot@users.noreply.github.com"
-            git add video_history.json
-            if ! git diff --cached --quiet; then
-              git commit -m "Update Reel publishing history"
-              git pull --rebase origin main
-              git push origin main
-            fi
-          fi
+  - name: Publish video to Facebook Page
+    env:
+      FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+      FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+    run: |
+      if [ -f news_videos/daily_news.mp4 ]; then
+        python publish_reel.py
+      else
+        echo "No video generated. Skipping publish."
+      fi
 
-      - name: Save generated Reel artifact
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ilovechitwan-reels
-          path: news_videos/*.mp4
-          if-no-files-found: ignore
-          retention-days: 3
+  - name: Save video history
+    run: |
+      if [ -f video_history.json ]; then
+        git config user.name "News Bot"
+        git config user.email "news-bot@users.noreply.github.com"
+        git add video_history.json
+        if ! git diff --cached --quiet; then
+          git commit -m "Update daily news video history"
+          git pull --rebase origin main
+          git push origin main
+        fi
+      fi
+
+  - name: Save generated video artifact
+    if: always()
+    uses: actions/upload-artifact@v4
+    with:
+      name: ilovechitwan-daily-landscape-news
+      path: news_videos/*.mp4
+      if-no-files-found: ignore
+      retention-days: 3
