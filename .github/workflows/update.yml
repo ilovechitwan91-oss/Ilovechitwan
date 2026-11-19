@@ -3,7 +3,7 @@ name: I Love Chitwan News Automation
 
 on:
   schedule:
-    # Nepal time: 6:00 AM to 8:00 PM
+    # Nepal time: 6:00 AM to 8:00 PM, every hour
     - cron: "15 0-14 * * *"
   workflow_dispatch:
 
@@ -43,10 +43,10 @@ jobs:
       - name: Collect Latest News
         run: python main.py
 
-      - name: Generate All Five News Cards
+      - name: Generate Five News Cards Automatically
         run: python make_image.py
 
-      - name: Publish All New Cards Together
+      - name: Publish Five News Cards to Facebook
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
@@ -58,7 +58,7 @@ jobs:
           git config user.email "newsbot@users.noreply.github.com"
           git add -A
           if ! git diff --cached --quiet; then
-            git commit -m "Update news and publishing history"
+            git commit -m "Automatic news and publishing history update"
             git push
           else
             echo "No changes to save"
