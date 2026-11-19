@@ -1,11 +1,10 @@
 
 import os
-import json
 import re
+import json
 import base64
-import subprocess
 import wave
-import time
+import subprocess
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -17,10 +16,8 @@ import imageio_ffmpeg
 
 
 # ==========================================
-# I LOVE CHITWAN - NEWS VIDEO GENERATOR
-# GEMINI PRIMARY + OPENROUTER FREE BACKUP
-# GEMINI AOEDE VOICE
-# ONE NEWS PER RUN | MAXIMUM 2 PER NEPAL DAY
+# I LOVE CHITWAN - DAILY LANDSCAPE NEWS VIDEO
+# 10 NEWS | 1920x1080 | NEPALI VOICE
 # ==========================================
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
@@ -30,17 +27,13 @@ TEXT_MODEL = "gemini-3.8-flash"
 TTS_MODEL = "gemini-3.8-flash-lite-tts"
 VOICE_NAME = "Aoede"
 
-NEWS_FILE = Path("news.json")
-PRESENTER_FILE = Path("presenter.png")
-HISTORY_FILE = Path("video_history.json")
+NEWS_FILE = Path("news_reels.json")
 OUTPUT_DIR = Path("news_videos")
+HISTORY_FILE = Path("video_history.json")
 
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
-MAX_DAILY_VIDEOS = 2
-MAX_VIDEO_SECONDS = 60
-
-RETRY_ATTEMPTS = 3
-RETRY_WAIT_SECONDS = 10
+WIDTH = 1920
+HEIGHT = 1080
 
 OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -57,169 +50,50 @@ def load_json(path, default):
         return default
 
 
-def save_json(path, data):
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-
 def clean_text(value):
     value = re.sub(r"<[^>]+>", " ", str(value or ""))
     return re.sub(r"\s+", " ", value).strip()
 
 
-def gemini_request(url, payload, timeout):
-    """Retry temporary Gemini server or rate-limit errors."""
-    last_error = None
-
-    for attempt in range(1, RETRY_ATTEMPTS + 1):
-        try:
-            response = requests.post(
-                url,
-                params={"key": API_KEY},
-                json=payload,
-                timeout=timeout
-            )
-
-            if response.status_code in (429, 500, 502, 503, 504):
-                last_error = (
-                    f"Gemini API Error {response.status_code}: "
-                    f"{response.text[:1000]}"
-                )
-
-                if attempt < RETRY_ATTEMPTS:
-                    wait_time = RETRY_WAIT_SECONDS * attempt
-                    print(
-                        f"Gemini अस्थायी समस्या। "
-                        f"{attempt}/{RETRY_ATTEMPTS} प्रयास असफल। "
-                        f"{wait_time} सेकेन्डपछि पुनः प्रयास..."
-                    )
-                    time.sleep(wait_time)
-                    continue
-
-                raise RuntimeError(last_error)
-
-            if not response.ok:
-                raise RuntimeError(
-                    f"Gemini API Error {response.status_code}: "
-                    f"{response.text[:1000]}"
-                )
-
-            return response.json()
-
-        except requests.RequestException as exc:
-            last_error = str(exc)
-
-            if attempt < RETRY_ATTEMPTS:
-                wait_time = RETRY_WAIT_SECONDS * attempt
-                print(
-                    f"Network समस्या। {wait_time} सेकेन्डपछि "
-                    f"पुनः प्रयास..."
-                )
-                time.sleep(wait_time)
-            else:
-                raise RuntimeError(
-                    f"Gemini Network Error: {last_error}"
-                )
-
-    raise RuntimeError(str(last_error or "Gemini API असफल भयो।"))
-
-
-def openrouter_make_script(prompt):
-    """Use OpenRouter free-model router as text fallback."""
-
-    if not OPENROUTER_API_KEY:
-        raise RuntimeError(
-            "OPENROUTER_API_KEY Secret भेटिएन।"
-        )
-
+def gemini_request(url, payload, timeout=120):
     response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
-        headers={
-            "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-            "Content-Type": "application/json",
-            "HTTP-Referer": (
-                "https://github.com/ilovechitwan91-oss/Ilovechitwan"
-            ),
-            "X-Title": "I Love Chitwan News Reel"
-        },
-        json={
-            "model": "openrouter/free",
-            "messages": [
-                {
-                    "role": "system",
-                    "content": (
-                        "तपाईं नेपाली समाचार वाचक हुनुहुन्छ। "
-                        "दिइएको समाचारका तथ्य नबदली प्राकृतिक "
-                        "नेपाली भाषामा छोटो समाचार स्क्रिप्ट लेख्नुहोस्।"
-                    )
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            "temperature": 0.4,
-            "max_tokens": 900
-        },
-        timeout=90
+        url,
+        params={"key": API_KEY},
+        json=payload,
+        timeout=timeout
     )
 
     if not response.ok:
         raise RuntimeError(
-            f"OpenRouter API Error {response.status_code}: "
+            f"Gemini API Error {response.status_code}: "
             f"{response.text[:1000]}"
         )
 
-    data = response.json()
-    choices = data.get("choices", [])
-
-    if not choices:
-        raise RuntimeError(
-            "OpenRouter ले समाचार स्क्रिप्ट दिएन।"
-        )
-
-    content = choices[0].get("message", {}).get("content", "")
-
-    if isinstance(content, list):
-        content = " ".join(
-            item.get("text", "")
-            for item in content
-            if isinstance(item, dict) and item.get("text")
-        )
-
-    script = str(content or "").strip()
-
-    if not script:
-        raise RuntimeError(
-            "OpenRouter स्क्रिप्ट खाली आयो।"
-        )
-
-    return script
+    return response.json()
 
 
 def make_script(article):
     title = clean_text(article.get("title", ""))
-    description = clean_text(article.get("description", ""))
+    description = clean_text(
+        article.get("description", "")
+    )
 
     prompt = f"""
-तपाईं नेपाली समाचार वाचक हुनुहुन्छ।
+तपाईं नेपाली टेलिभिजनका अनुभवी समाचार वाचक हुनुहुन्छ।
 
-तलको एउटा समाचारलाई मात्र आधार बनाएर
-प्राकृतिक नेपाली भाषामा समाचार वाचन स्क्रिप्ट लेख्नुहोस्।
+तलको समाचारका आधारमा छोटो नेपाली समाचार वाचन तयार गर्नुहोस्।
 
 शीर्षक: {title}
-विवरण: {description[:5000]}
+विवरण: {description[:2500]}
 
 नियम:
-- समाचारको तथ्य नबदल्नुहोस्।
-- कुनै नयाँ तथ्य नथप्नुहोस्।
-- सरल र शुद्ध नेपाली बोल्ने शैली अपनाउनुहोस्।
-- सुरुमा मुख्य समाचार बताउनुहोस्।
-- त्यसपछि आवश्यक विवरण दिनुहोस्।
-- अन्त्यमा छोटो निष्कर्ष दिनुहोस्।
-- ६० सेकेन्डभित्र पढ्न मिल्ने बनाउनुहोस्।
-- Hashtag वा अतिरिक्त टिप्पणी नलेख्नुहोस्।
-- एउटै समाचार मात्र प्रस्तुत गर्नुहोस्।
+- उपलब्ध समाचारका तथ्य मात्र प्रयोग गर्नुहोस्।
+- नयाँ तथ्य वा अनुमान नथप्नुहोस्।
+- सरल र स्वाभाविक नेपाली बोल्नुहोस्।
+- शीर्षकबाट सुरु गर्नुहोस्।
+- त्यसपछि मुख्य विवरण २ देखि ३ वाक्यमा दिनुहोस्।
+- २० देखि ३० सेकेन्डभित्र पढ्न मिल्ने बनाउनुहोस्।
+- ह्यासट्याग वा निर्देशन नलेख्नुहोस्।
 """
 
     url = (
@@ -227,57 +101,32 @@ def make_script(article):
         f"models/{TEXT_MODEL}:generateContent"
     )
 
-    # पहिले Gemini बाट स्क्रिप्ट बनाउने प्रयास।
-    try:
-        data = gemini_request(
-            url,
-            {
-                "contents": [{
-                    "parts": [{"text": prompt}]
-                }]
-            },
-            timeout=90
-        )
+    data = gemini_request(
+        url,
+        {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }]
+        }
+    )
 
-        candidates = data.get("candidates", [])
+    parts = data.get("candidates", [{}])[0].get(
+        "content", {}
+    ).get("parts", [])
 
-        if not candidates:
-            raise RuntimeError(
-                "Gemini ले समाचार स्क्रिप्ट दिएन।"
-            )
+    script = " ".join(
+        p.get("text", "")
+        for p in parts
+        if p.get("text")
+    ).strip()
 
-        parts = candidates[0].get(
-            "content", {}
-        ).get("parts", [])
+    if not script:
+        raise RuntimeError("समाचार स्क्रिप्ट बनेन।")
 
-        script = " ".join(
-            p.get("text", "")
-            for p in parts
-            if p.get("text")
-        ).strip()
-
-        if not script:
-            raise RuntimeError(
-                "Gemini स्क्रिप्ट खाली आयो।"
-            )
-
-        print("SCRIPT GENERATED BY GEMINI")
-        return script
-
-    except Exception as gemini_error:
-        print("Gemini Script Error:", gemini_error)
-        print("Trying OpenRouter FREE fallback...")
-
-        # Gemini असफल भएमा मात्र OpenRouter प्रयोग।
-        script = openrouter_make_script(prompt)
-
-        print("SCRIPT GENERATED BY OPENROUTER FREE")
-        return script
+    return script
 
 
 def generate_voice(text, output_file):
-    """Generate Nepali voice using existing Gemini Aoede TTS."""
-
     url = (
         "https://generativelanguage.googleapis.com/v1beta/"
         f"models/{TTS_MODEL}:generateContent"
@@ -299,183 +148,215 @@ def generate_voice(text, output_file):
                     }
                 }
             }
-        },
-        timeout=120
+        }
     )
 
     audio_part = None
-    candidates = data.get("candidates", [])
 
-    if candidates:
-        parts = candidates[0].get(
-            "content", {}
-        ).get("parts", [])
-
-        for part in parts:
-            if "inlineData" in part:
-                audio_part = part["inlineData"]
-                break
+    for part in data.get("candidates", [{}])[0].get(
+        "content", {}
+    ).get("parts", []):
+        if "inlineData" in part:
+            audio_part = part["inlineData"]
+            break
 
     if not audio_part:
-        raise RuntimeError("Gemini ले Audio पठाएन।")
+        raise RuntimeError("Gemini ले आवाज पठाएन।")
 
     raw_audio = base64.b64decode(audio_part["data"])
 
-    sample_rate = 24000
-    channels = 1
-    bits = 16
-
     with wave.open(str(output_file), "wb") as wav:
-        wav.setnchannels(channels)
-        wav.setsampwidth(bits // 8)
-        wav.setframerate(sample_rate)
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(24000)
         wav.writeframes(raw_audio)
 
 
-def get_font(size):
+def get_font(size, bold=False):
     candidates = [
+        "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf"
+        if bold else
         "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf",
+
         "/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
     ]
 
-    for font_path in candidates:
-        if os.path.exists(font_path):
-            return ImageFont.truetype(font_path, size)
+    for path in candidates:
+        if os.path.exists(path):
+            return ImageFont.truetype(path, size)
 
     return ImageFont.load_default()
 
 
 def download_image(url):
+    if not url:
+        return None
+
     try:
-        r = requests.get(
+        response = requests.get(
             url,
             timeout=30,
             headers={"User-Agent": "Mozilla/5.0"}
         )
-        r.raise_for_status()
+        response.raise_for_status()
 
-        return Image.open(
-            BytesIO(r.content)
+        image = Image.open(
+            BytesIO(response.content)
         ).convert("RGB")
 
+        return image
+
     except Exception as exc:
-        print("News image error:", exc)
+        print("Photo download failed:", exc)
         return None
 
 
-def create_video_image(article, script, output_file):
-    width, height = 720, 1280
+def fit_text(draw, text, font, max_width):
+    words = clean_text(text).split()
+    lines = []
+    current = ""
 
+    for word in words:
+        test = (current + " " + word).strip()
+
+        if draw.textbbox((0, 0), test, font=font)[2] <= max_width:
+            current = test
+        else:
+            if current:
+                lines.append(current)
+            current = word
+
+    if current:
+        lines.append(current)
+
+    return lines
+
+
+def create_news_image(article, number, output_file):
     canvas = Image.new(
         "RGB",
-        (width, height),
-        "#071a35"
+        (WIDTH, HEIGHT),
+        "#07182e"
     )
 
     draw = ImageDraw.Draw(canvas)
 
-    title_font = get_font(35)
-    small_font = get_font(23)
-
+    # Header
     draw.rectangle(
-        (0, 0, width, 95),
+        (0, 0, WIDTH, 125),
+        fill="#b51225"
+    )
+
+    header_font = get_font(48, True)
+
+    draw.text(
+        (65, 28),
+        "I LOVE CHITWAN  |  DAILY NEWS",
+        font=header_font,
+        fill="white"
+    )
+
+    # News photo
+    photo = download_image(
+        article.get("image_url", "")
+    )
+
+    if photo:
+        photo.thumbnail((850, 790))
+
+        px = 65 + (850 - photo.width) // 2
+        py = 165 + (790 - photo.height) // 2
+
+        canvas.paste(photo, (px, py))
+    else:
+        draw.rectangle(
+            (65, 165, 915, 955),
+            fill="#183454"
+        )
+
+        draw.text(
+            (180, 520),
+            "NEWS PHOTO UNAVAILABLE",
+            font=get_font(35),
+            fill="white"
+        )
+
+    # Right side text
+    x = 990
+    y = 180
+
+    label_font = get_font(36, True)
+    title_font = get_font(58, True)
+    summary_font = get_font(35)
+
+    draw.text(
+        (x, y),
+        f"मुख्य समाचार  {number}/10",
+        font=label_font,
+        fill="#ffca55"
+    )
+
+    y += 95
+
+    title = clean_text(article.get("title", ""))
+
+    for line in fit_text(
+        draw,
+        title,
+        title_font,
+        850
+    )[:5]:
+
+        draw.text(
+            (x, y),
+            line,
+            font=title_font,
+            fill="white"
+        )
+        y += 78
+
+    y += 35
+
+    description = clean_text(
+        article.get("description", "")
+    )
+
+    # Summary: 2-3 short lines
+    summary = description[:320]
+
+    for line in fit_text(
+        draw,
+        summary,
+        summary_font,
+        850
+    )[:5]:
+
+        draw.text(
+            (x, y),
+            line,
+            font=summary_font,
+            fill="#d9e5f2"
+        )
+        y += 53
+
+    # Footer
+    draw.rectangle(
+        (0, 1000, WIDTH, HEIGHT),
         fill="#b51225"
     )
 
     draw.text(
-        (30, 22),
-        "I LOVE CHITWAN  |  BREAKING NEWS",
-        font=small_font,
-        fill="white"
-    )
-
-    presenter = Image.open(
-        PRESENTER_FILE
-    ).convert("RGB")
-
-    presenter.thumbnail((660, 500))
-
-    px = (width - presenter.width) // 2
-    canvas.paste(presenter, (px, 110))
-
-    news_image = download_image(
-        article.get("image_url", "")
-    )
-
-    if news_image:
-        news_image.thumbnail((660, 300))
-        nx = (width - news_image.width) // 2
-        canvas.paste(news_image, (nx, 625))
-
-    else:
-        draw.rectangle(
-            (30, 625, 690, 925),
-            fill="#17365d"
-        )
-
-        draw.text(
-            (55, 740),
-            "I LOVE CHITWAN NEWS",
-            font=title_font,
-            fill="white"
-        )
-
-    draw.rectangle(
-        (0, 950, width, 1280),
-        fill="#071a35"
-    )
-
-    title = clean_text(
-        article.get("title", "")
-    )
-
-    words = title.split()
-    lines = []
-    line = ""
-
-    for word in words:
-        test = (line + " " + word).strip()
-
-        if draw.textbbox(
-            (0, 0),
-            test,
-            font=title_font
-        )[2] > 660:
-
-            if line:
-                lines.append(line)
-
-            line = word
-
-        else:
-            line = test
-
-    if line:
-        lines.append(line)
-
-    y = 970
-
-    for line in lines[:3]:
-        draw.text(
-            (30, y),
-            line,
-            font=title_font,
-            fill="#ffd166"
-        )
-        y += 48
-
-    draw.text(
-        (30, 1140),
-        "समाचार प्रस्तुति | I LOVE CHITWAN",
-        font=small_font,
+        (65, 1018),
+        "I LOVE CHITWAN  |  समाचार अपडेट",
+        font=get_font(30, True),
         fill="white"
     )
 
     canvas.save(output_file, quality=95)
 
 
-def build_mp4(image_file, audio_file, output_file):
+def make_segment(image_file, audio_file, output_file):
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
 
     command = [
@@ -484,14 +365,39 @@ def build_mp4(image_file, audio_file, output_file):
         "-loop", "1",
         "-i", str(image_file),
         "-i", str(audio_file),
-        "-vf", "scale=720:1280,format=yuv420p",
+        "-vf", "scale=1920:1080,format=yuv420p",
         "-c:v", "libx264",
         "-preset", "ultrafast",
         "-tune", "stillimage",
+        "-r", "25",
         "-c:a", "aac",
         "-b:a", "128k",
         "-shortest",
-        "-t", str(MAX_VIDEO_SECONDS),
+        "-pix_fmt", "yuv420p",
+        "-movflags", "+faststart",
+        str(output_file)
+    ]
+
+    subprocess.run(command, check=True)
+
+
+def join_segments(segment_files, output_file):
+    ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+
+    list_file = OUTPUT_DIR / "segments.txt"
+
+    with open(list_file, "w", encoding="utf-8") as f:
+        for item in segment_files:
+            path = str(item.resolve()).replace("'", "'\\''")
+            f.write(f"file '{path}'\n")
+
+    command = [
+        ffmpeg,
+        "-y",
+        "-f", "concat",
+        "-safe", "0",
+        "-i", str(list_file),
+        "-c", "copy",
         "-movflags", "+faststart",
         str(output_file)
     ]
@@ -501,153 +407,86 @@ def build_mp4(image_file, audio_file, output_file):
 
 def main():
     if not API_KEY:
+        raise RuntimeError("GEMINI_API_KEY भेटिएन।")
+
+    news_data = load_json(NEWS_FILE, {})
+    articles = news_data.get("articles", [])
+
+    if len(articles) < 10:
         raise RuntimeError(
-            "GEMINI_API_KEY Secret भेटिएन।"
+            f"१० समाचार आवश्यक छन्। अहिले {len(articles)} मात्र भेटिए। "
+            "भिडियो बनाइएन।"
         )
 
-    if not PRESENTER_FILE.exists():
+    articles = articles[:10]
+
+    history = load_json(HISTORY_FILE, {})
+    if history.get("date") == today() and history.get("video_created"):
         raise RuntimeError(
-            "presenter.png फाइल भेटिएन।"
+            "आजको दैनिक भिडियो पहिले नै बनेको छ।"
         )
 
-    news_data = load_json(
-        NEWS_FILE,
-        {}
-    )
+    segment_files = []
 
-    articles = news_data.get(
-        "articles",
-        []
-    )
+    for index, article in enumerate(articles, start=1):
+        print(f"समाचार {index}/10 तयार हुँदैछ...")
 
-    if not articles:
-        raise RuntimeError(
-            "news.json मा समाचार भेटिएन।"
-        )
+        image_file = OUTPUT_DIR / f"story_{index:02d}.jpg"
+        audio_file = OUTPUT_DIR / f"story_{index:02d}.wav"
+        segment_file = OUTPUT_DIR / f"story_{index:02d}.mp4"
 
-    history = load_json(
-        HISTORY_FILE,
-        {}
-    )
-
-    done = set(
-        history.get("published_links", [])
-    )
-
-    daily_count = sum(
-        1 for item in history.get("videos", [])
-        if item.get("date") == today()
-    )
-
-    if daily_count >= MAX_DAILY_VIDEOS:
-        print("आजको २ वटा Reel बनिसक्यो।")
-        return
-
-    # पहिलो प्रकाशित गर्न बाँकी समाचार मात्र छान्ने।
-    selected_article = None
-
-    for article in articles:
-        link = article.get("link", "")
-        title = clean_text(
-            article.get("title", "")
-        )
-
-        if link and title and link not in done:
-            selected_article = article
-            break
-
-    if selected_article is None:
-        print(
-            "प्रकाशित गर्न बाँकी नयाँ समाचार भेटिएन।"
-        )
-        return
-
-    article = selected_article
-    link = article.get("link", "")
-    title = clean_text(
-        article.get("title", "")
-    )
-
-    print("ONE NEWS SELECTED:", title)
-
-    video_number = (
-        len(history.get("videos", [])) + 1
-    )
-
-    safe_name = re.sub(
-        r"[^a-zA-Z0-9_-]",
-        "_",
-        str(video_number)
-    )
-
-    image_file = OUTPUT_DIR / f"news_{safe_name}.jpg"
-    audio_file = OUTPUT_DIR / f"news_{safe_name}.wav"
-    video_file = OUTPUT_DIR / f"news_{safe_name}.mp4"
-
-    # एउटा समाचार मात्र: असफल भए अर्को समाचारमा जाने छैन।
-    try:
-        print("Generating Nepali news script...")
         script = make_script(article)
-
-        print("Generating Aoede voice...")
         generate_voice(script, audio_file)
 
-        print("Creating news video image...")
-        create_video_image(
+        create_news_image(
             article,
-            script,
+            index,
             image_file
         )
 
-        print("Building MP4 video...")
-        build_mp4(
+        make_segment(
             image_file,
             audio_file,
-            video_file
+            segment_file
         )
 
-        if (
-            not video_file.exists()
-            or video_file.stat().st_size == 0
-        ):
-            raise RuntimeError(
-                "MP4 भिडियो फाइल बनेन।"
-            )
+        segment_files.append(segment_file)
 
-        history.setdefault(
-            "videos",
-            []
-        ).append({
-            "date": today(),
-            "title": title,
-            "link": link,
-            "file": str(video_file)
-        })
+    output_file = OUTPUT_DIR / "daily_news.mp4"
 
-        history["published_links"] = list(
-            set(
-                history.get("published_links", [])
-            ) | {link}
+    join_segments(
+        segment_files,
+        output_file
+    )
+
+    if not output_file.exists() or output_file.stat().st_size == 0:
+        raise RuntimeError("अन्तिम भिडियो बनेन।")
+
+    history = {
+        "date": today(),
+        "video_created": True,
+        "file": str(output_file),
+        "news_count": 10,
+        "resolution": "1920x1080"
+    }
+
+    with open(
+        HISTORY_FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+        json.dump(
+            history,
+            f,
+            ensure_ascii=False,
+            indent=2
         )
 
-        save_json(
-            HISTORY_FILE,
-            history
-        )
-
-        print("VIDEO CREATED:", video_file)
-        print("Video generation successful.")
-
-    except Exception as exc:
-        print("VIDEO FAILED:", exc)
-
-        # असफल समाचारलाई history मा राखिँदैन।
-        # अर्को Workflow मा यही समाचार फेरि प्रयास हुनेछ।
-        raise RuntimeError(
-            "यो पटक एउटा समाचारको भिडियो बन्न सकेन। "
-            "अर्को समाचारमा प्रयास गरिएको छैन। "
-            + str(exc)
-        )
+    print("================================")
+    print("१० समाचारको Landscape भिडियो तयार!")
+    print("Resolution: 1920 x 1080")
+    print("Output:", output_file)
+    print("================================")
 
 
 if __name__ == "__main__":
