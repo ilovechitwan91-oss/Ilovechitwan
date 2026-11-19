@@ -5,6 +5,7 @@ import json
 import base64
 import wave
 import subprocess
+import time
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -18,6 +19,7 @@ import imageio_ffmpeg
 # ==========================================
 # I LOVE CHITWAN - DAILY LANDSCAPE NEWS VIDEO
 # 10 NEWS | 1920x1080 | NEPALI VOICE
+# RETRY + FALLBACK + ERROR RECOVERY
 # ==========================================
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
@@ -34,6 +36,9 @@ HISTORY_FILE = Path("video_history.json")
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
 WIDTH = 1920
 HEIGHT = 1080
+
+MAX_RETRIES = 3
+API_TIMEOUT = (20, 180)
 
 OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -55,24 +60,92 @@ def clean_text(value):
     return re.sub(r"\s+", " ", value).strip()
 
 
-def gemini_request(url, payload, timeout=120):
-    response = requests.post(
-        url,
-        params={"key": API_KEY},
-        json=payload,
-        timeout=timeout
+# ==========================================
+# GEMINI API WITH AUTOMATIC RETRY
+# ==========================================
+
+def gemini_request(url, payload, timeout=API_TIMEOUT):
+
+    last_error = None
+
+    for attempt in range(1, MAX_RETRIES + 1):
+
+        try:
+            response = requests.post(
+                url,
+                params={"key": API_KEY},
+                json=payload,
+                timeout=timeout
+            )
+
+            if response.status_code == 429 or response.status_code >= 500:
+                raise RuntimeError(
+                    f"Gemini temporary error "
+                    f"{response.status_code}: {response.text[:500]}"
+                )
+
+            if not response.ok:
+                raise RuntimeError(
+                    f"Gemini API Error {response.status_code}: "
+                    f"{response.text[:1000]}"
+                )
+
+            return response.json()
+
+        except (requests.exceptions.Timeout,
+                requests.exceptions.ConnectionError,
+                RuntimeError) as exc:
+
+            last_error = exc
+
+            print(
+                f"Gemini प्रयास {attempt}/{MAX_RETRIES} असफल:",
+                str(exc)[:300]
+            )
+
+            if attempt < MAX_RETRIES:
+                wait_time = 5 * (2 ** (attempt - 1))
+                print(f"{wait_time} सेकेन्डपछि पुनः प्रयास...")
+                time.sleep(wait_time)
+
+        except Exception as exc:
+            last_error = exc
+            break
+
+    raise RuntimeError(
+        f"Gemini API लगातार असफल भयो: {last_error}"
     )
 
-    if not response.ok:
-        raise RuntimeError(
-            f"Gemini API Error {response.status_code}: "
-            f"{response.text[:1000]}"
-        )
 
-    return response.json()
+# ==========================================
+# AUTOMATIC NEPALI SCRIPT FALLBACK
+# ==========================================
 
+def fallback_script(article):
+
+    title = clean_text(article.get("title", ""))
+    description = clean_text(article.get("description", ""))
+
+    if not title:
+        title = "आजको मुख्य समाचार"
+
+    if description:
+        summary = description[:450]
+        return f"{title}। {summary}"
+
+    return (
+        f"{title}। "
+        "यस समाचारसम्बन्धी थप विवरण प्राप्त भएपछि "
+        "हामी तपाईंलाई जानकारी गराउनेछौँ।"
+    )
+
+
+# ==========================================
+# MAKE NEWS SCRIPT
+# ==========================================
 
 def make_script(article):
+
     title = clean_text(article.get("title", ""))
     description = clean_text(
         article.get("description", "")
@@ -101,32 +174,52 @@ def make_script(article):
         f"models/{TEXT_MODEL}:generateContent"
     )
 
-    data = gemini_request(
-        url,
-        {
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }]
-        }
-    )
+    try:
 
-    parts = data.get("candidates", [{}])[0].get(
-        "content", {}
-    ).get("parts", [])
+        data = gemini_request(
+            url,
+            {
+                "contents": [{
+                    "parts": [{"text": prompt}]
+                }]
+            }
+        )
 
-    script = " ".join(
-        p.get("text", "")
-        for p in parts
-        if p.get("text")
-    ).strip()
+        parts = data.get("candidates", [{}])[0].get(
+            "content", {}
+        ).get("parts", [])
 
-    if not script:
-        raise RuntimeError("समाचार स्क्रिप्ट बनेन।")
+        script = " ".join(
+            p.get("text", "")
+            for p in parts
+            if p.get("text")
+        ).strip()
 
-    return script
+        if script:
+            print("Gemini समाचार स्क्रिप्ट सफल भयो।")
+            return script
 
+        raise RuntimeError("Gemini बाट खाली स्क्रिप्ट आयो।")
+
+    except Exception as exc:
+
+        print("स्क्रिप्ट निर्माण असफल:", str(exc)[:300])
+        print("Fallback नेपाली स्क्रिप्ट प्रयोग हुँदैछ...")
+
+        script = fallback_script(article)
+
+        if not script.strip():
+            raise RuntimeError("Fallback स्क्रिप्ट पनि बनेन।")
+
+        return script
+
+
+# ==========================================
+# GENERATE NEPALI VOICE
+# ==========================================
 
 def generate_voice(text, output_file):
+
     url = (
         "https://generativelanguage.googleapis.com/v1beta/"
         f"models/{TTS_MODEL}:generateContent"
@@ -156,6 +249,7 @@ def generate_voice(text, output_file):
     for part in data.get("candidates", [{}])[0].get(
         "content", {}
     ).get("parts", []):
+
         if "inlineData" in part:
             audio_part = part["inlineData"]
             break
@@ -171,8 +265,16 @@ def generate_voice(text, output_file):
         wav.setframerate(24000)
         wav.writeframes(raw_audio)
 
+    if not output_file.exists() or output_file.stat().st_size < 100:
+        raise RuntimeError("अडियो फाइल सही बनेन।")
+
+
+# ==========================================
+# FONTS
+# ==========================================
 
 def get_font(size, bold=False):
+
     candidates = [
         "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf"
         if bold else
@@ -183,22 +285,30 @@ def get_font(size, bold=False):
     ]
 
     for path in candidates:
+
         if os.path.exists(path):
             return ImageFont.truetype(path, size)
 
     return ImageFont.load_default()
 
 
+# ==========================================
+# DOWNLOAD NEWS PHOTO
+# ==========================================
+
 def download_image(url):
+
     if not url:
         return None
 
     try:
+
         response = requests.get(
             url,
             timeout=30,
             headers={"User-Agent": "Mozilla/5.0"}
         )
+
         response.raise_for_status()
 
         image = Image.open(
@@ -208,23 +318,33 @@ def download_image(url):
         return image
 
     except Exception as exc:
+
         print("Photo download failed:", exc)
         return None
 
 
+# ==========================================
+# TEXT FITTING
+# ==========================================
+
 def fit_text(draw, text, font, max_width):
+
     words = clean_text(text).split()
     lines = []
     current = ""
 
     for word in words:
+
         test = (current + " " + word).strip()
 
         if draw.textbbox((0, 0), test, font=font)[2] <= max_width:
             current = test
+
         else:
+
             if current:
                 lines.append(current)
+
             current = word
 
     if current:
@@ -233,7 +353,12 @@ def fit_text(draw, text, font, max_width):
     return lines
 
 
+# ==========================================
+# CREATE NEWS IMAGE
+# ==========================================
+
 def create_news_image(article, number, output_file):
+
     canvas = Image.new(
         "RGB",
         (WIDTH, HEIGHT),
@@ -242,7 +367,6 @@ def create_news_image(article, number, output_file):
 
     draw = ImageDraw.Draw(canvas)
 
-    # Header
     draw.rectangle(
         (0, 0, WIDTH, 125),
         fill="#b51225"
@@ -257,19 +381,21 @@ def create_news_image(article, number, output_file):
         fill="white"
     )
 
-    # News photo
     photo = download_image(
         article.get("image_url", "")
     )
 
     if photo:
+
         photo.thumbnail((850, 790))
 
         px = 65 + (850 - photo.width) // 2
         py = 165 + (790 - photo.height) // 2
 
         canvas.paste(photo, (px, py))
+
     else:
+
         draw.rectangle(
             (65, 165, 915, 955),
             fill="#183454"
@@ -282,7 +408,6 @@ def create_news_image(article, number, output_file):
             fill="white"
         )
 
-    # Right side text
     x = 990
     y = 180
 
@@ -314,6 +439,7 @@ def create_news_image(article, number, output_file):
             font=title_font,
             fill="white"
         )
+
         y += 78
 
     y += 35
@@ -322,7 +448,6 @@ def create_news_image(article, number, output_file):
         article.get("description", "")
     )
 
-    # Summary: 2-3 short lines
     summary = description[:320]
 
     for line in fit_text(
@@ -338,9 +463,9 @@ def create_news_image(article, number, output_file):
             font=summary_font,
             fill="#d9e5f2"
         )
+
         y += 53
 
-    # Footer
     draw.rectangle(
         (0, 1000, WIDTH, HEIGHT),
         fill="#b51225"
@@ -356,7 +481,12 @@ def create_news_image(article, number, output_file):
     canvas.save(output_file, quality=95)
 
 
+# ==========================================
+# MAKE VIDEO SEGMENT
+# ==========================================
+
 def make_segment(image_file, audio_file, output_file):
+
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
 
     command = [
@@ -380,15 +510,29 @@ def make_segment(image_file, audio_file, output_file):
 
     subprocess.run(command, check=True)
 
+    if not output_file.exists() or output_file.stat().st_size == 0:
+        raise RuntimeError("भिडियो सेग्मेन्ट बनेन।")
+
+
+# ==========================================
+# JOIN ALL SUCCESSFUL SEGMENTS
+# ==========================================
 
 def join_segments(segment_files, output_file):
+
+    if not segment_files:
+        raise RuntimeError("जोड्नका लागि भिडियो छैन।")
+
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
 
     list_file = OUTPUT_DIR / "segments.txt"
 
     with open(list_file, "w", encoding="utf-8") as f:
+
         for item in segment_files:
+
             path = str(item.resolve()).replace("'", "'\\''")
+
             f.write(f"file '{path}'\n")
 
     command = [
@@ -405,7 +549,12 @@ def join_segments(segment_files, output_file):
     subprocess.run(command, check=True)
 
 
+# ==========================================
+# MAIN AUTOMATION
+# ==========================================
+
 def main():
+
     if not API_KEY:
         raise RuntimeError("GEMINI_API_KEY भेटिएन।")
 
@@ -413,60 +562,106 @@ def main():
     articles = news_data.get("articles", [])
 
     if len(articles) < 10:
+
         raise RuntimeError(
-            f"१० समाचार आवश्यक छन्। अहिले {len(articles)} मात्र भेटिए। "
-            "भिडियो बनाइएन।"
+            f"१० समाचार आवश्यक छन्। अहिले {len(articles)} मात्र भेटिए।"
+            " भिडियो बनाइएन।"
         )
 
     articles = articles[:10]
 
     history = load_json(HISTORY_FILE, {})
+
     if history.get("date") == today() and history.get("video_created"):
+
         raise RuntimeError(
             "आजको दैनिक भिडियो पहिले नै बनेको छ।"
         )
 
     segment_files = []
+    failed_news = []
 
     for index, article in enumerate(articles, start=1):
+
+        print("")
+        print("================================")
         print(f"समाचार {index}/10 तयार हुँदैछ...")
+        print("================================")
 
         image_file = OUTPUT_DIR / f"story_{index:02d}.jpg"
         audio_file = OUTPUT_DIR / f"story_{index:02d}.wav"
         segment_file = OUTPUT_DIR / f"story_{index:02d}.mp4"
 
-        script = make_script(article)
-        generate_voice(script, audio_file)
+        try:
 
-        create_news_image(
-            article,
-            index,
-            image_file
+            # Step 1: Generate script
+            script = make_script(article)
+
+            # Step 2: Generate Nepali voice
+            generate_voice(script, audio_file)
+
+            # Step 3: Create news image
+            create_news_image(
+                article,
+                index,
+                image_file
+            )
+
+            # Step 4: Make video
+            make_segment(
+                image_file,
+                audio_file,
+                segment_file
+            )
+
+            segment_files.append(segment_file)
+
+            print(f"समाचार {index} सफल भयो!")
+
+        except Exception as exc:
+
+            failed_news.append(index)
+
+            print(
+                f"समाचार {index} मा समस्या आयो:",
+                str(exc)[:500]
+            )
+
+            print("अब अर्को समाचार निर्माण हुँदैछ...")
+
+            continue
+
+    print("")
+    print("================================")
+    print("समाचार निर्माण समाप्त")
+    print("सफल:", len(segment_files), "/ 10")
+    print("असफल:", len(failed_news), "/ 10")
+    print("================================")
+
+    if not segment_files:
+
+        raise RuntimeError(
+            "१० वटै समाचारको भिडियो निर्माण असफल भयो।"
         )
-
-        make_segment(
-            image_file,
-            audio_file,
-            segment_file
-        )
-
-        segment_files.append(segment_file)
 
     output_file = OUTPUT_DIR / "daily_news.mp4"
 
+    # Join successful segments only
     join_segments(
         segment_files,
         output_file
     )
 
     if not output_file.exists() or output_file.stat().st_size == 0:
+
         raise RuntimeError("अन्तिम भिडियो बनेन।")
 
     history = {
         "date": today(),
         "video_created": True,
         "file": str(output_file),
-        "news_count": 10,
+        "news_count": len(segment_files),
+        "failed_news": failed_news,
         "resolution": "1920x1080"
     }
 
@@ -475,6 +670,7 @@ def main():
         "w",
         encoding="utf-8"
     ) as f:
+
         json.dump(
             history,
             f,
@@ -482,8 +678,11 @@ def main():
             indent=2
         )
 
+    print("")
     print("================================")
-    print("१० समाचारको Landscape भिडियो तयार!")
+    print("DAILY NEWS VIDEO READY!")
+    print("सफल समाचार:", len(segment_files))
+    print("असफल समाचार:", len(failed_news))
     print("Resolution: 1920 x 1080")
     print("Output:", output_file)
     print("================================")
