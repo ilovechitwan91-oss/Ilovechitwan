@@ -1,20 +1,8 @@
 {
-  "videos": [
-    {
-      "date": "2026-11-18",
-      "title": "फास्ट ट्र्याककाे महादेवटार सुरुङकाे `ब्रेक थ्रु´ आज",
-      "link": "https://www.onlinekhabar.com/2026/11/2059976/fast-tracks-mahadevtar-tunnel-breakthrough-today",
-      "file": "news_videos/news_1.mp4"
-    },
-    {
-      "date": "2026-11-18",
-      "title": "काठमान्डुलाई हराउँदै चितवन दोस्रो क्वालिफायरमा, फाइनल पुग्न सुदूरपश्चिमसँग खेल्ने",
-      "link": "https://www.onlinekhabar.com/2026/11/2060647/chitwan-defeats-kathmandu-to-advance-to-second-qualifier-will-play-sudurpaschim-to-reach-final",
-      "file": "news_videos/news_2.mp4"
-    }
-  ],
-  "published_links": [
-    "https://www.onlinekhabar.com/2026/11/2059976/fast-tracks-mahadevtar-tunnel-breakthrough-today",
-    "https://www.onlinekhabar.com/2026/11/2060647/chitwan-defeats-kathmandu-to-advance-to-second-qualifier-will-play-sudurpaschim-to-reach-final"
-  ]
+  "date": "2026-11-19",
+  "video_created": true,
+  "file": "news_videos/daily_news.mp4",
+  "news_count": 10,
+  "failed_news": [],
+  "resolution": "1920x1080"
 }
