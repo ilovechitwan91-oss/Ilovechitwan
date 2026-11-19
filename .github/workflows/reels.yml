@@ -1,80 +1,67 @@
-name: I Love Chitwan Daily Landscape News Video
+
+name: I Love Chitwan Daily News Video
 
 on:
-workflow_dispatch:
-schedule:
-# Nepal time: Every day at 6:30 PM
-- cron: '45 12 * * *'
+  workflow_dispatch:
+  schedule:
+    # Nepal time: Daily at 6:30 PM
+    - cron: '45 12 * * *'
 
 permissions:
-contents: write
+  contents: write
 
 concurrency:
-group: ilovechitwan-daily-news-video
-cancel-in-progress: false
+  group: ilovechitwan-daily-video
+  cancel-in-progress: false
 
 jobs:
-create-and-publish-video:
-runs-on: ubuntu-latest
+  create-and-publish:
+    runs-on: ubuntu-latest
 
-steps:
-  - name: Checkout repository
-    uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-  - name: Setup Python
-    uses: actions/setup-python@v5
-    with:
-      python-version: '3.11'
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-  - name: Install dependencies
-    run: |
-      sudo apt-get update
-      sudo apt-get install -y ffmpeg fonts-noto-core
-      pip install -r requirements.txt
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-noto-extra
 
-  - name: Collect 10 news stories
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-    run: python main_reels.py
+      - name: Install Python packages
+        run: |
+          pip install -r requirements.txt
+          pip install pillow requests numpy
 
-  - name: Generate Landscape News Video
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-    run: python make_video.py
+      - name: Remove old video
+        run: |
+          rm -f news_videos/daily_news.mp4
 
-  - name: Publish video to Facebook Page
-    env:
-      FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
-      FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
-    run: |
-      if [ -f news_videos/daily_news.mp4 ]; then
-        python publish_reel.py
-      else
-        echo "No video generated. Skipping publish."
-      fi
+      - name: Collect daily news
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: python main_reels.py
 
-  - name: Save video history
-    run: |
-      if [ -f video_history.json ]; then
-        git config user.name "News Bot"
-        git config user.email "news-bot@users.noreply.github.com"
-        git add video_history.json
-        if ! git diff --cached --quiet; then
-          git commit -m "Update daily news video history"
-          git pull --rebase origin main
-          git push origin main
-        fi
-      fi
+      - name: Create landscape news video
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python make_video.py
 
-  - name: Save generated video artifact
-    if: always()
-    uses: actions/upload-artifact@v4
-    with:
-      name: ilovechitwan-daily-landscape-news
-      path: news_videos/*.mp4
-      if-no-files-found: ignore
-      retention-days: 3
+      - name: Publish video to Facebook Page
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+        run: python publish_reel.py
+
+      - name: Save video history
+        run: |
+          git config user.name "News Bot"
+          git config user.email "newsbot@users.noreply.github.com"
+          git add video_history.json
+          git diff --cached --quiet || git commit -m "Update daily video history"
+          git push
