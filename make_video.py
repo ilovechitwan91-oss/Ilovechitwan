@@ -6,6 +6,7 @@ import base64
 import wave
 import subprocess
 import time
+import math
 from pathlib import Path
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -17,25 +18,30 @@ import imageio_ffmpeg
 
 
 # ==========================================
-# I LOVE CHITWAN - DAILY LANDSCAPE NEWS VIDEO
-# 10 NEWS | 1920x1080 | NEPALI VOICE
-# RETRY + FALLBACK + ERROR RECOVERY
+# I LOVE CHITWAN REELS
+# 1080 x 1080 SQUARE NEWS VIDEO
+# CRUZ MALE PROFESSIONAL VOICE
+# PHOTO PAN + ZOOM + HEADLINE ANIMATION
+# NEWS TRANSITION + COMPLETE SENTENCES
 # ==========================================
 
 API_KEY = os.getenv("GEMINI_API_KEY", "")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 
 TEXT_MODEL = "gemini-3.8-flash"
 TTS_MODEL = "gemini-3.8-flash-lite-tts"
-VOICE_NAME = "Aoede"
+
+# SAME VOICE FOR EVERY NEWS
+VOICE_NAME = "Cruz"
 
 NEWS_FILE = Path("news_reels.json")
 OUTPUT_DIR = Path("news_videos")
 HISTORY_FILE = Path("video_history.json")
 
 NEPAL_TZ = ZoneInfo("Asia/Kathmandu")
-WIDTH = 1920
+
+WIDTH = 1080
 HEIGHT = 1080
+FPS = 25
 
 MAX_RETRIES = 3
 API_TIMEOUT = (20, 180)
@@ -43,48 +49,82 @@ API_TIMEOUT = (20, 180)
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 
+# ==========================================
+# BASIC FUNCTIONS
+# ==========================================
+
 def today():
     return datetime.now(NEPAL_TZ).strftime("%Y-%m-%d")
 
 
 def load_json(path, default):
+
     try:
         with open(path, "r", encoding="utf-8") as f:
             return json.load(f)
+
     except Exception:
         return default
 
 
 def clean_text(value):
+
     value = re.sub(r"<[^>]+>", " ", str(value or ""))
+
     return re.sub(r"\s+", " ", value).strip()
 
 
+def run_ffmpeg(command):
+
+    result = subprocess.run(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    if result.returncode != 0:
+
+        raise RuntimeError(
+            "FFmpeg error: " + result.stderr[-2500:]
+        )
+
+
+def audio_duration(audio_file):
+
+    with wave.open(str(audio_file), "rb") as wav:
+
+        return wav.getnframes() / wav.getframerate()
+
+
 # ==========================================
-# GEMINI API WITH AUTOMATIC RETRY
+# GEMINI API
 # ==========================================
 
-def gemini_request(url, payload, timeout=API_TIMEOUT):
+def gemini_request(url, payload):
 
     last_error = None
 
     for attempt in range(1, MAX_RETRIES + 1):
 
         try:
+
             response = requests.post(
                 url,
                 params={"key": API_KEY},
                 json=payload,
-                timeout=timeout
+                timeout=API_TIMEOUT
             )
 
             if response.status_code == 429 or response.status_code >= 500:
+
                 raise RuntimeError(
-                    f"Gemini temporary error "
-                    f"{response.status_code}: {response.text[:500]}"
+                    f"Gemini error {response.status_code}: "
+                    f"{response.text[:500]}"
                 )
 
             if not response.ok:
+
                 raise RuntimeError(
                     f"Gemini API Error {response.status_code}: "
                     f"{response.text[:1000]}"
@@ -92,52 +132,86 @@ def gemini_request(url, payload, timeout=API_TIMEOUT):
 
             return response.json()
 
-        except (requests.exceptions.Timeout,
-                requests.exceptions.ConnectionError,
-                RuntimeError) as exc:
+        except (
+            requests.exceptions.Timeout,
+            requests.exceptions.ConnectionError,
+            RuntimeError
+        ) as exc:
 
             last_error = exc
 
             print(
-                f"Gemini प्रयास {attempt}/{MAX_RETRIES} असफल:",
+                f"Gemini retry {attempt}/{MAX_RETRIES}:",
                 str(exc)[:300]
             )
 
             if attempt < MAX_RETRIES:
-                wait_time = 5 * (2 ** (attempt - 1))
-                print(f"{wait_time} सेकेन्डपछि पुनः प्रयास...")
-                time.sleep(wait_time)
 
-        except Exception as exc:
-            last_error = exc
-            break
+                time.sleep(5 * (2 ** (attempt - 1)))
 
-    raise RuntimeError(
-        f"Gemini API लगातार असफल भयो: {last_error}"
-    )
+    raise RuntimeError(str(last_error))
 
 
 # ==========================================
-# AUTOMATIC NEPALI SCRIPT FALLBACK
+# COMPLETE SENTENCE HANDLING
 # ==========================================
+
+def complete_script(text):
+
+    text = clean_text(text)
+
+    if not text:
+        return ""
+
+    # Remove unwanted quotation marks
+    text = text.strip(" \"'“”")
+
+    # Ensure the final sentence has punctuation.
+    if not re.search(r"[।!?…]$", text):
+
+        text += "।"
+
+    return text
+
 
 def fallback_script(article):
 
     title = clean_text(article.get("title", ""))
-    description = clean_text(article.get("description", ""))
+
+    description = clean_text(
+        article.get("description", "")
+    )
 
     if not title:
         title = "आजको मुख्य समाचार"
 
-    if description:
-        summary = description[:450]
-        return f"{title}। {summary}"
-
-    return (
-        f"{title}। "
-        "यस समाचारसम्बन्धी थप विवरण प्राप्त भएपछि "
-        "हामी तपाईंलाई जानकारी गराउनेछौँ।"
+    # Keep complete sentences only.
+    sentences = re.split(
+        r"(?<=[।!?])\s+",
+        description
     )
+
+    valid = []
+
+    for sentence in sentences:
+
+        sentence = clean_text(sentence)
+
+        if len(sentence) > 15:
+
+            if re.search(r"[।!?]$", sentence):
+                valid.append(sentence)
+
+        if len(valid) >= 2:
+            break
+
+    if valid:
+
+        return complete_script(
+            title + "। " + " ".join(valid)
+        )
+
+    return complete_script(title)
 
 
 # ==========================================
@@ -147,6 +221,7 @@ def fallback_script(article):
 def make_script(article):
 
     title = clean_text(article.get("title", ""))
+
     description = clean_text(
         article.get("description", "")
     )
@@ -154,19 +229,28 @@ def make_script(article):
     prompt = f"""
 तपाईं नेपाली टेलिभिजनका अनुभवी समाचार वाचक हुनुहुन्छ।
 
-तलको समाचारका आधारमा छोटो नेपाली समाचार वाचन तयार गर्नुहोस्।
+तलको समाचारलाई प्राकृतिक नेपाली समाचार वाचनमा बदल्नुहोस्।
 
-शीर्षक: {title}
-विवरण: {description[:2500]}
+शीर्षक:
+{title}
+
+विवरण:
+{description[:2500]}
 
 नियम:
-- उपलब्ध समाचारका तथ्य मात्र प्रयोग गर्नुहोस्।
-- नयाँ तथ्य वा अनुमान नथप्नुहोस्।
-- सरल र स्वाभाविक नेपाली बोल्नुहोस्।
-- शीर्षकबाट सुरु गर्नुहोस्।
-- त्यसपछि मुख्य विवरण २ देखि ३ वाक्यमा दिनुहोस्।
-- २० देखि ३० सेकेन्डभित्र पढ्न मिल्ने बनाउनुहोस्।
-- ह्यासट्याग वा निर्देशन नलेख्नुहोस्।
+
+1. समाचारको शीर्षकबाट सुरु गर्नुहोस्।
+2. मुख्य विवरण २ देखि ३ पूरा वाक्यमा प्रस्तुत गर्नुहोस्।
+3. प्रत्येक वाक्य व्याकरणिक रूपमा पूरा हुनुपर्छ।
+4. अन्तिम वाक्य पनि पूरा हुनुपर्छ।
+5. बीचमा अधुरो वाक्य नराख्नुहोस्।
+6. उपलब्ध तथ्य मात्र प्रयोग गर्नुहोस्।
+7. अनुमान वा नयाँ तथ्य नथप्नुहोस्।
+8. सरल, स्पष्ट र स्वाभाविक नेपाली बोल्नुहोस्।
+9. हरेक समाचारलाई स्वतन्त्र रूपमा प्रस्तुत गर्नुहोस्।
+10. ह्यासट्याग, Subtitle वा निर्देशन नलेख्नुहोस्।
+
+समाचार वाचनको पाठ मात्र दिनुहोस्।
 """
 
     url = (
@@ -185,7 +269,9 @@ def make_script(article):
             }
         )
 
-        parts = data.get("candidates", [{}])[0].get(
+        parts = data.get(
+            "candidates", [{}]
+        )[0].get(
             "content", {}
         ).get("parts", [])
 
@@ -193,29 +279,27 @@ def make_script(article):
             p.get("text", "")
             for p in parts
             if p.get("text")
-        ).strip()
+        )
+
+        script = complete_script(script)
 
         if script:
-            print("Gemini समाचार स्क्रिप्ट सफल भयो।")
+
+            print("Complete news script ready.")
+
             return script
 
-        raise RuntimeError("Gemini बाट खाली स्क्रिप्ट आयो।")
+        raise RuntimeError("Empty script")
 
     except Exception as exc:
 
-        print("स्क्रिप्ट निर्माण असफल:", str(exc)[:300])
-        print("Fallback नेपाली स्क्रिप्ट प्रयोग हुँदैछ...")
+        print("Script fallback:", str(exc)[:300])
 
-        script = fallback_script(article)
-
-        if not script.strip():
-            raise RuntimeError("Fallback स्क्रिप्ट पनि बनेन।")
-
-        return script
+        return fallback_script(article)
 
 
 # ==========================================
-# GENERATE NEPALI VOICE
+# GENERATE SAME CRUZ MALE VOICE
 # ==========================================
 
 def generate_voice(text, output_file):
@@ -229,7 +313,9 @@ def generate_voice(text, output_file):
         url,
         {
             "contents": [{
-                "parts": [{"text": text}]
+                "parts": [{
+                    "text": text
+                }]
             }],
             "generationConfig": {
                 "responseModalities": ["AUDIO"],
@@ -246,47 +332,71 @@ def generate_voice(text, output_file):
 
     audio_part = None
 
-    for part in data.get("candidates", [{}])[0].get(
+    for part in data.get(
+        "candidates", [{}]
+    )[0].get(
         "content", {}
     ).get("parts", []):
 
         if "inlineData" in part:
+
             audio_part = part["inlineData"]
+
             break
 
     if not audio_part:
-        raise RuntimeError("Gemini ले आवाज पठाएन।")
 
-    raw_audio = base64.b64decode(audio_part["data"])
+        raise RuntimeError(
+            "Cruz voice audio प्राप्त भएन।"
+        )
+
+    raw_audio = base64.b64decode(
+        audio_part["data"]
+    )
 
     with wave.open(str(output_file), "wb") as wav:
+
         wav.setnchannels(1)
         wav.setsampwidth(2)
         wav.setframerate(24000)
+
         wav.writeframes(raw_audio)
 
     if not output_file.exists() or output_file.stat().st_size < 100:
-        raise RuntimeError("अडियो फाइल सही बनेन।")
+
+        raise RuntimeError("Invalid voice audio")
+
+    print(
+        "Voice ready:",
+        VOICE_NAME,
+        round(audio_duration(output_file), 2),
+        "seconds"
+    )
 
 
 # ==========================================
-# FONTS
+# FONT
 # ==========================================
 
 def get_font(size, bold=False):
 
     candidates = [
+
         "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Bold.ttf"
         if bold else
         "/usr/share/fonts/truetype/noto/NotoSansDevanagari-Regular.ttf",
 
+        "/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Bold.ttf"
+        if bold else
         "/usr/share/fonts/truetype/noto/NotoSansDevanagariUI-Regular.ttf",
+
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
     ]
 
     for path in candidates:
 
         if os.path.exists(path):
+
             return ImageFont.truetype(path, size)
 
     return ImageFont.load_default()
@@ -306,30 +416,76 @@ def download_image(url):
         response = requests.get(
             url,
             timeout=30,
-            headers={"User-Agent": "Mozilla/5.0"}
+            headers={
+                "User-Agent": "Mozilla/5.0"
+            }
         )
 
         response.raise_for_status()
 
-        image = Image.open(
+        return Image.open(
             BytesIO(response.content)
         ).convert("RGB")
 
-        return image
-
     except Exception as exc:
 
-        print("Photo download failed:", exc)
+        print("Photo error:", exc)
+
         return None
 
 
 # ==========================================
-# TEXT FITTING
+# CROP PHOTO TO SQUARE
+# ==========================================
+
+def square_photo(photo):
+
+    if photo is None:
+
+        photo = Image.new(
+            "RGB",
+            (WIDTH, HEIGHT),
+            "#18243a"
+        )
+
+    w, h = photo.size
+
+    ratio = max(
+        WIDTH / w,
+        HEIGHT / h
+    )
+
+    new_size = (
+        int(w * ratio),
+        int(h * ratio)
+    )
+
+    photo = photo.resize(
+        new_size,
+        Image.Resampling.LANCZOS
+    )
+
+    left = (photo.width - WIDTH) // 2
+    top = (photo.height - HEIGHT) // 2
+
+    photo = photo.crop((
+        left,
+        top,
+        left + WIDTH,
+        top + HEIGHT
+    ))
+
+    return photo
+
+
+# ==========================================
+# HEADLINE WRAPPING
 # ==========================================
 
 def fit_text(draw, text, font, max_width):
 
     words = clean_text(text).split()
+
     lines = []
     current = ""
 
@@ -337,7 +493,14 @@ def fit_text(draw, text, font, max_width):
 
         test = (current + " " + word).strip()
 
-        if draw.textbbox((0, 0), test, font=font)[2] <= max_width:
+        bbox = draw.textbbox(
+            (0, 0),
+            test,
+            font=font
+        )
+
+        if bbox[2] <= max_width:
+
             current = test
 
         else:
@@ -354,199 +517,359 @@ def fit_text(draw, text, font, max_width):
 
 
 # ==========================================
-# CREATE NEWS IMAGE
+# CREATE PHOTO + HEADLINE LAYER
 # ==========================================
 
-def create_news_image(article, number, output_file):
-
-    canvas = Image.new(
-        "RGB",
-        (WIDTH, HEIGHT),
-        "#07182e"
-    )
-
-    draw = ImageDraw.Draw(canvas)
-
-    draw.rectangle(
-        (0, 0, WIDTH, 125),
-        fill="#b51225"
-    )
-
-    header_font = get_font(48, True)
-
-    draw.text(
-        (65, 28),
-        "I LOVE CHITWAN  |  DAILY NEWS",
-        font=header_font,
-        fill="white"
-    )
+def create_news_layers(article, number):
 
     photo = download_image(
         article.get("image_url", "")
     )
 
-    if photo:
+    photo = square_photo(photo)
 
-        photo.thumbnail((850, 790))
+    base_file = OUTPUT_DIR / f"base_{number:02d}.jpg"
 
-        px = 65 + (850 - photo.width) // 2
-        py = 165 + (790 - photo.height) // 2
+    overlay_file = OUTPUT_DIR / f"headline_{number:02d}.png"
 
-        canvas.paste(photo, (px, py))
-
-    else:
-
-        draw.rectangle(
-            (65, 165, 915, 955),
-            fill="#183454"
-        )
-
-        draw.text(
-            (180, 520),
-            "NEWS PHOTO UNAVAILABLE",
-            font=get_font(35),
-            fill="white"
-        )
-
-    x = 990
-    y = 180
-
-    label_font = get_font(36, True)
-    title_font = get_font(58, True)
-    summary_font = get_font(35)
-
-    draw.text(
-        (x, y),
-        f"मुख्य समाचार  {number}/10",
-        font=label_font,
-        fill="#ffca55"
+    photo.save(
+        base_file,
+        quality=95
     )
 
-    y += 95
+    # Transparent text layer
+    overlay = Image.new(
+        "RGBA",
+        (WIDTH, HEIGHT),
+        (0, 0, 0, 0)
+    )
 
-    title = clean_text(article.get("title", ""))
+    draw = ImageDraw.Draw(overlay)
 
-    for line in fit_text(
+    # Bottom headline area
+    panel_height = 245
+
+    panel_top = HEIGHT - panel_height
+
+    draw.rectangle(
+        (0, panel_top, WIDTH, HEIGHT),
+        fill=(255, 255, 255, 250)
+    )
+
+    # Red borders
+    draw.rectangle(
+        (0, panel_top, WIDTH, panel_top + 9),
+        fill=(225, 0, 0, 255)
+    )
+
+    draw.rectangle(
+        (0, HEIGHT - 8, WIDTH, HEIGHT),
+        fill=(225, 0, 0, 255)
+    )
+
+    title = clean_text(
+        article.get("title", "")
+    )
+
+    number_text = f"{number}."
+
+    number_font = get_font(58, True)
+
+    title_font = get_font(57, True)
+
+    draw.text(
+        (35, panel_top + 62),
+        number_text,
+        font=number_font,
+        fill="#e00000"
+    )
+
+    number_width = draw.textbbox(
+        (0, 0),
+        number_text,
+        font=number_font
+    )[2]
+
+    lines = fit_text(
         draw,
         title,
         title_font,
-        850
-    )[:5]:
+        WIDTH - number_width - 100
+    )
+
+    # Two lines maximum. Reduce font if needed.
+    if len(lines) > 2:
+
+        title_font = get_font(44, True)
+
+        lines = fit_text(
+            draw,
+            title,
+            title_font,
+            WIDTH - number_width - 100
+        )
+
+    if len(lines) > 2:
+
+        # Keep the complete headline.
+        title_font = get_font(36, True)
+
+        lines = fit_text(
+            draw,
+            title,
+            title_font,
+            WIDTH - number_width - 100
+        )
+
+    y = panel_top + 58
+
+    for line in lines[:2]:
 
         draw.text(
-            (x, y),
+            (number_width + 65, y),
             line,
             font=title_font,
-            fill="white"
+            fill="#d80000"
         )
 
-        y += 78
+        y += 72
 
-    y += 35
+    overlay.save(overlay_file)
 
-    description = clean_text(
-        article.get("description", "")
+    return base_file, overlay_file
+
+
+# ==========================================
+# NEWS TRANSITION GRAPHIC
+# ==========================================
+
+def create_transition_image(output_file):
+
+    image = Image.new(
+        "RGB",
+        (WIDTH, HEIGHT),
+        "#101b30"
     )
 
-    summary = description[:320]
-
-    for line in fit_text(
-        draw,
-        summary,
-        summary_font,
-        850
-    )[:5]:
-
-        draw.text(
-            (x, y),
-            line,
-            font=summary_font,
-            fill="#d9e5f2"
-        )
-
-        y += 53
+    draw = ImageDraw.Draw(image)
 
     draw.rectangle(
-        (0, 1000, WIDTH, HEIGHT),
-        fill="#b51225"
+        (0, 0, WIDTH, 20),
+        fill="#ed1010"
     )
 
+    draw.rectangle(
+        (0, HEIGHT - 20, WIDTH, HEIGHT),
+        fill="#ed1010"
+    )
+
+    title_font = get_font(86, True)
+    small_font = get_font(43, True)
+
+    title = "अर्को समाचार"
+
+    bbox = draw.textbbox(
+        (0, 0),
+        title,
+        font=title_font
+    )
+
+    x = (WIDTH - bbox[2]) // 2
+
     draw.text(
-        (65, 1018),
-        "I LOVE CHITWAN  |  समाचार अपडेट",
-        font=get_font(30, True),
+        (x, 420),
+        title,
+        font=title_font,
         fill="white"
     )
 
-    canvas.save(output_file, quality=95)
+    small = "I LOVE CHITWAN"
+
+    bbox = draw.textbbox(
+        (0, 0),
+        small,
+        font=small_font
+    )
+
+    x = (WIDTH - bbox[2]) // 2
+
+    draw.text(
+        (x, 570),
+        small,
+        font=small_font,
+        fill="#ff3333"
+    )
+
+    image.save(output_file)
 
 
 # ==========================================
-# MAKE VIDEO SEGMENT
+# CREATE ANIMATED VIDEO SEGMENT
 # ==========================================
 
-def make_segment(image_file, audio_file, output_file):
+def make_segment(
+    image_file,
+    overlay_file,
+    audio_file,
+    output_file
+):
 
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
 
+    duration = audio_duration(audio_file)
+
+    # Leave no fixed-length voice cut.
+    duration += 0.15
+
+    frames = math.ceil(duration * FPS)
+
+    filter_complex = (
+        "[0:v]"
+        "zoompan="
+        "z='min(1+on*0.00018,1.055)':"
+        "x='(iw-iw/zoom)*0.5+"
+        "(iw-iw/zoom)*0.35*sin(on/100)':"
+        "y='(ih-ih/zoom)*0.5':"
+        f"d=1:s={WIDTH}x{HEIGHT}:fps={FPS},"
+        "setsar=1"
+        "[bg];"
+
+        "[bg][2:v]"
+        "overlay="
+        "x=0:"
+        "y='if(lt(t,0.35),H-(H-h)*t/0.35,H-h)':"
+        "format=auto,"
+        "fade=t=in:st=0:d=0.20,"
+        "format=yuv420p"
+        "[v]"
+    )
+
     command = [
+
         ffmpeg,
         "-y",
+
         "-loop", "1",
+        "-framerate", str(FPS),
         "-i", str(image_file),
+
         "-i", str(audio_file),
-        "-vf", "scale=1920:1080,format=yuv420p",
+
+        "-loop", "1",
+        "-framerate", str(FPS),
+        "-i", str(overlay_file),
+
+        "-filter_complex",
+        filter_complex,
+
+        "-map", "[v]",
+        "-map", "1:a",
+
+        "-frames:v", str(frames),
+
         "-c:v", "libx264",
         "-preset", "ultrafast",
-        "-tune", "stillimage",
-        "-r", "25",
+        "-crf", "22",
+
         "-c:a", "aac",
-        "-b:a", "128k",
-        "-shortest",
+        "-b:a", "160k",
+
+        "-r", str(FPS),
         "-pix_fmt", "yuv420p",
+
+        "-shortest",
+
         "-movflags", "+faststart",
+
         str(output_file)
     ]
 
-    subprocess.run(command, check=True)
+    run_ffmpeg(command)
 
     if not output_file.exists() or output_file.stat().st_size == 0:
-        raise RuntimeError("भिडियो सेग्मेन्ट बनेन।")
+
+        raise RuntimeError("Video segment failed")
 
 
 # ==========================================
-# JOIN ALL SUCCESSFUL SEGMENTS
+# CREATE NEWS TRANSITION SEGMENT
+# SAME CRUZ VOICE
+# ==========================================
+
+def make_news_transition(index):
+
+    image_file = OUTPUT_DIR / "transition.jpg"
+
+    audio_file = OUTPUT_DIR / f"transition_{index:02d}.wav"
+
+    video_file = OUTPUT_DIR / f"transition_{index:02d}.mp4"
+
+    create_transition_image(image_file)
+
+    # Same male Cruz voice for every transition.
+    generate_voice(
+        "अब अर्को समाचारतर्फ लागौँ।",
+        audio_file
+    )
+
+    make_segment(
+        image_file,
+        image_file,
+        audio_file,
+        video_file
+    )
+
+    return video_file
+
+
+# ==========================================
+# JOIN VIDEOS
 # ==========================================
 
 def join_segments(segment_files, output_file):
 
     if not segment_files:
-        raise RuntimeError("जोड्नका लागि भिडियो छैन।")
+
+        raise RuntimeError("No videos to join")
 
     ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
 
     list_file = OUTPUT_DIR / "segments.txt"
 
-    with open(list_file, "w", encoding="utf-8") as f:
+    with open(
+        list_file,
+        "w",
+        encoding="utf-8"
+    ) as f:
 
         for item in segment_files:
 
-            path = str(item.resolve()).replace("'", "'\\''")
+            path = str(item.resolve()).replace(
+                "'", "'\\''"
+            )
 
-            f.write(f"file '{path}'\n")
+            f.write(
+                f"file '{path}'\n"
+            )
 
     command = [
+
         ffmpeg,
         "-y",
+
         "-f", "concat",
         "-safe", "0",
+
         "-i", str(list_file),
+
         "-c", "copy",
+
         "-movflags", "+faststart",
+
         str(output_file)
     ]
 
-    subprocess.run(command, check=True)
+    run_ffmpeg(command)
 
 
 # ==========================================
@@ -556,113 +879,184 @@ def join_segments(segment_files, output_file):
 def main():
 
     if not API_KEY:
-        raise RuntimeError("GEMINI_API_KEY भेटिएन।")
-
-    news_data = load_json(NEWS_FILE, {})
-    articles = news_data.get("articles", [])
-
-    if len(articles) < 10:
 
         raise RuntimeError(
-            f"१० समाचार आवश्यक छन्। अहिले {len(articles)} मात्र भेटिए।"
-            " भिडियो बनाइएन।"
+            "GEMINI_API_KEY भेटिएन।"
+        )
+
+    news_data = load_json(
+        NEWS_FILE,
+        {}
+    )
+
+    articles = news_data.get(
+        "articles",
+        []
+    )
+
+    if not articles:
+
+        raise RuntimeError(
+            "news_reels.json मा समाचार भेटिएन।"
         )
 
     articles = articles[:10]
 
-    history = load_json(HISTORY_FILE, {})
+    history = load_json(
+        HISTORY_FILE,
+        {}
+    )
 
-    if history.get("date") == today() and history.get("video_created"):
+    if (
+        history.get("date") == today()
+        and history.get("video_created")
+    ):
 
         raise RuntimeError(
-            "आजको दैनिक भिडियो पहिले नै बनेको छ।"
+            "आजको भिडियो पहिले नै बनेको छ।"
         )
 
-    segment_files = []
-    failed_news = []
+    successful = []
 
-    for index, article in enumerate(articles, start=1):
+    failed = []
+
+    # ======================================
+    # STEP 1: GENERATE COMPLETE NEWS
+    # ======================================
+
+    for index, article in enumerate(
+        articles,
+        start=1
+    ):
 
         print("")
-        print("================================")
-        print(f"समाचार {index}/10 तयार हुँदैछ...")
-        print("================================")
-
-        image_file = OUTPUT_DIR / f"story_{index:02d}.jpg"
-        audio_file = OUTPUT_DIR / f"story_{index:02d}.wav"
-        segment_file = OUTPUT_DIR / f"story_{index:02d}.mp4"
+        print("==============================")
+        print(f"NEWS {index}/{len(articles)}")
+        print("==============================")
 
         try:
 
-            # Step 1: Generate script
             script = make_script(article)
 
-            # Step 2: Generate Nepali voice
-            generate_voice(script, audio_file)
+            print("SCRIPT:", script)
 
-            # Step 3: Create news image
-            create_news_image(
+            audio_file = OUTPUT_DIR / f"story_{index:02d}.wav"
+
+            generate_voice(
+                script,
+                audio_file
+            )
+
+            base_file, overlay_file = create_news_layers(
                 article,
-                index,
-                image_file
+                index
             )
 
-            # Step 4: Make video
+            video_file = OUTPUT_DIR / f"story_{index:02d}.mp4"
+
             make_segment(
-                image_file,
+                base_file,
+                overlay_file,
                 audio_file,
-                segment_file
+                video_file
             )
 
-            segment_files.append(segment_file)
+            successful.append(video_file)
 
-            print(f"समाचार {index} सफल भयो!")
+            print(
+                f"NEWS {index} COMPLETE!"
+            )
 
         except Exception as exc:
 
-            failed_news.append(index)
+            failed.append(index)
 
             print(
-                f"समाचार {index} मा समस्या आयो:",
+                f"NEWS {index} FAILED:",
                 str(exc)[:500]
             )
 
-            print("अब अर्को समाचार निर्माण हुँदैछ...")
-
             continue
 
-    print("")
-    print("================================")
-    print("समाचार निर्माण समाप्त")
-    print("सफल:", len(segment_files), "/ 10")
-    print("असफल:", len(failed_news), "/ 10")
-    print("================================")
+    # ======================================
+    # STEP 2: INSERT NEWS TRANSITIONS
+    # ======================================
 
-    if not segment_files:
+    if not successful:
 
         raise RuntimeError(
-            "१० वटै समाचारको भिडियो निर्माण असफल भयो।"
+            "कुनै पनि समाचारको भिडियो बनेन।"
         )
+
+    final_segments = []
+
+    for index, video_file in enumerate(
+        successful,
+        start=1
+    ):
+
+        final_segments.append(video_file)
+
+        if index < len(successful):
+
+            print(
+                "Creating news transition..."
+            )
+
+            transition = make_news_transition(index)
+
+            final_segments.append(transition)
+
+    # ======================================
+    # STEP 3: FINAL VIDEO
+    # ======================================
 
     output_file = OUTPUT_DIR / "daily_news.mp4"
 
-    # Join successful segments only
     join_segments(
-        segment_files,
+        final_segments,
         output_file
     )
 
     if not output_file.exists() or output_file.stat().st_size == 0:
 
-        raise RuntimeError("अन्तिम भिडियो बनेन।")
+        raise RuntimeError(
+            "Final video creation failed"
+        )
+
+    # ======================================
+    # STEP 4: SAVE HISTORY
+    # ======================================
 
     history = {
+
         "date": today(),
+
         "video_created": True,
+
         "file": str(output_file),
-        "news_count": len(segment_files),
-        "failed_news": failed_news,
-        "resolution": "1920x1080"
+
+        "news_count": len(successful),
+
+        "failed_news": failed,
+
+        "resolution": "1080x1080",
+
+        "fps": FPS,
+
+        "voice": VOICE_NAME,
+
+        "voice_style": "Professional Deep Male",
+
+        "subtitle": False,
+
+        "photo_animation": True,
+
+        "headline_animation": True,
+
+        "news_transition": True,
+
+        "complete_sentence": True
     }
 
     with open(
@@ -680,13 +1074,28 @@ def main():
 
     print("")
     print("================================")
-    print("DAILY NEWS VIDEO READY!")
-    print("सफल समाचार:", len(segment_files))
-    print("असफल समाचार:", len(failed_news))
-    print("Resolution: 1920 x 1080")
+    print("I LOVE CHITWAN REELS READY!")
+    print("================================")
+
+    print("Successful:", len(successful))
+
+    print("Failed:", len(failed))
+
+    print("Resolution: 1080 x 1080")
+
+    print("Voice:", VOICE_NAME)
+
+    print("Photo Motion: ON")
+
+    print("Headline Animation: ON")
+
+    print("News Transition: ON")
+
     print("Output:", output_file)
+
     print("================================")
 
 
 if __name__ == "__main__":
+
     main()
