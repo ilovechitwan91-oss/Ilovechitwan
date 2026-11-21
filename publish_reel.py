@@ -8,7 +8,12 @@ API_VERSION = "v27.0"
 PAGE_ID = os.getenv("FB_PAGE_ID")
 PAGE_TOKEN = os.getenv("FB_PAGE_ACCESS_TOKEN")
 
-VIDEO_FILE = Path("news_videos/daily_news.mp4")
+# सम्भावित भिडियो स्थानहरू
+VIDEO_PATHS = [
+    Path("news_videos/daily_news.mp4"),
+    Path("daily_news.mp4"),
+    Path("output/daily_news.mp4"),
+]
 
 TITLE = "आजका १० प्रमुख समाचार | Daily News"
 
@@ -19,18 +24,28 @@ DESCRIPTION = """आजका १० प्रमुख समाचार ए�
 #News #NepalNews #DailyNews #BreakingNews #समाचार
 """
 
+def find_video():
+    for path in VIDEO_PATHS:
+        print("Checking:", path)
+        if path.is_file():
+            print("भिडियो भेटियो:", path)
+            return path
+
+    raise FileNotFoundError(
+        "भिडियो फाइल भेटिएन। जाँच गरिएका स्थानहरू: "
+        + ", ".join(str(p) for p in VIDEO_PATHS)
+    )
+
+
 def main():
     if not PAGE_ID or not PAGE_TOKEN:
         raise RuntimeError(
             "FB_PAGE_ID वा FB_PAGE_ACCESS_TOKEN GitHub Secrets मा भेटिएन।"
         )
 
-    if not VIDEO_FILE.exists():
-        raise FileNotFoundError(
-            f"भिडियो फाइल भेटिएन: {VIDEO_FILE}"
-        )
+    video_file = find_video()
 
-    file_size = VIDEO_FILE.stat().st_size
+    file_size = video_file.stat().st_size
 
     if file_size < 1000:
         raise RuntimeError("भिडियो फाइल खाली वा धेरै सानो छ।")
@@ -50,7 +65,7 @@ def main():
         "published": "true",
     }
 
-    with open(VIDEO_FILE, "rb") as video:
+    with open(video_file, "rb") as video:
         response = requests.post(
             url,
             data=data,
@@ -73,8 +88,7 @@ def main():
 
     if response.status_code != 200 or "id" not in result:
         raise RuntimeError(
-            "Facebook भिडियो पोस्ट असफल भयो: "
-            + str(result)
+            "Facebook भिडियो पोस्ट असफल भयो: " + str(result)
         )
 
     print("भिडियो सफलतापूर्वक Facebook Page मा प्रकाशित भयो!")
