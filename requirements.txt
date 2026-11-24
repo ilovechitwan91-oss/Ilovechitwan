@@ -4,3 +4,4 @@ nepali-datetime>=1.0.8
 edge-tts
 numpy
 imageio-ffmpeg
+feedparser
