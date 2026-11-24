@@ -1,4 +1,3 @@
-
 import json
 import os
 import re
@@ -133,69 +132,114 @@ def api_error(response):
     return error.get("message") or str(result)
 
 
-def publish_photo(page_id, token, image_path, caption):
+def upload_unpublished_photo(page_id, token, image_path):
+    """Step 1: photo upload gara, tara publish nagara (published=false)."""
 
     url = (
         f"https://graph.facebook.com/"
         f"{API_VERSION}/{page_id}/photos"
     )
 
+    with image_path.open("rb") as photo:
+        response = requests.post(
+            url,
+            data={
+                "published": "false",
+                "temporary": "true",
+                "access_token": token,
+            },
+            files={
+                "source": (
+                    image_path.name,
+                    photo,
+                    "image/jpeg"
+                )
+            },
+            timeout=120,
+        )
+
+    try:
+        result = response.json()
+    except Exception:
+        result = {}
+
+    if not response.ok or "error" in result:
+        raise RuntimeError(api_error(response))
+
+    photo_id = result.get("id")
+
+    if not photo_id:
+        raise RuntimeError("Facebook returned no photo ID.")
+
+    return photo_id
+
+
+def create_feed_post(page_id, token, photo_id, caption):
+    """Step 2: /feed ma photo attach garera normal wall post banau."""
+
+    url = (
+        f"https://graph.facebook.com/"
+        f"{API_VERSION}/{page_id}/feed"
+    )
+
+    response = requests.post(
+        url,
+        data={
+            "message": caption,
+            "attached_media[0]": json.dumps(
+                {"media_fbid": photo_id}
+            ),
+            "access_token": token,
+        },
+        timeout=120,
+    )
+
+    try:
+        result = response.json()
+    except Exception:
+        result = {}
+
+    if not response.ok or "error" in result:
+        raise RuntimeError(api_error(response))
+
+    post_id = result.get("id")
+
+    if not post_id:
+        raise RuntimeError("Facebook returned no post ID.")
+
+    return post_id
+
+
+def publish_photo(page_id, token, image_path, caption):
+    """Wall/feed ma dekhine news card post garchha."""
+
     last_error = None
+    photo_id = None
 
     for attempt in range(1, MAX_PHOTO_RETRIES + 1):
 
         try:
             print(
-                f"PHOTO UPLOAD "
+                f"PHOTO POST "
                 f"{attempt}/{MAX_PHOTO_RETRIES}"
             )
 
-            with image_path.open("rb") as photo:
-
-                response = requests.post(
-                    url,
-                    data={
-                        "caption": caption,
-                        "published": "true",
-                        "access_token": token,
-                    },
-                    files={
-                        "source": (
-                            image_path.name,
-                            photo,
-                            "image/jpeg"
-                        )
-                    },
-                    timeout=120,
+            # Photo ek choti matra upload hunchha
+            if not photo_id:
+                photo_id = upload_unpublished_photo(
+                    page_id, token, image_path
                 )
+                print("PHOTO UPLOADED (unpublished):", photo_id)
 
-            result = response.json()
-
-            if not response.ok or "error" in result:
-
-                last_error = api_error(response)
-
-                print("PHOTO ERROR:", last_error)
-
-                if attempt < MAX_PHOTO_RETRIES:
-                    time.sleep(attempt * 5)
-                    continue
-
-                break
-
-            post_id = (
-                result.get("post_id")
-                or result.get("id")
+            post_id = create_feed_post(
+                page_id, token, photo_id, caption
             )
 
-            if post_id:
-                return post_id
-
-            last_error = "Facebook returned no post ID."
+            return post_id
 
         except Exception as exc:
             last_error = str(exc)
-            print("PHOTO REQUEST ERROR:", last_error)
+            print("PHOTO POST ERROR:", last_error)
 
         if attempt < MAX_PHOTO_RETRIES:
             time.sleep(attempt * 5)
