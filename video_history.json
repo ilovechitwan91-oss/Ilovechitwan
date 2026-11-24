@@ -1,8 +1,7 @@
-{
-  "date": "2026-11-20",
-  "video_created": true,
-  "file": "news_videos/daily_news.mp4",
-  "news_count": 10,
-  "failed_news": [],
-  "resolution": "1920x1080"
-}
+
+requests
+Pillow
+numpy
+imageio-ffmpeg
+feedparser
+mutagen
